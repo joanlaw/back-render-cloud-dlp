@@ -20,7 +20,8 @@ const app = express()
 //  next();
 //});
 
-//const whitelist =  ['http://localhost:3000', 'https://duellinks.pro'];
+//const whitelist =  ['http://localhost:3000', 'https://duellinks.pro', ''];
+
 
 app.use(cors())
 app.use(morgan('dev'))
