@@ -29,7 +29,7 @@ app.use(morgan('dev'))
  //   useTempFiles : true,
 //    tempFileDir : './uploads'
 //}))
-//app.use(express.json())
+app.use(express.json())
 app.use(indexRoutes)
 app.use(cartasRoutes)
 
