@@ -1,5 +1,5 @@
 import { truncateSync } from 'fs';
-import Card from '../models/card.model.js'
+import Card from '../models/carden.model.js'
 import { uploadImage, deleteImage } from '../utils/cloudinary.js'
 import fs from 'fs-extra'
 
@@ -69,7 +69,7 @@ export const deleteCardsen = async (req, res) => {
 
   try {
 
-    const cartas = await
+    const cards = await
       Card.findByIdAndDelete(req.params.id)
 
     if (!cards) return res.status(404).json({
