@@ -1,5 +1,5 @@
 import { truncateSync } from 'fs';
-import Carta from '../models/card.model.js'
+import Card from '../models/card.model.js'
 import { uploadImage, deleteImage } from '../utils/cloudinary.js'
 import fs from 'fs-extra'
 
@@ -7,7 +7,7 @@ import fs from 'fs-extra'
 //METODO GET 
 export const getCardsen = async (req, res) => {
   try {
-    const cartas = await Carta.find();
+    const cartas = await Card.find();
     res.json(cartas)
   } catch (error) {
     return res.status(500).json({ message: error.message })
@@ -21,7 +21,7 @@ export const createCardsen = async (req, res) => {
 
     const { nombre, name, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, efecto_pendulo, caja, estructura, selection_box, lote, adicional, fecha_lanzamiento } = req.body
 
-    const cartas = new Carta({
+    const cartas = new Card({
       nombre,
       name,
       tipo_de_carta,
@@ -70,7 +70,7 @@ export const deleteCardsen = async (req, res) => {
   try {
 
     const cartas = await
-      Carta.findByIdAndDelete(req.params.id)
+      Card.findByIdAndDelete(req.params.id)
 
     if (!cartas) return res.status(404).json({
       message: 'La carta no existe'
@@ -95,7 +95,7 @@ export const getCarden = async (req, res) => {
   try {
 
     const cartas = await
-      Carta.findById(req.params.id)
+      Card.findById(req.params.id)
      // Carta.findById(req.params.nombre)
 
     if (!cartas) return res.status(404).json({
@@ -118,7 +118,7 @@ export const updateCardsen = async (req, res) => {
 
     const { id } = req.params;
     const cardsUpdate = await
-      Carta.findByIdAndUpdate(id, req.body, {
+      Card.findByIdAndUpdate(id, req.body, {
         new: true
       })
 

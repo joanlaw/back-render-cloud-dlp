@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const cartaSchema = mongoose.Schema({
+const cardSchema = mongoose.Schema({
   nombre: {
     type: String,
     unique: true,
@@ -101,4 +101,4 @@ const cartaSchema = mongoose.Schema({
   timestamps: true
 })
 
-export default mongoose.model('Carta', cartaSchema)
+export default mongoose.model('Card', cardSchema)
