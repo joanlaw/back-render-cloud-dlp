@@ -1,6 +1,6 @@
 import express from 'express'
 import morgan from 'morgan'
-//import cors from 'cors'
+import cors from 'cors'
 
 
 import indexRoutes from './routes/index.routes.js'
