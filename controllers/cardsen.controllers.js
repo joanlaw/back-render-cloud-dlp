@@ -19,11 +19,11 @@ export const createCardsen = async (req, res) => {
 
   try {
 
-    const { nombre, name, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, efecto_pendulo, caja, estructura, selection_box, lote, adicional, fecha_lanzamiento } = req.body
+    const { nombre, name_english, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, efecto_pendulo, caja, estructura, selection_box, lote, adicional, fecha_lanzamiento } = req.body
 
     const cards = new Card({
       nombre,
-      name,
+      name_english,
       tipo_de_carta,
       atributo,
       tipo,
