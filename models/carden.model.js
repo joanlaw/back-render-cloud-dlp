@@ -3,38 +3,32 @@ import mongoose from 'mongoose'
 const cardSchema = mongoose.Schema({
   nombre: {
     type: String,
-    unique: true,
-   // required: true,
+    //unique: true,
     trim: true
   },
   name_english: {
     type: String,
-    unique: true,
-   // required: true,
+   // unique: true,
     trim: true
   },
   tipo_de_carta: {
     type: String,
-  //  required: true,
     trim: true
   },
   atributo: {
     type: String,
-   // required: true,
     trim: true
   },
   tipo: {
     type: String,
-  //  required: true,
     trim: true
   },
-  tipo_magica_trampa:{
+  tipo_magica_trampa: {
     type: String,
     trim: true
   },
   nivel_rango_link: {
     type: Number,
-  //  required: true,
     trim: true
   },
   escala: {
@@ -51,7 +45,9 @@ const cardSchema = mongoose.Schema({
   },
   image: {
     pubic_id: String,
-    secure_url: String
+    secure_url: {
+      type: String
+    }
   },
   atk: {
     type: Number,
@@ -63,11 +59,10 @@ const cardSchema = mongoose.Schema({
   },
   materiales: {
     type: String,
-    trim:true
+    trim: true
   },
   descripcion: {
     type: String
-    
   },
   efecto_pendulo: {
     type: String,

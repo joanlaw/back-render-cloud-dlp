@@ -15,13 +15,14 @@ export const getCardsen = async (req, res) => {
 }
 
 //METODO POST
+//METODO POST
 export const createCardsen = async (req, res) => {
-
   try {
+    const { nombre, name_english, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, efecto_pendulo, caja, estructura, selection_box, lote, adicional, fecha_lanzamiento } = req.body;
 
-    const { nombre, name_english, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, efecto_pendulo, caja, estructura, selection_box, lote, adicional, fecha_lanzamiento } = req.body
+    const secure_url = `https://res.cloudinary.com/dqofcbeaq/image/upload/v1688597356/dlprocards/${encodeURIComponent(nombre)}.jpg`;
 
-    const cards = new Card({
+    const card = new Card({
       nombre,
       name_english,
       tipo_de_carta,
@@ -42,25 +43,17 @@ export const createCardsen = async (req, res) => {
       selection_box,
       lote,
       adicional,
-      fecha_lanzamiento
-    })
-
-    if (req.files?.image) {
-      const result = await uploadImage(req.files.image.tempFilePath)
-      cartas.image = {
-        public_id: result.public_id,
-        secure_url: result.secure_url
+      fecha_lanzamiento,
+      image: {
+        secure_url
       }
-      await fs.unlink(req.files.image.tempFilePath)
+    });
 
-    }
-    await cards.save()
-    res.json(cards)
+    await card.save();
+    res.json(card);
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    return res.status(500).json({ message: error.message });
   }
-
-
 }
 
 //METODO DELETE
