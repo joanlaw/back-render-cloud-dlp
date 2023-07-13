@@ -16,6 +16,9 @@ const boxSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
+    fecha_de_lanzamiento :{
+        type: Date
+    },
     cartas_ur: [
       {
         cardId: {
