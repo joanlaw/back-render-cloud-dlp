@@ -6,6 +6,7 @@ import indexRoutes from './routes/index.routes.js';
 import cartasRoutes from './routes/cards.routes.js';
 import decksRoutes from './routes/decks.routes.js';
 import cardsRouter from './routes/cardsen.routes.js';
+import mazosRoutes from './routes/mazos.routes.js';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(indexRoutes);
 app.use(cartasRoutes);
 app.use(decksRoutes);
 app.use(cardsRouter);
+app.use(mazosRoutes);
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
