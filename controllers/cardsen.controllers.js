@@ -2,19 +2,33 @@ import { truncateSync } from 'fs';
 import Card from '../models/carden.model.js'
 import { uploadImage, deleteImage } from '../utils/cloudinary.js'
 import fs from 'fs-extra'
+import mongoose from 'mongoose';
 
 
 //METODO GET 
 export const getCardsen = async (req, res) => {
   try {
-    const cards = await Card.find();
-    res.json(cards)
-  } catch (error) {
-    return res.status(500).json({ message: error.message })
-  }
-}
+    const { page = 1, size = 50, search = '' } = req.query;
 
-//METODO POST
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(size, 10)
+    };
+
+    const query = {
+      $or: [
+        { nombre: { $regex: search, $options: 'i' } },
+        { name_english: { $regex: search, $options: 'i' } }
+      ]
+    };
+
+    const cards = await Card.paginate(query, options);
+    res.send(cards);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 //METODO POST
 export const createCardsen = async (req, res) => {
   try {
@@ -81,26 +95,31 @@ export const deleteCardsen = async (req, res) => {
 }
 
 
-//METODO GET UNA CARTA
-export const getCarden = async (req, res) => {
+  //METODO GET UNA CARTA
+  export const getCarden = async (req, res) => {
+    try {
+      const { id } = req.params;
 
+      let card;
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        card = await Card.findById(id);
+      } else {
+        card = await Card.findOne({ 
+          $or: [
+            { nombre: id },
+            { name_english: id }
+          ] 
+        });
+      }
 
-  try {
+      if (!card) return res.status(404).json({ message: 'La carta no existe' });
 
-    const cards = await
-      Card.findById(req.params.id)
-     // Carta.findById(req.params.nombre)
+      return res.json(card);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  };
 
-    if (!cards) return res.status(404).json({
-      message: 'La carta no existe'
-    })
-
-    return res.json(cards)
-  } catch (error) {
-    return res.status(500).json({ message: error.message })
-  }
-
-}
 
 
 

@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate-v2';
+
 
 const cardSchema = mongoose.Schema({
   nombre: {
@@ -95,5 +97,8 @@ const cardSchema = mongoose.Schema({
 }, {
   timestamps: true
 })
+
+// Aplicar el plugin de paginación al esquema
+cardSchema.plugin(mongoosePaginate);
 
 export default mongoose.model('Card', cardSchema)
