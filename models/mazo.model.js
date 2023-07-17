@@ -44,6 +44,14 @@ const mazoSchema = mongoose.Schema(
           type: Number,
           default: 1,
         },
+        nombre: {
+          type: String,
+          trim: true,
+        },
+        name_english: {
+          type: String,
+          trim: true,
+        },
       },
     ],
     extraDeck: [
@@ -56,9 +64,16 @@ const mazoSchema = mongoose.Schema(
           type: Number,
           default: 1,
         },
+        nombre: {
+          type: String,
+          trim: true,
+        },
+        name_english: {
+          type: String,
+          trim: true,
+        },
       },
     ],
-    // ...
   },
   {
     timestamps: true,
