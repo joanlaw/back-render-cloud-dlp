@@ -8,7 +8,8 @@ import decksRoutes from './routes/decks.routes.js';
 import cardsRouter from './routes/cardsen.routes.js';
 import mazosRoutes from './routes/mazos.routes.js';
 import boxesRoutes from './routes/boxes.routes.js';
-import videosRouter from './routes/videos.routes.js'; // Importar las rutas de videos
+import videosRouter from './routes/videos.routes.js';
+import torneosRouter from './routes/torneos.routes.js'; // Importar las rutas de torneos
 
 const app = express();
 
@@ -24,7 +25,8 @@ app.use(decksRoutes);
 app.use(cardsRouter);
 app.use(mazosRoutes);
 app.use(boxesRoutes);
-app.use(videosRouter); // Agregar las rutas de videos
+app.use(videosRouter);
+app.use(torneosRouter); // Agregar las rutas de torneos
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
