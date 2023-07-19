@@ -98,42 +98,6 @@ export const getCajasPorIdCarta = async (req, res) => {
             { 'cartas_n._id': ObjectId(cartaId) }
           ]
         }
-      },
-      {
-        $project: {
-          nombre: 1,
-          tipo_de_box: 1,
-          banner: 1,
-          fecha_de_lanzamiento: 1,
-          cartas_ur: {
-            $filter: {
-              input: '$cartas_ur',
-              as: 'carta',
-              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
-            }
-          },
-          cartas_sr: {
-            $filter: {
-              input: '$cartas_sr',
-              as: 'carta',
-              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
-            }
-          },
-          cartas_r: {
-            $filter: {
-              input: '$cartas_r',
-              as: 'carta',
-              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
-            }
-          },
-          cartas_n: {
-            $filter: {
-              input: '$cartas_n',
-              as: 'carta',
-              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
-            }
-          }
-        }
       }
     ]);
 
