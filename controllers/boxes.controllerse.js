@@ -89,7 +89,12 @@ export const getCajasPorIdCarta = async (req, res) => {
 
     // Buscar cajas que contengan la carta con el ID especificado
     const cajas = await Box.find({
-      cartas: cartaId,
+      $or: [
+        { "cartas_ur._id": cartaId },
+        { "cartas_sr._id": cartaId },
+        { "cartas_r._id": cartaId },
+        { "cartas_n._id": cartaId }
+      ]
     });
 
     if (!cajas || cajas.length === 0) {
@@ -101,3 +106,4 @@ export const getCajasPorIdCarta = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
