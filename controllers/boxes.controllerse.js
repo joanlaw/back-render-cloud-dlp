@@ -82,19 +82,21 @@ export const updateBox = async (req, res) => {
   }
 };
 
-// METODO GET UBICACION DE UNA CARTA
-export const getUbicacionCarta = async (req, res) => {
+// METODO GET CAJAS POR ID DE CARTA
+export const getCajasPorIdCarta = async (req, res) => {
   try {
-    const cartaId = req.params.id;
+    const cartaId = req.query.cartaId;
 
-    // Lógica para buscar la ubicación de la carta en una caja específica
-    const ubicacion = await obtenerUbicacionCarta(cartaId);
+    // Buscar cajas que contengan la carta con el ID especificado
+    const cajas = await Box.find({
+      cartas: cartaId,
+    });
 
-    if (!ubicacion) {
-      return res.status(404).json({ message: 'No se encontró información de ubicación para la carta' });
+    if (!cajas || cajas.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron cajas con la carta especificada' });
     }
 
-    return res.json(ubicacion);
+    return res.json(cajas);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

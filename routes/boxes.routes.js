@@ -5,7 +5,7 @@ import {
   updateBox,
   deleteBox,
   getBox,
-  getUbicacionCarta, // Importa la función getUbicacionCarta
+  getCajasPorIdCarta, // Importa la función getCajasPorIdCarta
 } from '../controllers/boxes.controllerse.js';
 
 const routerBoxes = Router();
@@ -15,7 +15,6 @@ routerBoxes.post('/boxes', createBox);
 routerBoxes.put('/boxes/:id', updateBox);
 routerBoxes.delete('/boxes/:id', deleteBox);
 routerBoxes.get('/boxes/:id', getBox);
-routerBoxes.get('/boxes/:id/ubicacion', getUbicacionCarta); // Agrega la ruta para obtener la ubicación de una carta
-
+routerBoxes.get('/boxes/carta', getCajasPorIdCarta); // Agrega la ruta para buscar cajas por ID de carta
 
 export default routerBoxes;
