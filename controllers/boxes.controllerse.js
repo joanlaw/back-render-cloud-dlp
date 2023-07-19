@@ -92,10 +92,10 @@ export const getCajasPorIdCarta = async (req, res) => {
       {
         $match: {
           $or: [
-            { 'cartas_ur._id': cartaId },
-            { 'cartas_sr._id': cartaId },
-            { 'cartas_r._id': cartaId },
-            { 'cartas_n._id': cartaId }
+            { 'cartas_ur._id': ObjectId(cartaId) },
+            { 'cartas_sr._id': ObjectId(cartaId) },
+            { 'cartas_r._id': ObjectId(cartaId) },
+            { 'cartas_n._id': ObjectId(cartaId) }
           ]
         }
       },
@@ -109,28 +109,28 @@ export const getCajasPorIdCarta = async (req, res) => {
             $filter: {
               input: '$cartas_ur',
               as: 'carta',
-              cond: { $eq: ['$$carta._id', cartaId] }
+              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
             }
           },
           cartas_sr: {
             $filter: {
               input: '$cartas_sr',
               as: 'carta',
-              cond: { $eq: ['$$carta._id', cartaId] }
+              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
             }
           },
           cartas_r: {
             $filter: {
               input: '$cartas_r',
               as: 'carta',
-              cond: { $eq: ['$$carta._id', cartaId] }
+              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
             }
           },
           cartas_n: {
             $filter: {
               input: '$cartas_n',
               as: 'carta',
-              cond: { $eq: ['$$carta._id', cartaId] }
+              cond: { $eq: ['$$carta._id', ObjectId(cartaId)] }
             }
           }
         }
@@ -146,4 +146,3 @@ export const getCajasPorIdCarta = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
