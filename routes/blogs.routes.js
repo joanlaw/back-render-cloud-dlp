@@ -5,7 +5,7 @@ import {
   createBlog,
   updateBlog,
   deleteBlog,
-} from "../controllers/blog.controller.js";
+} from "../controllers/blogs.controller.js";
 
 const router = Router();
 
@@ -16,3 +16,4 @@ router.delete("/blogs/:id", deleteBlog);
 router.get("/blogs/:id", getBlog); // Ruta para obtener un blog por ID o título
 
 export default router;
+ 

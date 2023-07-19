@@ -1,16 +1,17 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const blogSchema = mongoose.Schema(
   {
     titulo: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
     cuerpo_blog: {
       type: String,
       required: true,
+      trim: true,
     },
     fecha: {
       type: Date,
@@ -22,6 +23,7 @@ const blogSchema = mongoose.Schema(
     },
     categoria: {
       type: String,
+      required: true,
       trim: true,
     },
   },
@@ -30,4 +32,6 @@ const blogSchema = mongoose.Schema(
   }
 );
 
-export default mongoose.model("Blog", blogSchema);
+blogSchema.plugin(mongoosePaginate);
+
+export default mongoose.model('Blog', blogSchema);
