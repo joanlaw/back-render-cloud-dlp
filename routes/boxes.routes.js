@@ -15,6 +15,6 @@ routerBoxes.post('/boxes', createBox);
 routerBoxes.put('/boxes/:id', updateBox);
 routerBoxes.delete('/boxes/:id', deleteBox);
 routerBoxes.get('/boxes/:id', getBox);
-routerBoxes.get('/boxes/carta', getCajasPorIdCarta); // Agrega la ruta para buscar cajas por ID de carta
+routerBoxes.get('/boxes', getCajasPorIdCarta); // Ajusta la ruta para buscar cajas por ID de carta
 
 export default routerBoxes;
