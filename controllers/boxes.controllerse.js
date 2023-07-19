@@ -87,11 +87,6 @@ export const getCajasPorIdCarta = async (req, res) => {
   try {
     const cartaId = req.query._id;
 
-// METODO GET CAJAS POR ID DE CARTA
-export const getCajasPorIdCarta = async (req, res) => {
-  try {
-    const cartaId = req.query._id;
-
     // Buscar cajas que contengan la carta con el ID especificado
     const cajas = await Box.find({
       $or: [
