@@ -87,15 +87,55 @@ export const getCajasPorIdCarta = async (req, res) => {
   try {
     const cartaId = req.query._id;
 
-    // Buscar cajas que contengan la carta con el ID especificado
-    const cajas = await Box.find({
-      $or: [
-        { 'cartas_ur._id': cartaId },
-        { 'cartas_sr._id': cartaId },
-        { 'cartas_r._id': cartaId },
-        { 'cartas_n._id': cartaId }
-      ]
-    });
+    // Buscar cajas que contengan la carta con el ID especificado utilizando agregación
+    const cajas = await Box.aggregate([
+      {
+        $match: {
+          $or: [
+            { 'cartas_ur._id': cartaId },
+            { 'cartas_sr._id': cartaId },
+            { 'cartas_r._id': cartaId },
+            { 'cartas_n._id': cartaId }
+          ]
+        }
+      },
+      {
+        $project: {
+          nombre: 1,
+          tipo_de_box: 1,
+          banner: 1,
+          fecha_de_lanzamiento: 1,
+          cartas_ur: {
+            $filter: {
+              input: '$cartas_ur',
+              as: 'carta',
+              cond: { $eq: ['$$carta._id', cartaId] }
+            }
+          },
+          cartas_sr: {
+            $filter: {
+              input: '$cartas_sr',
+              as: 'carta',
+              cond: { $eq: ['$$carta._id', cartaId] }
+            }
+          },
+          cartas_r: {
+            $filter: {
+              input: '$cartas_r',
+              as: 'carta',
+              cond: { $eq: ['$$carta._id', cartaId] }
+            }
+          },
+          cartas_n: {
+            $filter: {
+              input: '$cartas_n',
+              as: 'carta',
+              cond: { $eq: ['$$carta._id', cartaId] }
+            }
+          }
+        }
+      }
+    ]);
 
     if (!cajas || cajas.length === 0) {
       return res.status(404).json({ message: 'No se encontraron cajas con la carta especificada' });
