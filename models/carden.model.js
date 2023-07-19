@@ -70,27 +70,11 @@ const cardSchema = mongoose.Schema({
     type: String,
     trim: true
   },
-  caja: {
-    type: String,
-    trim: true
-  },
-  estructura: {
-    type: String,
-    trim: true
-  },
-  selection_box: {
-    type: String,
-    trim: true
-  },
-  lote: {
+  link_deck: {
     type: String,
     trim: true
   },
   adicional: {
-    type: String,
-    trim: true
-  },
-  fecha_lanzamiento: {
     type: String,
     trim: true
   }

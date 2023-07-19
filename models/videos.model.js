@@ -13,6 +13,10 @@ const videoSchema = mongoose.Schema({
     type: String,
     trim: true
   },
+  banner_video: {
+    type: String,
+    trim: true
+  },
   deck: {
     type: String,
     trim: true

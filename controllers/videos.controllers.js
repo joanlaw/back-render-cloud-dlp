@@ -27,12 +27,13 @@ export const getVideos = async (req, res) => {
 //METODO POST
 export const createVideo = async (req, res) => {
   try {
-    const { titulo, descripcion, link_video, deck, deckv2, deckv3, deckv4, deckv5 } = req.body;
+    const { titulo, descripcion, link_video, banner_video, deck, deckv2, deckv3, deckv4, deckv5 } = req.body;
 
     const video = new Video({
       titulo,
       descripcion,
       link_video,
+      banner_video,
       deck,
       deckv2,
       deckv3,

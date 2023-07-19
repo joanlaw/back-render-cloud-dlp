@@ -32,7 +32,7 @@ export const getCardsen = async (req, res) => {
 //METODO POST
 export const createCardsen = async (req, res) => {
   try {
-    const { nombre, name_english, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, efecto_pendulo, caja, estructura, selection_box, lote, adicional, fecha_lanzamiento } = req.body;
+    const { nombre, name_english, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, efecto_pendulo, link_deck, adicional } = req.body;
 
     const secure_url = `https://res.cloudinary.com/dqofcbeaq/image/upload/v1688597356/dlprocards/${encodeURIComponent(nombre)}.jpg`;
 
@@ -52,12 +52,8 @@ export const createCardsen = async (req, res) => {
       materiales,
       descripcion,
       efecto_pendulo,
-      caja,
-      estructura,
-      selection_box,
-      lote,
+      link_deck,
       adicional,
-      fecha_lanzamiento,
       image: {
         secure_url
       }
