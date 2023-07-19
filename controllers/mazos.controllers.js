@@ -93,3 +93,21 @@ export const updateMazo = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// METODO GET UBICACION DE UNA CARTA
+export const getUbicacionCarta = async (req, res) => {
+  try {
+    const cartaId = req.params.id;
+
+    // Lógica para buscar la ubicación de la carta en una caja específica
+    const ubicacion = await obtenerUbicacionCarta(cartaId);
+
+    if (!ubicacion) {
+      return res.status(404).json({ message: 'No se encontró información de ubicación para la carta' });
+    }
+
+    return res.json(ubicacion);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
