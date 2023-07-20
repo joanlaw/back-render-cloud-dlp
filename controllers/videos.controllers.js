@@ -1,4 +1,5 @@
 import Video from '../models/videos.model.js';
+import mongoose from 'mongoose';
 
 //METODO GET
 export const getVideos = async (req, res) => {
