@@ -30,6 +30,10 @@ const mazoSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
+    link_deck: {
+      type: String,
+      trim: true
+    },
     etiquetas: {
       type: String,
       trim: true,

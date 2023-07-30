@@ -70,10 +70,6 @@ const cardSchema = mongoose.Schema({
     type: String,
     trim: true
   },
-  link_deck: {
-    type: String,
-    trim: true
-  },
   adicional: {
     type: String,
     trim: true
