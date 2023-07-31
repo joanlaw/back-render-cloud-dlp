@@ -27,6 +27,22 @@ export const getArquetipos = async (req, res) => {
   }
 };
 
+export const getArquetipoByName = async (req, res) => {
+    try {
+      const { nombre_arquetipo } = req.params;
+      const arquetipo = await Arquetipo.findOne({ nombre_arquetipo });
+  
+      if (!arquetipo) {
+        return res.status(404).json({ message: 'El arquetipo no existe' });
+      }
+  
+      return res.json(arquetipo);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  };
+  
+
 // METODO POST
 export const createArquetipo = async (req, res) => {
   try {
