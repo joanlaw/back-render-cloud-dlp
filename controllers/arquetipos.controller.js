@@ -2,7 +2,7 @@ import Arquetipo from '../models/arquetipo.model.js';
 
 // METODO GET con paginación y búsqueda por nombre
 export const getArquetipos = async (req, res) => {
-  const { page = 1, limit = 10, nombre_arquetipo = '' } = req.query;
+  const { page = 1, limit = 200, nombre_arquetipo = '' } = req.query;
 
   try {
     const query = nombre_arquetipo
