@@ -15,8 +15,8 @@ routerArquetipos.get('/arquetipos', getArquetipos);
 routerArquetipos.post('/arquetipos', createArquetipo);
 routerArquetipos.put('/arquetipos/:id', updateArquetipo);
 routerArquetipos.delete('/arquetipos/:id', deleteArquetipo);
+routerArquetipos.get('/arquetipos/:nombre_arquetipo', getArquetipoByName); // mover esta línea arriba de la de buscar por ID
 routerArquetipos.get('/arquetipos/:id', getArquetipo);
-routerArquetipos.get('/arquetipos/nombre/:nombre_arquetipo', getArquetipoByName); // agrega esta linea
 
 
 export default routerArquetipos;
