@@ -5,6 +5,7 @@ const arquetipoSchema = mongoose.Schema(
   {
     nombre_arquetipo: {
       type: String,
+      unique: true,
       trim: true,
     },
     image_arquetipo: {
