@@ -24,16 +24,12 @@ export const getLeagues = async (req, res) => {
 // METODO POST
 export const createLeague = async (req, res) => {
   try {
-    const { league_name, league_format, start_date, start_time } = req.body;
-
-
-     // Combina la fecha y hora en un objeto Date
-     const fullStartDate = new Date(`${start_date}T${start_time}:00`);
+    const { league_name, league_format, start_date } = req.body;
 
     const league = new League({
       league_name,
       league_format,
-      start_date: fullStartDate,
+      start_date: new Date(start_date),
     });
 
     await league.save();
@@ -42,6 +38,7 @@ export const createLeague = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // METODO PUT
 export const updateLeague = async (req, res) => {
