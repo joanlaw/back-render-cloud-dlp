@@ -26,10 +26,13 @@ export const createLeague = async (req, res) => {
   try {
     const { league_name, league_format, start_date } = req.body;
 
+     // Combina la fecha y hora en un objeto Date
+     const fullStartDate = new Date(`${start_date}T${start_time}:00`);
+
     const league = new League({
       league_name,
       league_format,
-      start_date
+      start_date: fullStartDate,
     });
 
     await league.save();
