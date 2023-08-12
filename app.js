@@ -12,6 +12,7 @@ import videosRouter from './routes/videos.routes.js';
 import torneosRouter from './routes/torneos.routes.js';
 import blogsRoutes from './routes/blogs.routes.js'; // Importar las rutas de blogs
 import arquetiposRoutes from './routes/arquetipos.routes.js'; // Importar las rutas de arquetipos
+import leaguesRouter from './routes/leagues.routes.js';
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(videosRouter);
 app.use(torneosRouter);
 app.use(blogsRoutes); // Agregar las rutas de blogs
 app.use(arquetiposRoutes); // Agregar las rutas de arquetipos
+app.use(leaguesRouter);
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
