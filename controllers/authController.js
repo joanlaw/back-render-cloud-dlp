@@ -2,37 +2,36 @@ import User from '../models/User.js';
 import passport from 'passport';
 
 export const discordLogin = (accessToken, refreshToken, profile, done) => {
-    console.log('Inicio de sesión de Discord iniciado', profile);
-  
-    User.findOne({ discordId: profile.id })
-    .then(existingUser => {
-      if (existingUser) {
-        console.log('Usuario existente encontrado', existingUser);
-        return done(null, existingUser);
-      }
-  
-      const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
-  
-      const newUser = new User({
-        discordId: profile.id,
-        username: profile.username,
-        avatar: avatarURL,
-      });
-  
-      console.log('Creando nuevo usuario', newUser);
-  
-      return newUser.save()
-        .then(savedUser => {
-          console.log('Usuario guardado', savedUser);
-          done(null, savedUser);
-        });
-    })
-    .catch(err => {
-      console.error('Error en la autenticación de Discord', err);
-      done(err);
+  console.log('Inicio de sesión de Discord iniciado', profile);
+
+  User.findOne({ discordId: profile.id })
+  .then(existingUser => {
+    if (existingUser) {
+      console.log('Usuario existente encontrado', existingUser);
+      return done(null, existingUser);
+    }
+
+    const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
+
+    const newUser = new User({
+      discordId: profile.id,
+      username: profile.username,
+      avatar: avatarURL,
     });
-  };
-  
+
+    console.log('Creando nuevo usuario', newUser);
+
+    return newUser.save()
+      .then(savedUser => {
+        console.log('Usuario guardado', savedUser);
+        done(null, savedUser);
+      });
+  })
+  .catch(err => {
+    console.error('Error en la autenticación de Discord', err);
+    done(err);
+  });
+};
 export const login = passport.authenticate('discord');
 export const logout = (req, res) => {
     req.logout();
