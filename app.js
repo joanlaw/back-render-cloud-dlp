@@ -35,13 +35,18 @@ app.use(session({
   saveUninitialized: false,
 }));
 
+// Configuración de serialización y deserialización de usuario
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, user._id);
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  if (user) done(null, user);
+  try {
+      const user = await User.findById(id);
+      done(null, user);
+  } catch (error) {
+      done(error, null);
+  }
 });
 
 passport.use(new DiscordStrategy({
@@ -69,10 +74,11 @@ passport.use(new DiscordStrategy({
     done(null, savedUser);
   } catch (error) {
     console.error('Error en la autenticación de Discord', error);
-    done(error);
+    done(error, null); // Cambia esto para proporcionar null como segundo argumento
   }
 }));
 
+app.use(authRoutes); // Esto agregará las rutas de autenticación /
 app.use(indexRoutes);
 app.use(cartasRoutes);
 app.use(decksRoutes);
@@ -84,7 +90,7 @@ app.use(torneosRouter);
 app.use(blogsRoutes);
 app.use(arquetiposRoutes);
 app.use(leaguesRouter);
-app.use(authRoutes); // Esto agregará las rutas de autenticación /
+
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
