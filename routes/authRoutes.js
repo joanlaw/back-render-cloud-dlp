@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/login', login);
 router.get('/logout', logout);
 router.get('/callback', callback);
-app.get("/get-user-image", getUserImage);
+router.get("/get-user-image", getUserImage);
 
 
 export default router;
