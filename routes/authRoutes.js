@@ -3,9 +3,15 @@ import { login, logout, callback, getUserImage } from '../controllers/authContro
 
 const router = express.Router();
 
-router.get('/login', login);
+router.get('/login', (req, res, next) => {
+    console.log('Iniciando la autenticación'); // Verificar inicio de autenticación
+    login(req, res, next);
+  });
 router.get('/logout', logout);
-router.get('/callback', callback);
+router.get('/callback', (req, res, next) => {
+    console.log('Callback de autenticación', req.query); // Verificar datos del callback
+    callback(req, res, next);
+  });
 router.get("/get-user-image", getUserImage);
 
 

@@ -2,37 +2,37 @@ import User from '../models/User.js';
 import passport from 'passport';
 
 export const discordLogin = (accessToken, refreshToken, profile, done) => {
-    console.log('Inicio de sesión de Discord iniciado', profile); // Aquí verás el perfil que Discord envía
-  
+    console.log('Inicio de sesión de Discord iniciado', profile); // Verificar perfil
+    
     User.findOne({ discordId: profile.id })
-      .then(existingUser => {
-        console.log('Usuario existente encontrado:', existingUser); // Aquí verás si se encontró un usuario existente
+    .then(existingUser => {
+      console.log('Buscando usuario existente', existingUser); // Verificar usuario existente
   
-        if (existingUser) {
-          return done(null, existingUser);
-        }
-  
-        const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
-  
-        const newUser = new User({
-          discordId: profile.id,
-          username: profile.username,
-          avatar: avatarURL,
-          // ...
-        });
-  
-        console.log('Creando nuevo usuario:', newUser); // Aquí verás el nuevo usuario que se está creando
-  
-        return newUser.save();
-      })
-      .then(savedUser => {
-        console.log('Usuario guardado:', savedUser); // Aquí verás el usuario que se guardó
-        done(null, savedUser);
-      })
-      .catch(err => {
-        console.log('Error:', err); // Aquí verás si hay algún error
-        done(err);
+      if (existingUser) {
+        return done(null, existingUser);
+      }
+    
+      const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
+    
+      const newUser = new User({
+        discordId: profile.id,
+        username: profile.username,
+        avatar: avatarURL,
+        // ...
       });
+      
+      console.log('Creando nuevo usuario', newUser); // Verificar datos del nuevo usuario
+    
+      return newUser.save()
+        .then(savedUser => {
+          console.log('Usuario guardado', savedUser); // Confirmar usuario guardado
+          done(null, savedUser);
+        });
+    })
+    .catch(err => {
+      console.error('Error al guardar usuario', err); // Capturar y registrar cualquier error
+      done(err);
+    });
   };
   
 export const login = passport.authenticate('discord');
