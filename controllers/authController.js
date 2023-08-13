@@ -47,6 +47,8 @@ export const callback = (req, res) => {
     console.log('Autenticación fallida');
     // Aquí puedes manejar el caso en el que la autenticación falló
   }
+      // Establece una cookie para indicar que el usuario está autenticado
+  res.cookie('authenticated', 'true', { httpOnly: true });
   res.redirect('https://duellinks.pro/');
 };
 
@@ -54,4 +56,17 @@ export const getUserImage = (req, res) => {
   // Aquí puedes obtener la información del usuario autenticado (por ejemplo, a través de req.user si estás usando sesiones)
   // Luego, puedes enviar la URL de la imagen como respuesta
   res.json({ image: req.user.avatar });
+};
+
+export const getUserInfo = (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({
+      authenticated: true,
+      image: req.user.avatar
+    });
+  } else {
+    res.json({
+      authenticated: false
+    });
+  }
 };
