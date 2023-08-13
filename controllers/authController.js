@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 
-const discordLogin = (accessToken, refreshToken, profile, done) => {
+export const authController = (accessToken, refreshToken, profile, done) => {
   User.findOne({ discordId: profile.id })
     .then(existingUser => {
       if (existingUser) {
@@ -18,8 +18,4 @@ const discordLogin = (accessToken, refreshToken, profile, done) => {
         .catch(err => done(err));
     })
     .catch(err => done(err));
-};
-
-export const authController = {
-  discordLogin
 };
