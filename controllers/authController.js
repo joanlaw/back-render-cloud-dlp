@@ -3,9 +3,9 @@ import passport from 'passport';
 import DiscordStrategy from 'passport-discord';
 
 const strategy = new DiscordStrategy({
-    clientID: DISCORD_CLIENT_ID,
-    clientSecret: DISCORD_CLIENT_SECRET,
-    callbackURL: 'TU_URL_CALLBACK',
+    clientID: process.env.DISCORD_CLIENT_ID,
+    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    callbackURL: 'http://tu-dominio.com/auth/discord/callback',
     scope: ['identify', 'guilds'],
 }, (accessToken, refreshToken, profile, done) => {
     User.findOne({ discordId: profile.id })
