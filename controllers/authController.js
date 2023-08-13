@@ -33,3 +33,10 @@ export const callback = (req, res) => {
     // Puedes manejar lo que sucede después de que el usuario sea autenticado aquí
     res.redirect('/');
 };
+
+export const getUserImage = (req, res) => {
+    // Aquí puedes obtener la información del usuario autenticado (por ejemplo, a través de req.user si estás usando sesiones)
+    // Luego, puedes enviar la URL de la imagen como respuesta
+    res.json({ image: req.user.avatar });
+  };
+  

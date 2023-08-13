@@ -1,10 +1,12 @@
 import express from 'express';
-import { login, logout, callback } from '../controllers/authController.js';
+import { login, logout, callback, getUserImage } from '../controllers/authController.js';
 
 const router = express.Router();
 
 router.get('/login', login);
 router.get('/logout', logout);
 router.get('/callback', callback);
+app.get("/get-user-image", getUserImage);
+
 
 export default router;
