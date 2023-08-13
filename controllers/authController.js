@@ -5,7 +5,7 @@ import DiscordStrategy from 'passport-discord';
 const strategy = new DiscordStrategy({
     clientID: process.env.DISCORD_CLIENT_ID,
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
-    callbackURL: 'http://tu-dominio.com/auth/discord/callback',
+    callbackURL: 'https://duellinks.pro/',
     scope: ['identify', 'guilds'],
 }, (accessToken, refreshToken, profile, done) => {
     User.findOne({ discordId: profile.id })
