@@ -5,37 +5,38 @@ export const discordLogin = (accessToken, refreshToken, profile, done) => {
   console.log('Inicio de sesión de Discord iniciado', profile);
 
   User.findOne({ discordId: profile.id })
-  .then(existingUser => {
-    if (existingUser) {
-      console.log('Usuario existente encontrado', existingUser);
-      return done(null, existingUser);
-    }
+    .then(existingUser => {
+      if (existingUser) {
+        console.log('Usuario existente encontrado', existingUser);
+        return done(null, existingUser);
+      }
 
-    const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
+      const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
 
-    const newUser = new User({
-      discordId: profile.id,
-      username: profile.username,
-      avatar: avatarURL,
-    });
-
-    console.log('Creando nuevo usuario', newUser);
-
-    return newUser.save()
-      .then(savedUser => {
-        console.log('Usuario guardado', savedUser);
-        done(null, savedUser);
+      const newUser = new User({
+        discordId: profile.id,
+        username: profile.username,
+        avatar: avatarURL,
       });
-  })
-  .catch(err => {
-    console.error('Error en la autenticación de Discord', err);
-    done(err);
-  });
+
+      console.log('Creando nuevo usuario', newUser);
+
+      return newUser.save()
+        .then(savedUser => {
+          console.log('Usuario guardado', savedUser);
+          done(null, savedUser);
+        });
+    })
+    .catch(err => {
+      console.error('Error en la autenticación de Discord', err);
+      done(err);
+    });
 };
+
 export const login = passport.authenticate('discord');
 export const logout = (req, res) => {
-    req.logout();
-    res.redirect('/');
+  req.logout();
+  res.redirect('/');
 };
 
 export const callback = (req, res) => {
@@ -50,8 +51,7 @@ export const callback = (req, res) => {
 };
 
 export const getUserImage = (req, res) => {
-    // Aquí puedes obtener la información del usuario autenticado (por ejemplo, a través de req.user si estás usando sesiones)
-    // Luego, puedes enviar la URL de la imagen como respuesta
-    res.json({ image: req.user.avatar });
-  };
-  
+  // Aquí puedes obtener la información del usuario autenticado (por ejemplo, a través de req.user si estás usando sesiones)
+  // Luego, puedes enviar la URL de la imagen como respuesta
+  res.json({ image: req.user.avatar });
+};
