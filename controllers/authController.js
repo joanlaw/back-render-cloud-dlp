@@ -2,14 +2,18 @@ import User from '../models/User.js';
 import passport from 'passport';
 
 export const discordLogin = (accessToken, refreshToken, profile, done) => {
+    console.log('Inicio de sesión de Discord iniciado', profile); // Aquí verás el perfil que Discord envía
+  
     User.findOne({ discordId: profile.id })
       .then(existingUser => {
+        console.log('Usuario existente encontrado:', existingUser); // Aquí verás si se encontró un usuario existente
+  
         if (existingUser) {
           return done(null, existingUser);
         }
   
         const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
-        
+  
         const newUser = new User({
           discordId: profile.id,
           username: profile.username,
@@ -17,10 +21,18 @@ export const discordLogin = (accessToken, refreshToken, profile, done) => {
           // ...
         });
   
+        console.log('Creando nuevo usuario:', newUser); // Aquí verás el nuevo usuario que se está creando
+  
         return newUser.save();
       })
-      .then(savedUser => done(null, savedUser))
-      .catch(err => done(err));
+      .then(savedUser => {
+        console.log('Usuario guardado:', savedUser); // Aquí verás el usuario que se guardó
+        done(null, savedUser);
+      })
+      .catch(err => {
+        console.log('Error:', err); // Aquí verás si hay algún error
+        done(err);
+      });
   };
   
 export const login = passport.authenticate('discord');
