@@ -19,6 +19,7 @@ import arquetiposRoutes from './routes/arquetipos.routes.js';
 import leaguesRouter from './routes/leagues.routes.js';
 import authRoutes from './routes/authRoutes.js';
 
+import { discordLogin } from './controllers/authController.js';  // Importa la función discordLogin
 
 dotenv.config();
 
@@ -44,7 +45,7 @@ passport.use(new DiscordStrategy({
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
   callbackURL: 'http://tu-dominio.com/auth/discord/callback',
   scope: ['identify', 'guilds'],
-}, authController.discordLogin));
+}, discordLogin));
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
