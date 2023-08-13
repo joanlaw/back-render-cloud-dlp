@@ -1,6 +1,6 @@
-const User = require('../models/User');
+import User from '../models/User.js';
 
-exports.discordLogin = (accessToken, refreshToken, profile, done) => {
+const discordLogin = (accessToken, refreshToken, profile, done) => {
   User.findOne({ discordId: profile.id })
     .then(existingUser => {
       if (existingUser) {
@@ -18,4 +18,8 @@ exports.discordLogin = (accessToken, refreshToken, profile, done) => {
         .catch(err => done(err));
     })
     .catch(err => done(err));
+};
+
+export const authController = {
+  discordLogin
 };

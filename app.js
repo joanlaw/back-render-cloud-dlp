@@ -18,7 +18,8 @@ import blogsRoutes from './routes/blogs.routes.js';
 import arquetiposRoutes from './routes/arquetipos.routes.js';
 import leaguesRouter from './routes/leagues.routes.js';
 import authRoutes from './routes/authRoutes.js'; // Asegúrate de que este archivo exista
-const authController = require('../controllers/authController');
+import { authController } from '../controllers/authController.js';
+
 
 dotenv.config();
 
