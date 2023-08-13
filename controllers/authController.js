@@ -3,23 +3,26 @@ import passport from 'passport';
 
 export const discordLogin = (accessToken, refreshToken, profile, done) => {
     User.findOne({ discordId: profile.id })
-        .then(existingUser => {
-            if (existingUser) {
-                return done(null, existingUser);
-            }
-
-            const newUser = new User({
-                discordId: profile.id,
-                username: profile.username,
-                // Puedes agregar más campos aquí si es necesario
-            });
-
-            return newUser.save(); // Retorna la promesa aquí
-        })
-        .then(savedUser => done(null, savedUser))
-        .catch(err => done(err));
-};
-
+      .then(existingUser => {
+        if (existingUser) {
+          return done(null, existingUser);
+        }
+  
+        const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
+        
+        const newUser = new User({
+          discordId: profile.id,
+          username: profile.username,
+          avatar: avatarURL,
+          // ...
+        });
+  
+        return newUser.save();
+      })
+      .then(savedUser => done(null, savedUser))
+      .catch(err => done(err));
+  };
+  
 export const login = passport.authenticate('discord');
 export const logout = (req, res) => {
     req.logout();

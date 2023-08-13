@@ -10,7 +10,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // Puedes agregar más campos según tus necesidades, como el avatar, correo electrónico, etc.
+  avatar: {
+    type: String,
+  },
+  // ...
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);

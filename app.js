@@ -43,9 +43,10 @@ app.use(passport.session());
 passport.use(new DiscordStrategy({
   clientID: process.env.DISCORD_CLIENT_ID,
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
-  callbackURL: 'https://duellinks.pro/',
+  callbackURL: 'https://duellinks.pro/auth/discord/callback', // Debe ser la URL completa hasta la ruta de devolución de llamada
   scope: ['identify', 'guilds'],
 }, discordLogin));
+
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
