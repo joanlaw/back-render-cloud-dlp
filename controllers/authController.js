@@ -3,8 +3,8 @@ import passport from 'passport';
 import DiscordStrategy from 'passport-discord';
 
 const strategy = new DiscordStrategy({
-    clientID: 'TU_CLIENT_ID',
-    clientSecret: 'TU_CLIENT_SECRET',
+    clientID: DISCORD_CLIENT_ID,
+    clientSecret: DISCORD_CLIENT_SECRET,
     callbackURL: 'TU_URL_CALLBACK',
     scope: ['identify', 'guilds'],
 }, (accessToken, refreshToken, profile, done) => {

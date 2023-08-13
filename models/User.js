@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   discordId: {
@@ -13,4 +13,4 @@ const userSchema = new mongoose.Schema({
   // Puedes agregar más campos según tus necesidades, como el avatar, correo electrónico, etc.
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', userSchema);
+export default mongoose.model('User', userSchema);
