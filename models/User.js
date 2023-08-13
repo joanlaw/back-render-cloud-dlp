@@ -14,6 +14,6 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   // ...
-}, { timestamps: true });
+}, { timestamps: true, collection: 'users' }); // Aquí especificas el nombre de la colección
 
 export default mongoose.model('User', userSchema);
