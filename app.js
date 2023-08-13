@@ -19,16 +19,14 @@ import arquetiposRoutes from './routes/arquetipos.routes.js';
 import leaguesRouter from './routes/leagues.routes.js';
 import authRoutes from './routes/authRoutes.js';
 
-import { discordLogin } from './controllers/authController.js';  // Importa la función discordLogin
+import User from './models/User.js'; // Asegúrate de que esta importación sea correcta
 
 dotenv.config();
 
 const app = express();
 
 app.use(cors());
-
 app.use(morgan('dev'));
-
 app.use(express.json());
 
 app.use(session({
@@ -37,23 +35,43 @@ app.use(session({
   saveUninitialized: false,
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id);
+  if (user) done(null, user);
+});
 
 passport.use(new DiscordStrategy({
   clientID: process.env.DISCORD_CLIENT_ID,
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
   callbackURL: 'https://duellinks.pro/auth/discord/callback',
   scope: ['identify', 'guilds'],
-}, (accessToken, refreshToken, profile, done) => {
-  console.log('Estrategia de Discord llamada', profile);
-  discordLogin(accessToken, refreshToken, profile, done);
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    const user = await User.findOne({ discordId: profile.id });
+
+    if (user) {
+      console.log('Usuario existente encontrado', user);
+      return done(null, user);
+    }
+
+    const newUser = new User({
+      discordId: profile.id,
+      username: profile.username,
+      avatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
+    });
+
+    const savedUser = await newUser.save();
+    console.log('Usuario guardado', savedUser);
+    done(null, savedUser);
+  } catch (error) {
+    console.error('Error en la autenticación de Discord', error);
+    done(error);
+  }
 }));
-
-
-
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((user, done) => done(null, user));
 
 app.use(indexRoutes);
 app.use(cartasRoutes);
@@ -72,14 +90,12 @@ app.use((req, res) => {
   res.status(404).send("Not Found");
 });
 
-//Midleware 404 
 app.use((req, res, next) => {
   const error = new Error("Not Found");
   error.status = 404;
   next(error);
 });
 
-//Midleware 500
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal Server Error' });
