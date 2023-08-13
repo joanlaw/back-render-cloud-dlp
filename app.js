@@ -61,7 +61,7 @@ app.use(torneosRouter);
 app.use(blogsRoutes);
 app.use(arquetiposRoutes);
 app.use(leaguesRouter);
-app.use(authRoutes); // Esto agregará las rutas de autenticación
+app.use(authRoutes); // Esto agregará las rutas de autenticación /
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
