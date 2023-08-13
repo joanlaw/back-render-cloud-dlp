@@ -47,7 +47,7 @@ export const callback = (req, res) => {
     console.log('Autenticación fallida');
     // Aquí puedes manejar el caso en el que la autenticación falló
   }
-  res.redirect('/');
+  res.redirect('https://duellinks.pro/');
 };
 
 export const getUserImage = (req, res) => {
