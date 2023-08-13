@@ -2,35 +2,33 @@ import User from '../models/User.js';
 import passport from 'passport';
 
 export const discordLogin = (accessToken, refreshToken, profile, done) => {
-    console.log('Inicio de sesión de Discord iniciado', profile); // Verificar perfil
-    
+    console.log('Inicio de sesión de Discord iniciado', profile);
+  
     User.findOne({ discordId: profile.id })
     .then(existingUser => {
-      console.log('Buscando usuario existente', existingUser); // Verificar usuario existente
-  
       if (existingUser) {
+        console.log('Usuario existente encontrado', existingUser);
         return done(null, existingUser);
       }
-    
+  
       const avatarURL = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
-    
+  
       const newUser = new User({
         discordId: profile.id,
         username: profile.username,
         avatar: avatarURL,
-        // ...
       });
-      
-      console.log('Creando nuevo usuario', newUser); // Verificar datos del nuevo usuario
-    
+  
+      console.log('Creando nuevo usuario', newUser);
+  
       return newUser.save()
         .then(savedUser => {
-          console.log('Usuario guardado', savedUser); // Confirmar usuario guardado
+          console.log('Usuario guardado', savedUser);
           done(null, savedUser);
         });
     })
     .catch(err => {
-      console.error('Error al guardar usuario', err); // Capturar y registrar cualquier error
+      console.error('Error en la autenticación de Discord', err);
       done(err);
     });
   };
@@ -42,8 +40,14 @@ export const logout = (req, res) => {
 };
 
 export const callback = (req, res) => {
-    // Puedes manejar lo que sucede después de que el usuario sea autenticado aquí
-    res.redirect('/');
+  if (req.isAuthenticated()) {
+    console.log('Usuario autenticado:', req.user);
+    // Aquí puedes añadir lógica adicional, como actualizar la información del usuario en la base de datos
+  } else {
+    console.log('Autenticación fallida');
+    // Aquí puedes manejar el caso en el que la autenticación falló
+  }
+  res.redirect('/');
 };
 
 export const getUserImage = (req, res) => {
