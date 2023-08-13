@@ -52,7 +52,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new DiscordStrategy({
   clientID: process.env.DISCORD_CLIENT_ID,
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
-  callbackURL: 'https://duellinks.pro/auth/discord/callback',
+  callbackURL: 'https://api.duellinks.pro/callback',
   scope: ['identify', 'guilds'],
 }, async (accessToken, refreshToken, profile, done) => {
   try {
