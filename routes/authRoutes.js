@@ -14,6 +14,8 @@ router.get('/callback',
   callback
 );
 router.get("/get-user-image", getUserImage);
+// Ruta para obtener información del usuario autenticado
+router.get('/get-user-info', getUserInfo);
 
 
 export default router;
