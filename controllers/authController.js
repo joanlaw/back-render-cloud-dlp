@@ -48,7 +48,7 @@ export const callback = (req, res) => {
     // Aquí puedes manejar el caso en el que la autenticación falló
   }
       // Establece una cookie para indicar que el usuario está autenticado
-  res.cookie('authenticated', 'true', { httpOnly: true });
+      res.cookie('authenticated', 'true', { httpOnly: true, domain: '.duellinks.pro' });
   res.redirect('https://duellinks.pro/');
 };
 
