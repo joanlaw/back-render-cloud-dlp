@@ -26,9 +26,12 @@ dotenv.config();
 const app = express();
 
 // Agrega el middleware de CORS
+app.use(cors({
+  origin: 'https://duellinks.pro', // Reemplaza con el dominio correcto de tu frontend
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+}));
 
-
-app.use(cors());
 
 app.use(morgan('dev'));
 
