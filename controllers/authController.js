@@ -38,19 +38,20 @@ export const logout = (req, res) => {
   req.logout();
   res.redirect('/');
 };
-
 export const callback = (req, res) => {
   if (req.isAuthenticated()) {
     console.log('Usuario autenticado:', req.user);
     // Aquí puedes añadir lógica adicional, como actualizar la información del usuario en la base de datos
+    // Establece una cookie para indicar que el usuario está autenticado
+    res.cookie('authenticated', 'true', { httpOnly: true, domain: '.duellinks.pro' });
+    res.redirect('https://duellinks.pro/');
   } else {
     console.log('Autenticación fallida');
     // Aquí puedes manejar el caso en el que la autenticación falló
+    res.redirect('/'); // Otra ruta en caso de autenticación fallida
   }
-      // Establece una cookie para indicar que el usuario está autenticado
-      res.cookie('authenticated', 'true', { httpOnly: true, domain: '.duellinks.pro' });
-  res.redirect('https://duellinks.pro/');
 };
+
 
 export const getUserImage = (req, res) => {
   // Aquí puedes obtener la información del usuario autenticado (por ejemplo, a través de req.user si estás usando sesiones)
