@@ -27,6 +27,7 @@ const app = express();
 
 const allowedOrigins = [
   'https://duellinks.pro',
+  'https://panel.duellinks.pro',
   'http://localhost:3000',
   // Agrega aquí más dominios permitidos
 ];
