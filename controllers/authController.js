@@ -68,7 +68,8 @@ export const getUserInfo = (req, res) => {
   if (req.isAuthenticated()) {
     res.json({
       authenticated: true,
-      image: req.user.avatar
+      image: req.user.avatar,
+      username: req.user.username, // Agregar el nombre de usuario
     });
   } else {
     res.json({
