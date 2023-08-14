@@ -43,7 +43,12 @@ export const callback = (req, res) => {
     console.log('Usuario autenticado:', req.user);
     // Aquí puedes añadir lógica adicional, como actualizar la información del usuario en la base de datos
     // Establece una cookie para indicar que el usuario está autenticado
-    res.cookie('authenticated', 'true', { httpOnly: true, domain: '.duellinks.pro' });
+    res.cookie('authenticated', 'true', {
+      httpOnly: true,
+      secure: true, // Solo en entorno HTTPS
+      sameSite: 'none', // Para permitir en diferentes subdominios
+      domain: '.duellinks.pro'
+    });
     res.redirect('https://duellinks.pro/');
   } else {
     console.log('Autenticación fallida');
