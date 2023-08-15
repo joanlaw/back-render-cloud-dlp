@@ -16,9 +16,21 @@ const leagueSchema = mongoose.Schema({
     type: Date,
     required: true
   },
+  enlace_torneo: String,
+  image_torneo: String,
+  infoTorneo: [
+    {
+      format: String,
+      banlist: String,
+      deck_info: String,
+      eliminacion: String
+    }
+  ]
 });
 
 // Aplicar el plugin de paginación al esquema
 leagueSchema.plugin(mongoosePaginate);
 
-export default mongoose.model('League', leagueSchema);
+const League = mongoose.model('League', leagueSchema);
+
+export default League;
