@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
 
 export const discordLogin = (accessToken, refreshToken, profile, done) => {
   console.log('Inicio de sesión de Discord iniciado', profile);
@@ -38,24 +39,26 @@ export const logout = (req, res) => {
   req.logout();
   res.redirect('/');
 };
+
+
 export const callback = (req, res) => {
   if (req.isAuthenticated()) {
-    console.log('Usuario autenticado:', req.user);
-    // Aquí puedes añadir lógica adicional, como actualizar la información del usuario en la base de datos
-    // Establece una cookie para indicar que el usuario está autenticado
-    res.cookie('authenticated', 'true', {
-      httpOnly: true,
-      secure: true, // Solo en entorno HTTPS
-      sameSite: 'none', // Para permitir en diferentes subdominios
-      domain: '.duellinks.pro'
+    const token = jwt.sign({ discordId: req.user.discordId }, process.env.JWT_SECRET, {
+      expiresIn: '7d', // Configura el tiempo de expiración como lo necesites
     });
-    res.redirect('https://duellinks.pro/');
+    
+    res.json({
+      success: true,
+      token: `Bearer ${token}`,
+    });
   } else {
-    console.log('Autenticación fallida');
-    // Aquí puedes manejar el caso en el que la autenticación falló
-    res.redirect('/'); // Otra ruta en caso de autenticación fallida
+    res.json({
+      success: false,
+      message: 'Autenticación fallida',
+    });
   }
 };
+
 
 
 export const getUserImage = (req, res) => {

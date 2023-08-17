@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import passport from 'passport';
 import session from 'express-session';
 import { Strategy as DiscordStrategy } from 'passport-discord';
@@ -46,14 +47,34 @@ app.use(morgan('dev'));
 
 app.use(express.json());
 
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,
+};
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
 }));
 
+passport.use(new JwtStrategy(jwtOptions, (jwtPayload, done) => {
+  // Aquí necesitarás importar tu modelo de usuario y buscar el usuario por el ID que está en jwtPayload
+  // (Lo dejo como comentario para que completes con tu modelo de usuario)
+  // User.findById(jwtPayload.id)
+  //   .then(user => {
+  //     if (user) {
+  //       return done(null, user);
+  //     } else {
+  //       return done(null, false);
+  //     }
+  //   })
+  //   .catch(err => done(err, false));
+}));
+
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -67,7 +88,6 @@ passport.use(new DiscordStrategy({
   console.log('Estrategia de Discord llamada', profile);
   discordLogin(accessToken, refreshToken, profile, done);
 }));
-
 
 
 app.use(indexRoutes);

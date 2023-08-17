@@ -15,9 +15,14 @@ router.get('/callback',
 );
 router.get("/get-user-image", getUserImage);
 // Ruta para obtener información del usuario autenticado
-router.get('/get-user-info', getUserInfo);
+
 
 router.post('/update-points', updateUserPoints);
+
+router.get('/get-user-info',
+  passport.authenticate('jwt', { session: false }),
+  getUserInfo
+);
 
 
 export default router;
