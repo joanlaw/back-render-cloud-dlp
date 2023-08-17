@@ -82,7 +82,7 @@ app.use(blogsRoutes);
 app.use(arquetiposRoutes);
 app.use(leaguesRouter);
 app.use(authRoutes); // Esto agregará las rutas de autenticación /
-app.use('/duels', duelsRouter);
+app.use(duelsRouter);
 
 
 app.use((req, res) => {
