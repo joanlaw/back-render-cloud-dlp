@@ -21,6 +21,23 @@ export const getLeagues = async (req, res) => {
   }
 };
 
+// METODO GET por ID
+export const getLeagueById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const league = await League.findById(id);
+
+    if (!league) {
+      return res.status(404).json({ message: 'La liga no existe' });
+    }
+
+    res.json(league);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
 // METODO POST
 export const createLeague = async (req, res) => {
   try {
