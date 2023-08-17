@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { login, logout, callback, getUserImage, getUserInfo } from '../controllers/authController.js';
+import { login, logout, callback, getUserImage, getUserInfo, updateUserPoints  } from '../controllers/authController.js';
 
 const router = express.Router();
 
@@ -16,6 +16,8 @@ router.get('/callback',
 router.get("/get-user-image", getUserImage);
 // Ruta para obtener información del usuario autenticado
 router.get('/get-user-info', getUserInfo);
+
+router.post('/update-points', updateUserPoints);
 
 
 export default router;

@@ -25,7 +25,34 @@ const leagueSchema = mongoose.Schema({
       deck_info: String,
       eliminacion: String
     }
-  ]
+  ],
+  players: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  
+  rounds: [{
+    matches: [{
+      player1: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      player2: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      winner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    }]
+  }],
+  
+  status: {
+    type: String,
+    enum: ['open', 'in_progress', 'finished'],
+    default: 'open'
+  }
 });
 
 // Aplicar el plugin de paginación al esquema

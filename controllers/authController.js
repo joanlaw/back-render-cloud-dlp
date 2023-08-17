@@ -69,7 +69,8 @@ export const getUserInfo = (req, res) => {
     res.json({
       authenticated: true,
       image: req.user.avatar,
-      username: req.user.username, // Agregar el nombre de usuario
+      username: req.user.username,
+      puntos: req.user.puntos, // Agregar los puntos
     });
   } else {
     res.json({
@@ -77,3 +78,25 @@ export const getUserInfo = (req, res) => {
     });
   }
 };
+
+
+export const updateUserPoints = (req, res) => {
+  const { discordId, points } = req.body;
+
+  User.findOneAndUpdate({ discordId: discordId }, { $inc: { puntos: points } }, { new: true })
+    .then(updatedUser => {
+      res.json({
+        success: true,
+        message: 'Puntos actualizados exitosamente',
+        updatedUser,
+      });
+    })
+    .catch(err => {
+      console.error('Error actualizando los puntos del usuario', err);
+      res.status(500).json({
+        success: false,
+        message: 'Error actualizando los puntos del usuario',
+      });
+    });
+};
+

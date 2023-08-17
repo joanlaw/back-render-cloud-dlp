@@ -18,6 +18,8 @@ import blogsRoutes from './routes/blogs.routes.js';
 import arquetiposRoutes from './routes/arquetipos.routes.js';
 import leaguesRouter from './routes/leagues.routes.js';
 import authRoutes from './routes/authRoutes.js';
+import duelsRouter from './routes/duels.routes.js';
+
 
 import { discordLogin } from './controllers/authController.js';  // Importa la función discordLogin
 
@@ -80,6 +82,8 @@ app.use(blogsRoutes);
 app.use(arquetiposRoutes);
 app.use(leaguesRouter);
 app.use(authRoutes); // Esto agregará las rutas de autenticación /
+app.use('/duels', duelsRouter);
+
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
