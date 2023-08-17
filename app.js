@@ -54,6 +54,11 @@ const jwtOptions = {
   secretOrKey: process.env.JWT_SECRET,
 };
 
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+}));
 
 passport.use(new JwtStrategy(jwtOptions, (jwtPayload, done) => {
   User.findOne({ discordId: jwtPayload.discordId })
