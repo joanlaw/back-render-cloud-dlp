@@ -47,10 +47,8 @@ export const callback = (req, res) => {
       expiresIn: '7d', // Configura el tiempo de expiración como lo necesites
     });
     
-    res.json({
-      success: true,
-      token: `Bearer ${token}`,
-    });
+    // Redirecciona al usuario a tu página frontend con el token en la URL
+    res.redirect(`https://duellinks.pro/?token=${token}`);
   } else {
     res.json({
       success: false,
