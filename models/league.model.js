@@ -52,6 +52,11 @@ const leagueSchema = mongoose.Schema({
     type: String,
     enum: ['open', 'in_progress', 'finished'],
     default: 'open'
+  },
+  organizer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 });
 

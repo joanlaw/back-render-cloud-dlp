@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 const userSchema = new mongoose.Schema({
   discordId: {
     type: String,
@@ -16,6 +18,6 @@ const userSchema = new mongoose.Schema({
     default: 0,
   },
   // ...
-}, { timestamps: true, collection: 'users' });
+}, { timestamps: true, collection: 'users' }); // Aquí especificas el nombre de la colección
 
 export default mongoose.model('User', userSchema);
