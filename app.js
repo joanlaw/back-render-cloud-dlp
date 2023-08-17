@@ -7,6 +7,8 @@ import session from 'express-session';
 import { Strategy as DiscordStrategy } from 'passport-discord';
 import dotenv from 'dotenv';
 
+import User from './models/User.js';
+
 import indexRoutes from './routes/index.routes.js';
 import cartasRoutes from './routes/cards.routes.js';
 import decksRoutes from './routes/decks.routes.js';
@@ -52,26 +54,18 @@ const jwtOptions = {
   secretOrKey: process.env.JWT_SECRET,
 };
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-}));
 
 passport.use(new JwtStrategy(jwtOptions, (jwtPayload, done) => {
-  // Aquí necesitarás importar tu modelo de usuario y buscar el usuario por el ID que está en jwtPayload
-  // (Lo dejo como comentario para que completes con tu modelo de usuario)
-  // User.findById(jwtPayload.id)
-  //   .then(user => {
-  //     if (user) {
-  //       return done(null, user);
-  //     } else {
-  //       return done(null, false);
-  //     }
-  //   })
-  //   .catch(err => done(err, false));
+  User.findOne({ discordId: jwtPayload.discordId })
+    .then(user => {
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
+    })
+    .catch(err => done(err, false));
 }));
-
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
