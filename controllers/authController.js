@@ -42,20 +42,26 @@ export const logout = (req, res) => {
 
 
 export const callback = (req, res) => {
-  if (req.isAuthenticated()) {
-    const token = jwt.sign({ discordId: req.user.discordId }, process.env.JWT_SECRET, {
-      expiresIn: '7d', // Configura el tiempo de expiración como lo necesites
-    });
-    
-    // Redirecciona al usuario a tu página frontend con el token en la URL
-    res.redirect(`https://duellinks.pro/?token=${token}`);
-  } else {
-    res.json({
-      success: false,
-      message: 'Autenticación fallida',
-    });
-  }
+    if (req.isAuthenticated()) {
+        const token = jwt.sign({ discordId: req.user.discordId }, process.env.JWT_SECRET, {
+            expiresIn: '15d',
+        });
+
+        // Guarda el token en el localStorage del cliente y cierra la ventana emergente
+        const script = `
+            window.opener.localStorage.setItem("token", "${token}");
+            window.close();
+        `;
+
+        res.send(`<script>${script}</script>`);
+    } else {
+        res.json({
+            success: false,
+            message: 'Autenticación fallida',
+        });
+    }
 };
+
 
 
 
