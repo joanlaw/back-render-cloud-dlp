@@ -48,12 +48,12 @@ export const callback = (req, res) => {
         });
 
         // Guarda el token en el localStorage del cliente y cierra la ventana emergente
-        const script = `
-            window.opener.localStorage.setItem("token", "${token}");
-            window.close();
-        `;
+const script = `
+    window.opener.postMessage({ type: 'AUTH_SUCCESS', token: "${token}" }, "*");
+    window.close();
+`;
 
-        res.send(`<script>${script}</script>`);
+res.send(`<script>${script}</script>`);
     } else {
         res.json({
             success: false,
