@@ -75,7 +75,7 @@ export const getUserInfo = (req, res) => {
   if (req.isAuthenticated()) {
     res.json({
       authenticated: true,
-      discordId: req.user.discordId,  // Añadir esto
+      discordId: req.user.id,  // Añadir esto
       image: req.user.avatar,
       username: req.user.username,
       puntos: req.user.puntos,
