@@ -4,7 +4,8 @@ import {
     createLeague,
     deleteLeague,
     updateLeague, // no olvides importar este método
-    getLeagueById  // importa este método
+    getLeagueById,  // importa este método
+    enrollPlayer
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -12,6 +13,7 @@ const leaguesRouter = Router();
 leaguesRouter.get('/leagues', getLeagues);
 leaguesRouter.get('/leagues/:id', getLeagueById); // agrega esta línea
 leaguesRouter.post('/leagues', createLeague);
+router.post('/leagues/:leagueId/enroll', enrollPlayer);
 leaguesRouter.delete('/leagues/:id', deleteLeague);
 
 leaguesRouter.put('/leagues/:id', updateLeague); // agrega esta línea
