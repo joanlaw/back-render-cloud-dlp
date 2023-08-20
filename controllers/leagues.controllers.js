@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'; // Importa mongoose
 import League from '../models/league.model.js';
 import User from '../models/User.js'
 
