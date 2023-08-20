@@ -119,16 +119,22 @@ export const deleteLeague = async (req, res) => {
 export const enrollPlayer = async (req, res) => {
   try {
     const { leagueId } = req.params; 
-    const { playerId } = req.body; // Toma el playerId (o username) del cuerpo de la solicitud
-    
+    const { playerId } = req.body;
+
     const league = await League.findById(leagueId);
     if (!league) {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
+    // Buscar al usuario por su discordId
+    const player = await User.findOne({ discordId: playerId });
+    if (!player) {
+      return res.status(404).json({ message: 'Jugador no encontrado' });
+    }
+
     // Agregar el ID del jugador al campo `players` del torneo
-    if (!league.players.includes(playerId)) {
-      league.players.push(playerId);
+    if (!league.players.includes(player._id)) {
+      league.players.push(player._id);
       await league.save();
     }
 
