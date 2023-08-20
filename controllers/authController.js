@@ -75,9 +75,10 @@ export const getUserInfo = (req, res) => {
   if (req.isAuthenticated()) {
     res.json({
       authenticated: true,
+      discordId: req.user.discordId,  // Añadir esto
       image: req.user.avatar,
       username: req.user.username,
-      puntos: req.user.puntos, // Agregar los puntos
+      puntos: req.user.puntos,
     });
   } else {
     res.json({
@@ -85,6 +86,7 @@ export const getUserInfo = (req, res) => {
     });
   }
 };
+
 
 
 export const updateUserPoints = (req, res) => {
