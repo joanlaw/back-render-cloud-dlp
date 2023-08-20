@@ -1,4 +1,5 @@
 import League from '../models/league.model.js';
+import User from '../models/User.js'
 
 // METODO GET
 export const getLeagues = async (req, res) => {
