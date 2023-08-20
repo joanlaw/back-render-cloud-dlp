@@ -17,11 +17,30 @@ export const getLeagues = async (req, res) => {
     };
 
     const leagues = await League.paginate(query, options);
-    res.send(leagues);
+
+    // Obtener los usernames de los jugadores y reemplazar los IDs
+    const leaguesWithUsernames = await Promise.all(
+      leagues.docs.map(async league => {
+        const playersWithUsernames = await Promise.all(
+          league.players.map(async playerId => {
+            const player = await User.findById(playerId);
+            return player ? player.username : 'Jugador Desconocido';
+          })
+        );
+        
+        return {
+          ...league.toObject(),
+          players: playersWithUsernames
+        };
+      })
+    );
+
+    res.send({ ...leagues, docs: leaguesWithUsernames });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // METODO GET por ID
 export const getLeagueById = async (req, res) => {
