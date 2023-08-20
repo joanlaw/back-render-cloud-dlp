@@ -132,9 +132,12 @@ export const enrollPlayer = async (req, res) => {
       return res.status(404).json({ message: 'Jugador no encontrado' });
     }
 
+    // Convertir el discordId en ObjectId
+    const playerIdObjectId = mongoose.Types.ObjectId(player._id);
+
     // Agregar el ID del jugador al campo `players` del torneo
-    if (!league.players.includes(player._id)) {
-      league.players.push(player._id);
+    if (!league.players.includes(playerIdObjectId)) {
+      league.players.push(playerIdObjectId);
       await league.save();
     }
 
@@ -143,6 +146,7 @@ export const enrollPlayer = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // Iniciar el torneo y crear emparejamientos para la primera ronda
 export const startTournament = async (req, res) => {
