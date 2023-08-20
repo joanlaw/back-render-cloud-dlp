@@ -57,7 +57,7 @@ const leagueSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
+}
 });
 
 // Aplicar el plugin de paginación al esquema
