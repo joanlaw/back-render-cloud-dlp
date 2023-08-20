@@ -118,7 +118,8 @@ export const deleteLeague = async (req, res) => {
 // Inscribir un jugador en el torneo
 export const enrollPlayer = async (req, res) => {
   try {
-    const { leagueId, playerId } = req.params; // O puedes obtener estos datos del cuerpo de la solicitud (req.body)
+    const { leagueId } = req.params; 
+    const { playerId } = req.body; // Toma el playerId (o username) del cuerpo de la solicitud
     
     const league = await League.findById(leagueId);
     if (!league) {
