@@ -64,10 +64,10 @@ export const createLeague = async (req, res) => {
   try {
     const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo, organizer } = req.body;
 
-    // Buscar al usuario por su discordId
+    // Buscar al usuario por su username o discordId
     const user = await User.findOne({ discordId: organizer });
     if (!user) {
-      return res.status(404).json({ message: 'Organizador no encontrado' });
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
     const league = new League({
@@ -77,7 +77,7 @@ export const createLeague = async (req, res) => {
       enlace_torneo,
       image_torneo,
       infoTorneo,
-      organizer: user.username // Guardamos el nombre de usuario en vez del discordId
+      organizer: user._id
     });
 
     await league.save();
@@ -87,7 +87,6 @@ export const createLeague = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 
