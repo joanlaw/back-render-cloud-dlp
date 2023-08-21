@@ -253,3 +253,19 @@ export const getTournamentsByDiscordId = async (req, res) => {
   }
 };
 
+// METODO GET por DiscordId del organizador
+export const getLeaguesByOrganizer = async (req, res) => {
+  try {
+    const { discordId } = req.params;
+    const user = await User.findOne({ discordId: discordId });
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const leagues = await League.find({ organizer: user._id });
+    return res.json(leagues);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
