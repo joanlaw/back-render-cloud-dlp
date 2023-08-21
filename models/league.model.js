@@ -57,7 +57,8 @@ const leagueSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: false
-}
+},
+discordId: String // Agrega este campo para almacenar el discordId
 });
 
 // Aplicar el plugin de paginación al esquema
