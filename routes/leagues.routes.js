@@ -15,7 +15,7 @@ const leaguesRouter = Router();
 leaguesRouter.get('/leagues', getLeagues);
 leaguesRouter.get('/leagues/:id', getLeagueById); // agrega esta línea
 leaguesRouter.get('/leagues/discordId/:discordId', getTournamentsByDiscordId);
-leaguesRouter.get('/organizer/:discordId', getLeaguesByOrganizer);
+leaguesRouter.get('leagues/organizer/:discordId', getLeaguesByOrganizer);
 
 leaguesRouter.post('/leagues', createLeague);
 leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta línea!
