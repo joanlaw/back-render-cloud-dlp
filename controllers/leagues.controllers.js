@@ -65,26 +65,30 @@ export const getLeagueById = async (req, res) => {
 // METODO POST
 export const createLeague = async (req, res) => {
   try {
-    const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo, reglas, organizer } = req.body;
+    const { league_name, league_format, start_date, enlace_torneo, infoTorneo, organizer } = req.body;
 
     const user = await User.findOne({ discordId: organizer });
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    // Aquí es donde subimos la imagen a imgbb
     let image;
-    if (req.file) { // Asegurarse de que el archivo está en el request (suponiendo que lo estás enviando en el cuerpo del request como un archivo adjunto)
+    if (req.file) {
       image = await uploadToImgbb(req.file.path);
     }
+
+    // Aquí generamos un valor único para public_id (por ejemplo, usando un UUID)
+    const public_id = generateUniquePublicId(); // Implementa tu propia función aquí
 
     const league = new League({
       league_name,
       league_format,
       start_date: new Date(start_date),
-      image, 
+      image: {
+        url: image.url,       // Utiliza la URL de la imagen cargada
+        public_id: public_id  // Asigna el public_id generado
+      },
       infoTorneo,
-      reglas,
       organizer: user._id,
     });
 
@@ -95,7 +99,6 @@ export const createLeague = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 // METODO PUT
 export const updateLeague = async (req, res) => {
