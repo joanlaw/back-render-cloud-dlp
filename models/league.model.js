@@ -5,7 +5,8 @@ const leagueSchema = mongoose.Schema({
   league_name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    unique: true // Agrega esta línea para hacer que el campo sea único
   },
   league_format: {
     type: String,
@@ -15,6 +16,10 @@ const leagueSchema = mongoose.Schema({
   start_date: {
     type: Date,
     required: true
+  },
+  reglas: {
+    type: String,
+    trim: true,
   },
   enlace_torneo: String,
   image_torneo: String,

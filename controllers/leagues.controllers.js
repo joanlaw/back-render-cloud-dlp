@@ -63,7 +63,7 @@ export const getLeagueById = async (req, res) => {
 // METODO POST
 export const createLeague = async (req, res) => {
   try {
-    const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo, organizer } = req.body;
+    const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo, reglas, organizer } = req.body;
 
     // Buscar al usuario por su username o discordId
     const user = await User.findOne({ discordId: organizer });
@@ -78,7 +78,8 @@ export const createLeague = async (req, res) => {
       enlace_torneo,
       image_torneo,
       infoTorneo,
-      organizer: user._id
+      reglas, // Agrega el campo "reglas"
+      organizer: user._id,
     });
 
     await league.save();
@@ -89,11 +90,10 @@ export const createLeague = async (req, res) => {
   }
 };
 
-
 // METODO PUT
 export const updateLeague = async (req, res) => {
   try {
-    const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo } = req.body;
+    const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo, reglas } = req.body;
 
     let league = await League.findById(req.params.id);
 
@@ -101,10 +101,10 @@ export const updateLeague = async (req, res) => {
       return res.status(404).json({ message: 'La liga no existe' });
     }
 
-       // Verificar que el usuario que hace la solicitud es el organizador del torneo
-       if (league.organizer.toString() !== req.userId) {
-        return res.status(403).json({ message: 'No tienes permiso para modificar este torneo' });
-      }
+    // Verificar que el usuario que hace la solicitud es el organizador del torneo
+    if (league.organizer.toString() !== req.userId) {
+      return res.status(403).json({ message: 'No tienes permiso para modificar este torneo' });
+    }
 
     if (league_name) league.league_name = league_name;
     if (league_format) league.league_format = league_format;
@@ -112,6 +112,7 @@ export const updateLeague = async (req, res) => {
     if (enlace_torneo) league.enlace_torneo = enlace_torneo;
     if (image_torneo) league.image_torneo = image_torneo;
     if (infoTorneo) league.infoTorneo = infoTorneo;
+    if (reglas) league.reglas = reglas; // Agrega el campo "reglas"
 
     await league.save();
 
