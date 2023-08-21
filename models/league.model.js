@@ -22,7 +22,10 @@ const leagueSchema = mongoose.Schema({
     trim: true,
   },
   enlace_torneo: String,
-  image_torneo: String,
+  image: {
+    url: String,
+    public_id: String
+  },  
   infoTorneo: [
     {
       format: String,

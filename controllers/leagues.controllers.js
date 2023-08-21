@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'; // Importa mongoose
 import League from '../models/league.model.js';
 import User from '../models/User.js'
+import uploadToImgbb from '../utils/imgbb.js';
 
 // METODO GET
 export const getLeagues = async (req, res) => {
@@ -61,24 +62,29 @@ export const getLeagueById = async (req, res) => {
 
 
 // METODO POST
+// METODO POST
 export const createLeague = async (req, res) => {
   try {
     const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo, reglas, organizer } = req.body;
 
-    // Buscar al usuario por su username o discordId
     const user = await User.findOne({ discordId: organizer });
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Aquí es donde subimos la imagen a imgbb
+    let image;
+    if (req.file) { // Asegurarse de que el archivo está en el request (suponiendo que lo estás enviando en el cuerpo del request como un archivo adjunto)
+      image = await uploadToImgbb(req.file.path);
     }
 
     const league = new League({
       league_name,
       league_format,
       start_date: new Date(start_date),
-      enlace_torneo,
-      image_torneo,
+      image, 
       infoTorneo,
-      reglas, // Agrega el campo "reglas"
+      reglas,
       organizer: user._id,
     });
 
@@ -89,6 +95,7 @@ export const createLeague = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // METODO PUT
 export const updateLeague = async (req, res) => {
