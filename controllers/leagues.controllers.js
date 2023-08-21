@@ -63,7 +63,7 @@ export const getLeagueById = async (req, res) => {
 export const createLeague = async (req, res) => {
   try {
     const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo } = req.body;
-    
+
     const league = new League({
       league_name,
       league_format,
@@ -71,7 +71,7 @@ export const createLeague = async (req, res) => {
       enlace_torneo,
       image_torneo,
       infoTorneo,
-      organizer: req.body.organizer // Almacena el ID de Discord en el campo organizer
+      organizer: mongoose.Types.ObjectId(req.body.organizer) // Convierte el ID de Discord a ObjectId
     });
 
     await league.save();
