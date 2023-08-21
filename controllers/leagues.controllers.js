@@ -62,7 +62,6 @@ export const getLeagueById = async (req, res) => {
 
 
 // METODO POST
-// METODO POST
 export const createLeague = async (req, res) => {
   try {
     const { league_name, league_format, start_date, enlace_torneo, infoTorneo, organizer } = req.body;
@@ -77,16 +76,12 @@ export const createLeague = async (req, res) => {
       image = await uploadToImgbb(req.file.path);
     }
 
-    // Aquí generamos un valor único para public_id (por ejemplo, usando un UUID)
-    const public_id = generateUniquePublicId(); // Implementa tu propia función aquí
-
     const league = new League({
       league_name,
       league_format,
       start_date: new Date(start_date),
       image: {
-        url: image.url,       // Utiliza la URL de la imagen cargada
-        public_id: public_id  // Asigna el public_id generado
+        url: image.url // Utiliza solo la URL de la imagen
       },
       infoTorneo,
       organizer: user._id,
@@ -99,6 +94,8 @@ export const createLeague = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+
 
 // METODO PUT
 export const updateLeague = async (req, res) => {
