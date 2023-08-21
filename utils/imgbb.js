@@ -10,7 +10,10 @@ const uploadToImgbb = async (filePath) => {
     formData.append('image', fs.createReadStream(filePath));
 
     const response = await axios.post(apiUrl, formData, {
-      headers: formData.getHeaders(), // Corrige esta línea
+      headers: {
+        ...formData.getHeaders(),
+        // Otros encabezados que puedas necesitar
+      },
       params: {
         key: apiKey
       }
