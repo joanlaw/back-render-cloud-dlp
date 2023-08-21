@@ -71,7 +71,8 @@ export const createLeague = async (req, res) => {
       enlace_torneo,
       image_torneo,
       infoTorneo,
-      organizer: req.userId  // Aquí guardamos el ID del usuario que creó el torneo
+      organizer: req.userId,  // Aquí guardamos el ID del usuario que creó el torneo
+      discordId: req.body.organizer // También puedes guardar el discordId si lo necesitas
     });
 
     await league.save();
