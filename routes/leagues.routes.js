@@ -28,7 +28,7 @@ leaguesRouter.get('/leagues/:id', getLeagueById); // agrega esta línea
 leaguesRouter.get('/leagues/discordId/:discordId', getTournamentsByDiscordId);
 leaguesRouter.get('/leagues/organizer/:discordId', getLeaguesByOrganizer);
 
-leaguesRouter.post('/leagues', upload.single('file'), createLeague); // Utiliza el middleware "upload.single('file')" para manejar la subida de imágenes
+leaguesRouter.post('/leagues', upload.single('image'), createLeague); // Utiliza el middleware "upload.single('file')" para manejar la subida de imágenes
 leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta línea!
 leaguesRouter.delete('/leagues/:id', deleteLeague);
 
