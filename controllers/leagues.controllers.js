@@ -282,3 +282,22 @@ export const getLeaguesByOrganizer = async (req, res) => {
   }
 };
 
+//para saber los players de una liga o torneo inscritos
+export const getPlayersByLeagueId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const league = await League.findById(id);
+
+    if (!league) {
+      return res.status(404).json({ message: 'El torneo no existe' });
+    }
+
+    const players = await User.find({ _id: { $in: league.players } }); // Obtén los jugadores por sus IDs
+
+    return res.json(players);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+

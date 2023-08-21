@@ -8,7 +8,8 @@ import {
     getLeagueById,  // importa este método
     enrollPlayer,  // ¡No olvides importar esto!
     getTournamentsByDiscordId,
-    getLeaguesByOrganizer
+    getLeaguesByOrganizer,
+    getPlayersByLeagueId
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -27,6 +28,7 @@ leaguesRouter.get('/leagues', getLeagues);
 leaguesRouter.get('/leagues/:id', getLeagueById); // agrega esta línea
 leaguesRouter.get('/leagues/discordId/:discordId', getTournamentsByDiscordId);
 leaguesRouter.get('/leagues/organizer/:discordId', getLeaguesByOrganizer);
+leaguesRouter.get('/leagues/:id/players', getPlayersByLeagueId); // Agrega esta línea
 
 leaguesRouter.post('/leagues', upload.single('image'), createLeague); // Utiliza el middleware "upload.single('file')" para manejar la subida de imágenes
 leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta línea!
