@@ -9,7 +9,8 @@ export const getLeagues = async (req, res) => {
 
     const options = {
       page: parseInt(page, 10),
-      limit: parseInt(size, 10)
+      limit: parseInt(size, 10),
+      populate: 'organizer' // Esto poblará el campo 'organizer' con el documento completo del usuario
     };
 
     const query = {
@@ -27,7 +28,7 @@ export const getLeagues = async (req, res) => {
             return player ? player.username : 'Jugador Desconocido';
           })
         );
-        
+
         return {
           ...league.toObject(),
           players: playersWithUsernames
@@ -87,7 +88,6 @@ export const createLeague = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 // METODO PUT
