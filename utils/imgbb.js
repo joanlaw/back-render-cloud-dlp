@@ -1,4 +1,3 @@
-// utils/imgbb.js
 import axios from 'axios';
 import fs from 'fs';
 
@@ -11,9 +10,7 @@ const uploadToImgbb = async (filePath) => {
     formData.append('image', fs.createReadStream(filePath));
 
     const response = await axios.post(apiUrl, formData, {
-      headers: {
-        ...formData.getHeaders()
-      },
+      headers: formData.getHeaders(), // Corrige esta línea
       params: {
         key: apiKey
       }
