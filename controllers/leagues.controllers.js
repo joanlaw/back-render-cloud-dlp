@@ -64,7 +64,12 @@ export const getLeagueById = async (req, res) => {
 // METODO POST
 export const createLeague = async (req, res) => {
   try {
-    const { league_name, league_format, start_date, enlace_torneo, infoTorneo, organizer } = req.body;
+    let { league_name, league_format, start_date, enlace_torneo, infoTorneo, organizer } = req.body;
+
+    // Aquí agregamos la verificación y el parseo
+    if (typeof infoTorneo === 'string') {
+      infoTorneo = JSON.parse(infoTorneo);
+    }
 
     const user = await User.findOne({ discordId: organizer });
     if (!user) {
