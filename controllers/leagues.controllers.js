@@ -62,7 +62,13 @@ export const getLeagueById = async (req, res) => {
 // METODO POST
 export const createLeague = async (req, res) => {
   try {
-    const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo } = req.body;
+    const { league_name, league_format, start_date, enlace_torneo, image_torneo, infoTorneo, organizer } = req.body;
+
+    // Buscar al usuario por su discordId
+    const user = await User.findOne({ discordId: organizer });
+    if (!user) {
+      return res.status(404).json({ message: 'Organizador no encontrado' });
+    }
 
     const league = new League({
       league_name,
@@ -71,16 +77,17 @@ export const createLeague = async (req, res) => {
       enlace_torneo,
       image_torneo,
       infoTorneo,
-      organizer: mongoose.Types.ObjectId(req.body.organizer) // Convierte el ID de Discord a ObjectId
+      organizer: user.username // Guardamos el nombre de usuario en vez del discordId
     });
 
     await league.save();
     res.json(league);
   } catch (error) {
-    console.error(error); // <-- Add this
+    console.error(error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
