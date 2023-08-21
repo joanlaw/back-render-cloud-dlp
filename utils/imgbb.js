@@ -1,12 +1,14 @@
 import axios from 'axios';
 import fs from 'fs';
+import FormData from 'form-data';
 
 const uploadToImgbb = async (filePath) => {
   try {
     const apiUrl = "https://api.imgbb.com/1/upload";
     const apiKey = process.env.IMGBB_API;
 
-    const formData = new FormData();
+    const formData = new FormData();  
+    console.log("File path:", filePath);
     formData.append('image', fs.createReadStream(filePath));
 
     const response = await axios.post(apiUrl, formData, {
