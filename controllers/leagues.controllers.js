@@ -77,6 +77,7 @@ export const createLeague = async (req, res) => {
     await league.save();
     res.json(league);
   } catch (error) {
+    console.error(error); // <-- Add this
     return res.status(500).json({ message: error.message });
   }
 };
