@@ -330,9 +330,14 @@ export const getPlayersByLeagueId = async (req, res) => {
 };
 
 //IMAGENES DECKS 
+import User from '../models/User.js';
+import PlayerDeck from '../models/playerDeck.model.js';
+import uploadToImgbb from '../utils/imgbb.js';
+import fs from 'fs';
+
+// Controlador para crear un mazo de jugador
 export const createPlayerDeck = async (req, res) => {
   try {
-    const { main_deck, extra_deck, side_deck, especial_deck } = req.body;
     const { discordId } = req.query; // Obtén el discordId de la solicitud
 
     // Busca al usuario por su discordId
@@ -342,15 +347,27 @@ export const createPlayerDeck = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    const uploadedImages = {}; // Aquí puedes mantener el proceso de subida de imágenes
+    // Obtener las URLs de las imágenes subidas desde el FormData
+    const main_deck_url = req.file('main_deck') ? req.file('main_deck').url : '';
+    const extra_deck_url = req.file('extra_deck') ? req.file('extra_deck').url : '';
+    const side_deck_url = req.file('side_deck') ? req.file('side_deck').url : '';
+    const especial_deck_url = req.file('especial_deck') ? req.file('especial_deck').url : '';
 
-    // Crear una nueva instancia de PlayerDeck con las imágenes subidas o las URLs proporcionadas
+    // Crear una nueva instancia de PlayerDeck con las URLs de las imágenes
     const newPlayerDeck = new PlayerDeck({
-      user: user._id, // Asignar el ID del usuario
-      main_deck: uploadedImages.main_deck || (main_deck ? main_deck.url : ''),
-      extra_deck: uploadedImages.extra_deck || (extra_deck ? extra_deck.url : ''),
-      side_deck: uploadedImages.side_deck || (side_deck ? side_deck.url : ''),
-      especial_deck: uploadedImages.especial_deck || (especial_deck ? especial_deck.url : ''),
+      user: user._id,
+      main_deck: {
+        url: main_deck_url,
+      },
+      extra_deck: {
+        url: extra_deck_url,
+      },
+      side_deck: {
+        url: side_deck_url,
+      },
+      especial_deck: {
+        url: especial_deck_url,
+      },
     });
 
     // Guardar la instancia del mazo del jugador en la base de datos
@@ -362,6 +379,7 @@ export const createPlayerDeck = async (req, res) => {
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
 };
+
 
 // METODO GET para obtener información de un mazo de jugador por ID
 export const getPlayerDeckById = async (req, res) => {
