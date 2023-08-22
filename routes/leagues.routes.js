@@ -13,7 +13,8 @@ import {
     createPlayerDeck,
     getPlayerDeckById,
     updatePlayerDeck,   // Importa este método para actualizar
-  deletePlayerDeck    // Importa este método para eliminar
+  deletePlayerDeck,  // Importa este método para eliminar
+  getPlayerDeckByDiscordId    
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -51,6 +52,8 @@ leaguesRouter.put('/leagues/:leagueId/playerdecks/:id', updatePlayerDeck);
 
 // Eliminar un PlayerDeck
 leaguesRouter.delete('/leagues/:leagueId/playerdecks/:id', deletePlayerDeck);
+
+leaguesRouter.get('/leagues/:leagueId/playerdecks', getPlayerDeckByDiscordId);
 
 leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta línea!
 leaguesRouter.delete('/leagues/:id', deleteLeague);
