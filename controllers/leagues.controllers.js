@@ -373,3 +373,65 @@ export const getPlayerDeckById = async (req, res) => {
 };
 
 
+//GET ID DECK PLAYER
+export const getPlayerDeck = async (req, res) => {
+  try {
+      const playerDeckId = req.params.id; 
+      const playerDeck = await PlayerDeck.findById(playerDeckId);
+      
+      if (!playerDeck) {
+          return res.status(404).json({ error: 'Mazo del jugador no encontrado.' });
+      }
+      
+      res.status(200).json(playerDeck);
+      
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Hubo un error al obtener el mazo del jugador.' });
+  }
+};
+
+//UPDATE PLAYERID
+export const updatePlayerDeck = async (req, res) => {
+  try {
+      const playerDeckId = req.params.id;
+      const updatedDeck = req.body; 
+      
+      const playerDeck = await PlayerDeck.findByIdAndUpdate(playerDeckId, updatedDeck, { new: true });
+      
+      if (!playerDeck) {
+          return res.status(404).json({ error: 'Mazo del jugador no encontrado.' });
+      }
+      
+      res.status(200).json(playerDeck);
+      
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Hubo un error al actualizar el mazo del jugador.' });
+  }
+};
+
+//DELETE PLAYERID
+export const deletePlayerDeck = async (req, res) => {
+  try {
+      const playerDeckId = req.params.id;
+      
+      const playerDeck = await PlayerDeck.findByIdAndRemove(playerDeckId);
+      
+      if (!playerDeck) {
+          return res.status(404).json({ error: 'Mazo del jugador no encontrado.' });
+      }
+      
+      // También deberías considerar eliminar el ID del PlayerDeck del array playerDecks en la Liga.
+      await League.updateMany({}, { $pull: { playerDecks: playerDeckId } });
+
+      res.status(200).json({ message: 'Mazo del jugador eliminado con éxito.' });
+      
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Hubo un error al eliminar el mazo del jugador.' });
+  }
+};
+
+
+

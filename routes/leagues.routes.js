@@ -11,7 +11,9 @@ import {
     getLeaguesByOrganizer,
     getPlayersByLeagueId,
     createPlayerDeck,
-    getPlayerDeckById
+    getPlayerDeckById,
+    updatePlayerDeck,   // Importa este método para actualizar
+  deletePlayerDeck    // Importa este método para eliminar
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -44,6 +46,12 @@ leaguesRouter.post(
   createPlayerDeck
 );
 leaguesRouter.get('/leagues/:leagueId/playerdecks/:id', getPlayerDeckById);
+// Actualizar un PlayerDeck
+leaguesRouter.put('/leagues/:leagueId/playerdecks/:id', updatePlayerDeck);
+
+// Eliminar un PlayerDeck
+leaguesRouter.delete('/leagues/:leagueId/playerdecks/:id', deletePlayerDeck);
+
 leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta línea!
 leaguesRouter.delete('/leagues/:id', deleteLeague);
 
