@@ -455,7 +455,7 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
       return res.status(404).json({ error: 'Mazo no encontrado para el usuario especificado' });
     }
 
-    console.log('Mazo encontrado:', playerDeck);
+    console.log('Mazo encontrado:', JSON.stringify(playerDeck, null, 2)); // Agrega esta línea
 
     res.status(200).json(playerDeck);
   } catch (error) {
@@ -463,5 +463,6 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener el mazo del jugador' });
   }
 };
+
 
 
