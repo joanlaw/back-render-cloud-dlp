@@ -455,7 +455,10 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
       return res.status(404).json({ error: 'Mazo no encontrado para el usuario especificado' });
     }
 
-    console.log('Mazo encontrado:', JSON.stringify(playerDeck, null, 2)); // Agrega esta línea
+    console.log('Mazo encontrado - Main Deck:', playerDeck.main_deck.url);
+    console.log('Mazo encontrado - Extra Deck:', playerDeck.extra_deck.url);
+    console.log('Mazo encontrado - Side Deck:', playerDeck.side_deck.url);
+    console.log('Mazo encontrado - Especial Deck:', playerDeck.especial_deck.url);
 
     res.status(200).json(playerDeck);
   } catch (error) {
@@ -463,6 +466,5 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener el mazo del jugador' });
   }
 };
-
 
 
