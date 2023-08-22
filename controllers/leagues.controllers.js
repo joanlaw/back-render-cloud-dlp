@@ -6,7 +6,7 @@ import PlayerDeck from '../models/playerDeck.model.js';
 import fs from 'fs';
 
 
-// METODO GET
+// METODO GET/
 export const getLeagues = async (req, res) => {
   try {
     const { page = 1, size = 50, search = '' } = req.query;
