@@ -330,11 +330,6 @@ export const getPlayersByLeagueId = async (req, res) => {
 };
 
 //IMAGENES DECKS 
-import User from '../models/User.js';
-import PlayerDeck from '../models/playerDeck.model.js';
-import uploadToImgbb from '../utils/imgbb.js';
-import fs from 'fs';
-
 // Controlador para crear un mazo de jugador
 export const createPlayerDeck = async (req, res) => {
   try {
