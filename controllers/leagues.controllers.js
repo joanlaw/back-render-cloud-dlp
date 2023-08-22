@@ -344,11 +344,11 @@ export const createPlayerDeck = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Obtener las URLs de las imágenes subidas desde el FormData
-    const main_deck_url = req.file('main_deck') ? req.file('main_deck').url : '';
-    const extra_deck_url = req.file('extra_deck') ? req.file('extra_deck').url : '';
-    const side_deck_url = req.file('side_deck') ? req.file('side_deck').url : '';
-    const especial_deck_url = req.file('especial_deck') ? req.file('especial_deck').url : '';
+    // Obtén las URLs de las imágenes subidas desde el FormData
+    const main_deck_url = req.files['main_deck'][0].url;
+    const extra_deck_url = req.files['extra_deck'][0].url;
+    const side_deck_url = req.files['side_deck'][0].url;
+    const especial_deck_url = req.files['especial_deck'][0].url;
 
     console.log('Main Deck URL:', main_deck_url);
     console.log('Extra Deck URL:', extra_deck_url);
@@ -383,7 +383,6 @@ export const createPlayerDeck = async (req, res) => {
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
 };
-
 
 
 // METODO GET para obtener información de un mazo de jugador por ID
