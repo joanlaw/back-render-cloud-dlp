@@ -48,7 +48,7 @@ leaguesRouter.post(
 );
 //buscar id decks subidos
 leaguesRouter.get('/leagues/:leagueId/playerdecks', getPlayerDeckByDiscordId);
-leaguesRouter.get('/leagues/:leagueId/playerdecks/:id', getPlayerDeckById);
+//leaguesRouter.get('/leagues/:leagueId/playerdecks/:id', getPlayerDeckById);
 // Actualizar un PlayerDeck
 leaguesRouter.put('/leagues/:leagueId/playerdecks/:id', updatePlayerDeck);
 

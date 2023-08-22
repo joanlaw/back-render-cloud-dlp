@@ -360,7 +360,7 @@ export const createPlayerDeck = async (req, res) => {
 
 
 // METODO GET para obtener información de un mazo de jugador por ID
-export const getPlayerDeckById = async (req, res) => {
+/*export const getPlayerDeckById = async (req, res) => {
   try {
     const playerDeck = await PlayerDeck.findById(req.params.id).populate('user');
     if (!playerDeck) {
@@ -370,7 +370,7 @@ export const getPlayerDeckById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error al obtener el mazo", error });
   }
-};
+};  */
 
 
 //GET ID DECK PLAYER
