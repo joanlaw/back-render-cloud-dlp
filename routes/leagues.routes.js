@@ -11,7 +11,7 @@ import {
     getLeaguesByOrganizer,
     getPlayersByLeagueId,
     createPlayerDeck,
-    getPlayerDeckById,
+   // getPlayerDeckById,
     updatePlayerDeck,   // Importa este método para actualizar
   deletePlayerDeck,  // Importa este método para eliminar
   getPlayerDeckByDiscordId    
