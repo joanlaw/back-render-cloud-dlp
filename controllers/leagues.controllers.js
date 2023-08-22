@@ -333,34 +333,20 @@ export const getPlayersByLeagueId = async (req, res) => {
 export const createPlayerDeck = async (req, res) => {
   try {
     const { main_deck, extra_deck, side_deck, especial_deck } = req.body;
-    const uploadedImages = {};
+    const { discordId } = req.query; // Obtén el discordId de la solicitud
 
-    if (req.files) {
-      // Procesar las imágenes subidas
-      if (req.files['main_deck']) {
-        const uploadedImage = await uploadToImgbb(req.files['main_deck'][0].path);
-        uploadedImages.main_deck = uploadedImage.url;
-      }
+    // Busca al usuario por su discordId
+    const user = await User.findOne({ discordId });
 
-      if (req.files['extra_deck']) {
-        const uploadedImage = await uploadToImgbb(req.files['extra_deck'][0].path);
-        uploadedImages.extra_deck = uploadedImage.url;
-      }
-
-      if (req.files['side_deck']) {
-        const uploadedImage = await uploadToImgbb(req.files['side_deck'][0].path);
-        uploadedImages.side_deck = uploadedImage.url;
-      }
-
-      if (req.files['especial_deck']) {
-        const uploadedImage = await uploadToImgbb(req.files['especial_deck'][0].path);
-        uploadedImages.especial_deck = uploadedImage.url;
-      }
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
+
+    const uploadedImages = {}; // Aquí puedes mantener el proceso de subida de imágenes
 
     // Crear una nueva instancia de PlayerDeck con las imágenes subidas o las URLs proporcionadas
     const newPlayerDeck = new PlayerDeck({
-      user: req.userId, // Asignar el usuario actual al mazo
+      user: user._id, // Asignar el ID del usuario
       main_deck: uploadedImages.main_deck || (main_deck ? main_deck.url : ''),
       extra_deck: uploadedImages.extra_deck || (extra_deck ? extra_deck.url : ''),
       side_deck: uploadedImages.side_deck || (side_deck ? side_deck.url : ''),
@@ -372,8 +358,7 @@ export const createPlayerDeck = async (req, res) => {
 
     res.status(201).json(newPlayerDeck);
   } catch (error) {
-    console.error(error); // Muestra el error en la consola para depuración
-    // Manejo de errores en caso de que algo falle durante el proceso
+    console.error(error);
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
 };
