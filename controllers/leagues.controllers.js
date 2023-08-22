@@ -336,7 +336,6 @@ export const createPlayerDeck = async (req, res) => {
     const uploadedImages = {};
 
     if (req.files) {
-      // Aquí accedes a los archivos subidos por nombre de campo
       if (req.files['main_deck']) {
         const uploadedImage = await uploadToImgbb(req.files['main_deck'][0].path);
         uploadedImages.main_deck = uploadedImage.url;
@@ -358,27 +357,22 @@ export const createPlayerDeck = async (req, res) => {
       }
     }
 
+    // Crea una nueva instancia de PlayerDeck con las imágenes subidas o las URLs proporcionadas
     const newPlayerDeck = new PlayerDeck({
       user: req.userId,
       main_deck: uploadedImages.main_deck || main_deck.url,
       extra_deck: uploadedImages.extra_deck || (extra_deck ? extra_deck.url : null),
       side_deck: uploadedImages.side_deck || (side_deck ? side_deck.url : null),
-      especial_deck: uploadedImages.especial_deck || (especial_deck ? especial_deck.url : null),
+      especial_deck: uploadedImages.especial_deck || (especial_deck && especial_deck.url),
     });
 
+    // Guarda la instancia del mazo del jugador en la base de datos
     await newPlayerDeck.save();
 
     res.status(201).json(newPlayerDeck);
   } catch (error) {
     // Manejo de errores
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
-  } finally {
-    // Limpiar archivos temporales después de subirlos a imgbb
-    if (req.files) {
-      Object.values(req.files).forEach((fileArray) => {
-        fs.unlinkSync(fileArray[0].path);
-      });
-    }
   }
 };
 
