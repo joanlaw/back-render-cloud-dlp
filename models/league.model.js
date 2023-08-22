@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
-import PlayerDeck from './playerDeck.model';
+//import PlayerDeck from './playerDeck.model';
 
 const leagueSchema = mongoose.Schema({
   league_name: {
