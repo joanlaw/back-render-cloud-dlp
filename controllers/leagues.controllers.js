@@ -329,35 +329,56 @@ export const getPlayersByLeagueId = async (req, res) => {
   }
 };
 
+//IMAGENES DECKS 
 export const createPlayerDeck = async (req, res) => {
   try {
-      const { main_deck, extra_deck, side_deck, especial_deck } = req.body;
-      const uploadedImages = {};
+    const { main_deck, extra_deck, side_deck, especial_deck } = req.body;
+    const uploadedImages = {};
 
-      // Subir imágenes a imgbb y obtener las URL
-      if (req.file) {
-          const uploadedImage = await uploadToImgbb(req.file.path);
-          uploadedImages.main_deck = uploadedImage.url;
+    if (req.files) {
+      // Aquí accedes a los archivos subidos por nombre de campo
+      if (req.files['main_deck']) {
+        const uploadedImage = await uploadToImgbb(req.files['main_deck'][0].path);
+        uploadedImages.main_deck = uploadedImage.url;
       }
 
-      const newPlayerDeck = new PlayerDeck({
-          user: req.userId, // Asigna el ID del usuario autenticado
-          main_deck: uploadedImages.main_deck || main_deck.url,
-          extra_deck: extra_deck ? extra_deck.url : null,
-          side_deck: side_deck ? side_deck.url : null,
-          especial_deck: especial_deck ? especial_deck.url : null
-      });
+      if (req.files['extra_deck']) {
+        const uploadedImage = await uploadToImgbb(req.files['extra_deck'][0].path);
+        uploadedImages.extra_deck = uploadedImage.url;
+      }
 
-      await newPlayerDeck.save();
+      if (req.files['side_deck']) {
+        const uploadedImage = await uploadToImgbb(req.files['side_deck'][0].path);
+        uploadedImages.side_deck = uploadedImage.url;
+      }
 
-      res.status(201).json(newPlayerDeck);
+      if (req.files['especial_deck']) {
+        const uploadedImage = await uploadToImgbb(req.files['especial_deck'][0].path);
+        uploadedImages.especial_deck = uploadedImage.url;
+      }
+    }
+
+    const newPlayerDeck = new PlayerDeck({
+      user: req.userId,
+      main_deck: uploadedImages.main_deck || main_deck.url,
+      extra_deck: uploadedImages.extra_deck || (extra_deck ? extra_deck.url : null),
+      side_deck: uploadedImages.side_deck || (side_deck ? side_deck.url : null),
+      especial_deck: uploadedImages.especial_deck || (especial_deck ? especial_deck.url : null),
+    });
+
+    await newPlayerDeck.save();
+
+    res.status(201).json(newPlayerDeck);
   } catch (error) {
-      // Manejo de errores
+    // Manejo de errores
+    res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   } finally {
-      // Limpiar archivo temporal después de subirlo a imgbb
-      if (req.file) {
-          fs.unlinkSync(req.file.path);
-      }
+    // Limpiar archivos temporales después de subirlos a imgbb
+    if (req.files) {
+      Object.values(req.files).forEach((fileArray) => {
+        fs.unlinkSync(fileArray[0].path);
+      });
+    }
   }
 };
 

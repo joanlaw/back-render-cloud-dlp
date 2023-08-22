@@ -33,7 +33,16 @@ leaguesRouter.get('/leagues/organizer/:discordId', getLeaguesByOrganizer);
 leaguesRouter.get('/leagues/:id/players', getPlayersByLeagueId); // Agrega esta línea
 
 leaguesRouter.post('/leagues', upload.single('image'), createLeague); // Utiliza el middleware "upload.single('file')" para manejar la subida de imágenes
-leaguesRouter.post('/leagues/:leagueId/playerdecks', upload.single('image'), createPlayerDeck);
+leaguesRouter.post(
+  '/leagues/:leagueId/playerdecks',
+  upload.fields([
+    { name: 'main_deck', maxCount: 1 },
+    { name: 'extra_deck', maxCount: 1 },
+    { name: 'side_deck', maxCount: 1 },
+    { name: 'especial_deck', maxCount: 1 },
+  ]),
+  createPlayerDeck
+);
 leaguesRouter.get('/leagues/:leagueId/playerdecks/:id', getPlayerDeckById);
 leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta línea!
 leaguesRouter.delete('/leagues/:id', deleteLeague);
