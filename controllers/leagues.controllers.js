@@ -2,6 +2,9 @@ import mongoose from 'mongoose'; // Importa mongoose
 import League from '../models/league.model.js';
 import User from '../models/User.js'
 import uploadToImgbb from '../utils/imgbb.js';
+import PlayerDeck from '../models/playerDeck.model.js';
+import fs from 'fs';
+
 
 // METODO GET
 export const getLeagues = async (req, res) => {
@@ -62,6 +65,7 @@ export const getLeagueById = async (req, res) => {
 
 
 // METODO POST
+// METODO POST
 export const createLeague = async (req, res) => {
   try {
     let { league_name, league_format, start_date, enlace_torneo, infoTorneo, organizer } = req.body;
@@ -93,6 +97,31 @@ export const createLeague = async (req, res) => {
     });
 
     await league.save();
+
+    // Crear los mazos de los jugadores con las URLs de las imágenes
+    const playerDecks = [];
+    for (const playerId of league.players) {
+      const newPlayerDeck = new PlayerDeck({
+        user: playerId,
+        main_deck: {
+          url: '', // Agrega la URL de la imagen principal si la tienes
+        },
+        extra_deck: {
+          url: '', // Agrega la URL de la imagen extra si la tienes
+        },
+        side_deck: {
+          url: '', // Agrega la URL de la imagen side si la tienes
+        },
+        especial_deck: {
+          url: '', // Agrega la URL de la imagen especial si la tienes
+        }
+      });
+      await newPlayerDeck.save();
+      playerDecks.push(newPlayerDeck._id);
+    }
+    league.playerDecks = playerDecks;
+    await league.save();
+
     res.json(league);
   } catch (error) {
     console.error(error);
@@ -297,6 +326,50 @@ export const getPlayersByLeagueId = async (req, res) => {
     return res.json(players);
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+export const createPlayerDeck = async (req, res) => {
+  try {
+      const { main_deck, extra_deck, side_deck, especial_deck } = req.body;
+      const uploadedImages = {};
+
+      // Subir imágenes a imgbb y obtener las URL
+      if (req.file) {
+          const uploadedImage = await uploadToImgbb(req.file.path);
+          uploadedImages.main_deck = uploadedImage.url;
+      }
+
+      const newPlayerDeck = new PlayerDeck({
+          user: req.userId, // Asigna el ID del usuario autenticado
+          main_deck: uploadedImages.main_deck || main_deck.url,
+          extra_deck: extra_deck ? extra_deck.url : null,
+          side_deck: side_deck ? side_deck.url : null,
+          especial_deck: especial_deck ? especial_deck.url : null
+      });
+
+      await newPlayerDeck.save();
+
+      res.status(201).json(newPlayerDeck);
+  } catch (error) {
+      // Manejo de errores
+  } finally {
+      // Limpiar archivo temporal después de subirlo a imgbb
+      if (req.file) {
+          fs.unlinkSync(req.file.path);
+      }
+  }
+};
+
+export const getPlayerDeckById = async (req, res) => {
+  try {
+      const playerDeck = await PlayerDeck.findById(req.params.id).populate('user');
+      if (!playerDeck) {
+          return res.status(404).json({ message: "Mazo no encontrado" });
+      }
+      res.json(playerDeck);
+  } catch (error) {
+      res.status(500).json({ message: "Error al obtener el mazo", error });
   }
 };
 

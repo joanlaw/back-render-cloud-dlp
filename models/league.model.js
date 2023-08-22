@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
+import PlayerDeck from './playerDeck.model';
 
 const leagueSchema = mongoose.Schema({
   league_name: {
@@ -54,7 +55,10 @@ const leagueSchema = mongoose.Schema({
       }
     }]
   }],
-  
+  playerDecks: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PlayerDeck'
+}],
   status: {
     type: String,
     enum: ['open', 'in_progress', 'finished'],
