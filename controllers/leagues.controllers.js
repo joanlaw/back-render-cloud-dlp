@@ -438,17 +438,24 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     const { leagueId } = req.params;
     const { discordId } = req.query;
 
+    console.log('Buscando usuario con discordId:', discordId);
     const user = await User.findOne({ discordId });
 
     if (!user) {
+      console.log('Usuario no encontrado');
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
+
+    console.log('Usuario encontrado:', user);
 
     const playerDeck = await PlayerDeck.findOne({ user: user._id });
 
     if (!playerDeck) {
+      console.log('Mazo no encontrado para el usuario:', user._id);
       return res.status(404).json({ error: 'Mazo no encontrado para el usuario especificado' });
     }
+
+    console.log('Mazo encontrado:', playerDeck);
 
     res.status(200).json(playerDeck);
   } catch (error) {
@@ -456,4 +463,5 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener el mazo del jugador' });
   }
 };
+
 
