@@ -444,7 +444,7 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    const playerDeck = await PlayerDeck.findOne({ _id: leagueId });
+    const playerDeck = await PlayerDeck.findOne({ user: user._id });
 
     if (!playerDeck) {
       return res.status(404).json({ error: 'Mazo no encontrado para el usuario especificado' });
