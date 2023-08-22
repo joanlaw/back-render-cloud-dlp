@@ -372,6 +372,7 @@ export const createPlayerDeck = async (req, res) => {
 
     res.status(201).json(newPlayerDeck);
   } catch (error) {
+    console.error(error); // Muestra el error en la consola para depuración
     // Manejo de errores en caso de que algo falle durante el proceso
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
