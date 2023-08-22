@@ -98,37 +98,12 @@ export const createLeague = async (req, res) => {
 
     await league.save();
 
-    // Crear los mazos de los jugadores con las URLs de las imágenes
-    const playerDecks = [];
-    for (const playerId of league.players) {
-      const newPlayerDeck = new PlayerDeck({
-        user: playerId,
-        main_deck: {
-          url: '', // Agrega la URL de la imagen principal si la tienes
-        },
-        extra_deck: {
-          url: '', // Agrega la URL de la imagen extra si la tienes
-        },
-        side_deck: {
-          url: '', // Agrega la URL de la imagen side si la tienes
-        },
-        especial_deck: {
-          url: '', // Agrega la URL de la imagen especial si la tienes
-        }
-      });
-      await newPlayerDeck.save();
-      playerDecks.push(newPlayerDeck._id);
-    }
-    league.playerDecks = playerDecks;
-    await league.save();
-
     res.json(league);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 // METODO PUT
