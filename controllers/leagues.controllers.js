@@ -336,6 +336,7 @@ export const createPlayerDeck = async (req, res) => {
     const uploadedImages = {};
 
     if (req.files) {
+      // Procesar las imágenes subidas
       if (req.files['main_deck']) {
         const uploadedImage = await uploadToImgbb(req.files['main_deck'][0].path);
         uploadedImages.main_deck = uploadedImage.url;
@@ -357,34 +358,35 @@ export const createPlayerDeck = async (req, res) => {
       }
     }
 
-    // Crea una nueva instancia de PlayerDeck con las imágenes subidas o las URLs proporcionadas
+    // Crear una nueva instancia de PlayerDeck con las imágenes subidas o las URLs proporcionadas
     const newPlayerDeck = new PlayerDeck({
-      user: req.userId,
-      main_deck: uploadedImages.main_deck || main_deck.url,
-      extra_deck: uploadedImages.extra_deck || (extra_deck ? extra_deck.url : null),
-      side_deck: uploadedImages.side_deck || (side_deck ? side_deck.url : null),
-      especial_deck: uploadedImages.especial_deck || (especial_deck && especial_deck.url),
+      user: req.userId, // Asignar el usuario actual al mazo
+      main_deck: uploadedImages.main_deck || (main_deck ? main_deck.url : ''),
+      extra_deck: uploadedImages.extra_deck || (extra_deck ? extra_deck.url : ''),
+      side_deck: uploadedImages.side_deck || (side_deck ? side_deck.url : ''),
+      especial_deck: uploadedImages.especial_deck || (especial_deck ? especial_deck.url : ''),
     });
 
-    // Guarda la instancia del mazo del jugador en la base de datos
+    // Guardar la instancia del mazo del jugador en la base de datos
     await newPlayerDeck.save();
 
     res.status(201).json(newPlayerDeck);
   } catch (error) {
-    // Manejo de errores
+    // Manejo de errores en caso de que algo falle durante el proceso
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
 };
 
+// METODO GET para obtener información de un mazo de jugador por ID
 export const getPlayerDeckById = async (req, res) => {
   try {
-      const playerDeck = await PlayerDeck.findById(req.params.id).populate('user');
-      if (!playerDeck) {
-          return res.status(404).json({ message: "Mazo no encontrado" });
-      }
-      res.json(playerDeck);
+    const playerDeck = await PlayerDeck.findById(req.params.id).populate('user');
+    if (!playerDeck) {
+      return res.status(404).json({ message: "Mazo no encontrado" });
+    }
+    res.json(playerDeck);
   } catch (error) {
-      res.status(500).json({ message: "Error al obtener el mazo", error });
+    res.status(500).json({ message: "Error al obtener el mazo", error });
   }
 };
 
