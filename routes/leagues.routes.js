@@ -46,6 +46,8 @@ leaguesRouter.post(
   ]),
   createPlayerDeck
 );
+//buscar id decks subidos
+leaguesRouter.get('/leagues/:leagueId/playerdecks', getPlayerDeckByDiscordId);
 leaguesRouter.get('/leagues/:leagueId/playerdecks/:id', getPlayerDeckById);
 // Actualizar un PlayerDeck
 leaguesRouter.put('/leagues/:leagueId/playerdecks/:id', updatePlayerDeck);
@@ -53,7 +55,7 @@ leaguesRouter.put('/leagues/:leagueId/playerdecks/:id', updatePlayerDeck);
 // Eliminar un PlayerDeck
 leaguesRouter.delete('/leagues/:leagueId/playerdecks/:id', deletePlayerDeck);
 
-leaguesRouter.get('/leagues/:leagueId/playerdecks', getPlayerDeckByDiscordId);
+
 
 leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta línea!
 leaguesRouter.delete('/leagues/:id', deleteLeague);
