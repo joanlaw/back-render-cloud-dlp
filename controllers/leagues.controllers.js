@@ -307,52 +307,44 @@ export const getPlayersByLeagueId = async (req, res) => {
 //IMAGENES DECKS 
 export const createPlayerDeck = async (req, res) => {
   try {
-    const { discordId } = req.query; // Obtén el discordId de la solicitud
+    const { discordId } = req.query;
 
     console.log('Discord ID:', discordId);
 
-    // Busca al usuario por su discordId
     const user = await User.findOne({ discordId });
-
     if (!user) {
       console.log('Usuario no encontrado');
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Obtén las URLs de las imágenes subidas desde el FormData
-    const main_deck_url = req.files['main_deck'][0].url;
-    const extra_deck_url = req.files['extra_deck'][0].url;
-    const side_deck_url = req.files['side_deck'][0].url;
-    const especial_deck_url = req.files['especial_deck'][0].url;
-
-    console.log('Main Deck URL:', main_deck_url);
-    console.log('Extra Deck URL:', extra_deck_url);
-    console.log('Side Deck URL:', side_deck_url);
-    console.log('Especial Deck URL:', especial_deck_url);
+    // Subir imágenes a Imgbb y obtener sus URLs
+    const main_deck_upload = await uploadToImgbb(req.files['main_deck'][0].path);
+    const extra_deck_upload = await uploadToImgbb(req.files['extra_deck'][0].path);
+    const side_deck_upload = await uploadToImgbb(req.files['side_deck'][0].path);
+    const especial_deck_upload = await uploadToImgbb(req.files['especial_deck'][0].path);
 
     // Crear una nueva instancia de PlayerDeck con las URLs de las imágenes
     const newPlayerDeck = new PlayerDeck({
       user: user._id,
       main_deck: {
-        url: main_deck_url,
+        url: main_deck_upload.url,
       },
       extra_deck: {
-        url: extra_deck_url,
+        url: extra_deck_upload.url,
       },
       side_deck: {
-        url: side_deck_url,
+        url: side_deck_upload.url,
       },
       especial_deck: {
-        url: especial_deck_url,
+        url: especial_deck_upload.url,
       },
     });
 
-    // Guardar la instancia del mazo del jugador en la base de datos
     await newPlayerDeck.save();
 
     console.log('Nuevo mazo de jugador creado:', newPlayerDeck);
-
     res.status(201).json(newPlayerDeck);
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
