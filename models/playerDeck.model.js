@@ -9,7 +9,6 @@ const playerDeckSchema = mongoose.Schema({
     },
     main_deck: {
         url: String,
-        url_extra: String
     },
     extra_deck: {
         url: String
