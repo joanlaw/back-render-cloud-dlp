@@ -308,6 +308,7 @@ export const getPlayersByLeagueId = async (req, res) => {
 export const createPlayerDeck = async (req, res) => {
   try {
     const { discordId } = req.query;
+    const leagueId = req.params.leagueId; // Asegúrate de obtener el ID de la liga desde los parámetros de la ruta
 
     console.log('Discord ID:', discordId);
 
@@ -342,6 +343,11 @@ export const createPlayerDeck = async (req, res) => {
 
     await newPlayerDeck.save();
 
+    // Aquí añades el ID del PlayerDeck a la liga correspondiente
+    await League.findByIdAndUpdate(leagueId, {
+      $push: { playerDecks: newPlayerDeck._id }
+    });
+
     console.log('Nuevo mazo de jugador creado:', newPlayerDeck);
     res.status(201).json(newPlayerDeck);
 
@@ -350,6 +356,7 @@ export const createPlayerDeck = async (req, res) => {
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
 };
+
 
 
 // METODO GET para obtener información de un mazo de jugador por ID
