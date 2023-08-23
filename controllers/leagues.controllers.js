@@ -438,6 +438,7 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     const { discordId } = req.query;
 
     console.log('Buscando usuario con discordId:', discordId);
+    
     const user = await User.findOne({ discordId });
 
     if (!user) {
@@ -446,7 +447,10 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     }
 
     console.log('Usuario encontrado:', user);
-
+    
+    // Añade esta línea para imprimir los valores usados en la consulta
+    console.log(`Buscando mazo con userId: ${user._id} y leagueId: ${leagueId}`);
+    
     const playerDeck = await PlayerDeck.findOne({ user: user._id, league: leagueId });
 
     if (!playerDeck) {
@@ -465,5 +469,6 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener el mazo del jugador' });
   }
 };
+
 
 
