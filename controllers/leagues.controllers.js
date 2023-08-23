@@ -308,13 +308,11 @@ export const getPlayersByLeagueId = async (req, res) => {
 export const createPlayerDeck = async (req, res) => {
   try {
     const { discordId } = req.query;
-    const leagueId = req.params.leagueId; // Asegúrate de obtener el ID de la liga desde los parámetros de la ruta
+    const leagueId = req.params.leagueId; // Obtener el ID de la liga desde los parámetros de la ruta
 
-    console.log('Discord ID:', discordId);
-
+    // Buscar al usuario
     const user = await User.findOne({ discordId });
     if (!user) {
-      console.log('Usuario no encontrado');
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
@@ -324,9 +322,10 @@ export const createPlayerDeck = async (req, res) => {
     const side_deck_upload = await uploadToImgbb(req.files['side_deck'][0].path);
     const especial_deck_upload = await uploadToImgbb(req.files['especial_deck'][0].path);
 
-    // Crear una nueva instancia de PlayerDeck con las URLs de las imágenes
+    // Crear una nueva instancia de PlayerDeck
     const newPlayerDeck = new PlayerDeck({
       user: user._id,
+      leagueId: leagueId, // Aquí añades el ID de la liga
       main_deck: {
         url: main_deck_upload.url,
       },
@@ -341,14 +340,14 @@ export const createPlayerDeck = async (req, res) => {
       },
     });
 
+    // Guardar el nuevo PlayerDeck en la base de datos
     await newPlayerDeck.save();
 
-    // Aquí añades el ID del PlayerDeck a la liga correspondiente
+    // Añadir el nuevo PlayerDeck a la lista de mazos de la liga correspondiente
     await League.findByIdAndUpdate(leagueId, {
       $push: { playerDecks: newPlayerDeck._id }
     });
 
-    console.log('Nuevo mazo de jugador creado:', newPlayerDeck);
     res.status(201).json(newPlayerDeck);
 
   } catch (error) {

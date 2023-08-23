@@ -18,7 +18,12 @@ const playerDeckSchema = mongoose.Schema({
     },
     especial_deck: {
         url: String
-    }
+    },
+    leagueId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'League',
+        required: true
+      },
 });
 
 const PlayerDeck = mongoose.model('PlayerDeck', playerDeckSchema);
