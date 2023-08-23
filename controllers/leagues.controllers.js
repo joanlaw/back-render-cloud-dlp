@@ -304,46 +304,42 @@ export const getPlayersByLeagueId = async (req, res) => {
   }
 };
 
-//IMAGENES DECKS 
+//cargar imagenes de decks 
 export const createPlayerDeck = async (req, res) => {
   try {
-    const { discordId } = req.query;
-    const leagueId = req.params.leagueId; // Obtener el ID de la liga desde los parámetros de la ruta
+    if (!req.files) {
+      return res.status(400).json({ error: 'No se enviaron archivos' });
+    }
 
-    // Buscar al usuario
+    const { discordId } = req.query;
+    const leagueId = req.params.leagueId;
+
     const user = await User.findOne({ discordId });
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Subir imágenes a Imgbb y obtener sus URLs
-    const main_deck_upload = await uploadToImgbb(req.files['main_deck'][0].path);
-    const extra_deck_upload = await uploadToImgbb(req.files['extra_deck'][0].path);
-    const side_deck_upload = await uploadToImgbb(req.files['side_deck'][0].path);
-    const especial_deck_upload = await uploadToImgbb(req.files['especial_deck'][0].path);
+    const decks = ['main_deck', 'extra_deck', 'side_deck', 'especial_deck'];
+    const uploads = {};
 
-    // Crear una nueva instancia de PlayerDeck
+    for (const deck of decks) {
+      if (!req.files[deck] || !req.files[deck][0]) {
+        return res.status(400).json({ error: `Falta el archivo de ${deck}` });
+      }
+      uploads[deck] = await uploadToImgbb(req.files[deck][0].path);
+    }
+
     const newPlayerDeck = new PlayerDeck({
       user: user._id,
-      leagueId: leagueId, // Aquí añades el ID de la liga
-      main_deck: {
-        url: main_deck_upload.url,
-      },
-      extra_deck: {
-        url: extra_deck_upload.url,
-      },
-      side_deck: {
-        url: side_deck_upload.url,
-      },
-      especial_deck: {
-        url: especial_deck_upload.url,
-      },
+      leagueId,
+      main_deck: { url: uploads['main_deck'].url },
+      extra_deck: { url: uploads['extra_deck'].url },
+      side_deck: { url: uploads['side_deck'].url },
+      especial_deck: { url: uploads['especial_deck'].url },
     });
 
-    // Guardar el nuevo PlayerDeck en la base de datos
     await newPlayerDeck.save();
 
-    // Añadir el nuevo PlayerDeck a la lista de mazos de la liga correspondiente
     await League.findByIdAndUpdate(leagueId, {
       $push: { playerDecks: newPlayerDeck._id }
     });
@@ -355,6 +351,7 @@ export const createPlayerDeck = async (req, res) => {
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
 };
+
 
 
 
