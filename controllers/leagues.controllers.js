@@ -197,6 +197,7 @@ export const enrollPlayer = async (req, res) => {
 //LOGICA PARA TORNEO ALGORITMOS DE EMPAREJAMIENTO*****************************************************************************************************************
 
 // Iniciar el torneo y crear emparejamientos para la primera ronda
+// Iniciar el torneo y crear emparejamientos para la primera ronda
 export const startTournament = async (req, res) => {
   try {
     const { leagueId } = req.params;
@@ -210,21 +211,19 @@ export const startTournament = async (req, res) => {
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
-    // Cambiar el estado del torneo a 'in_progress'
     league.status = 'in_progress';
+    league.current_round = 1;
 
-    // Crear emparejamientos para la primera ronda
-    // Crear emparejamientos para la primera ronda con salas de chat únicas
     const matches = [];
     for (let i = 0; i < league.players.length; i += 2) {
-      const chatRoom = uuidv4(); // Genera un identificador único para la sala de chat
+      const chatRoom = uuidv4();
       matches.push({ player1: league.players[i]._id, player2: league.players[i + 1]?._id, winner: null, chatRoom, result: '' });
     }
 
     league.rounds.push({ matches });
     await league.save();
-
     return res.json(league);
+
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -234,8 +233,8 @@ export const startTournament = async (req, res) => {
 export const startNextRound = async (req, res) => {
   try {
     const { leagueId } = req.params;
-
     const league = await League.findById(leagueId);
+
     if (!league) {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
@@ -244,11 +243,10 @@ export const startNextRound = async (req, res) => {
       return res.status(400).json({ message: 'El torneo no está en progreso.' });
     }
 
-    const currentRoundIndex = league.rounds.length - 1;
-    const currentRound = league.rounds[currentRoundIndex];
+    const currentRound = league.rounds[league.current_round - 1];
     const winners = currentRound.matches.map(match => match.winner);
 
-    if (winners.length === 1) {
+    if (winners.length <= 1) {
       league.status = 'finalized';
       await league.save();
       return res.json({ message: 'El torneo ha terminado', league });
@@ -259,13 +257,16 @@ export const startNextRound = async (req, res) => {
       newMatches.push({ player1: winners[i], player2: winners[i + 1] || null, winner: null, chatRoom: '', result: '' });
     }
 
+    league.current_round++;
     league.rounds.push({ matches: newMatches });
     await league.save();
     return res.json({ message: 'Nueva ronda iniciada', league });
+
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // Registrar el resultado de un emparejamiento y actualizar la sala de chat y el resultado
 export const recordMatchResult = async (req, res) => {
@@ -291,15 +292,14 @@ export const recordMatchResult = async (req, res) => {
     match.winner = winnerId;
     match.chatRoom = chatRoom;
     match.result = result;
-
     await league.save();
     
     return res.json(league);
+
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 /*****TEMINA LOGICA DE EMPAREJAMIENTO ********************************************************************************************************* */

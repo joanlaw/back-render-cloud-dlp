@@ -61,6 +61,10 @@ const leagueSchema = mongoose.Schema({
       }
     }]
   }],
+  current_round: {
+    type: Number,
+    default: 0
+  },
   playerDecks: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'PlayerDeck'
