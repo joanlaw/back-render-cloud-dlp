@@ -447,7 +447,7 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
 
     console.log('Usuario encontrado:', user);
 
-    const playerDeck = await PlayerDeck.findOne({ user: user._id });
+    const playerDeck = await PlayerDeck.findOne({ user: user._id, league: leagueId });
 
     if (!playerDeck) {
       console.log('Mazo no encontrado para el usuario:', user._id);
