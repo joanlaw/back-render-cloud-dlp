@@ -15,7 +15,8 @@ import {
     updatePlayerDeck,   // Importa este método para actualizar
   deletePlayerDeck,  // Importa este método para eliminar
   getPlayerDeckByDiscordId,
-  getPlayersAndDecksByLeagueId  
+  getPlayersAndDecksByLeagueId,
+  startTournament, startNextRound, recordMatchResult  
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -65,5 +66,10 @@ leaguesRouter.post('/leagues/:leagueId/enroll', enrollPlayer);  // ¡Añade esta
 leaguesRouter.delete('/leagues/:id', deleteLeague);
 
 leaguesRouter.put('/leagues/:id', updateLeague); // agrega esta línea
+
+//RUTAS PARA EMPAREJAMIENTOS
+leaguesRouter.post('/leagues/:leagueId/start-tournament', startTournament); // Nueva ruta para iniciar el torneo
+leaguesRouter.post('/leagues/:leagueId/start-next-round', startNextRound); // Nueva ruta para iniciar la siguiente ronda
+leaguesRouter.post('/leagues/record-match-result', recordMatchResult); // Nueva ruta para registrar el resultado de un emparejamiento
 
 export default leaguesRouter;

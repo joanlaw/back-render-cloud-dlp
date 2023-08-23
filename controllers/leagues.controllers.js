@@ -4,6 +4,7 @@ import User from '../models/User.js'
 import PlayerDeck from '../models/playerDeck.model.js';
 import uploadToImgbb from '../utils/imgbb.js';
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 
 // METODO GET/
@@ -193,9 +194,44 @@ export const enrollPlayer = async (req, res) => {
   }
 };
 
+//LOGICA PARA TORNEO ALGORITMOS DE EMPAREJAMIENTO*****************************************************************************************************************
 
 // Iniciar el torneo y crear emparejamientos para la primera ronda
 export const startTournament = async (req, res) => {
+  try {
+    const { leagueId } = req.params;
+    const league = await League.findById(leagueId).populate('players');
+
+    if (!league) {
+      return res.status(404).json({ message: 'Torneo no encontrado' });
+    }
+
+    if (league.status !== 'open') {
+      return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
+    }
+
+    // Cambiar el estado del torneo a 'in_progress'
+    league.status = 'in_progress';
+
+    // Crear emparejamientos para la primera ronda
+    // Crear emparejamientos para la primera ronda con salas de chat únicas
+    const matches = [];
+    for (let i = 0; i < league.players.length; i += 2) {
+      const chatRoom = uuidv4(); // Genera un identificador único para la sala de chat
+      matches.push({ player1: league.players[i]._id, player2: league.players[i + 1]?._id, winner: null, chatRoom, result: '' });
+    }
+
+    league.rounds.push({ matches });
+    await league.save();
+
+    return res.json(league);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// Iniciar la siguiente ronda
+export const startNextRound = async (req, res) => {
   try {
     const { leagueId } = req.params;
 
@@ -203,46 +239,58 @@ export const startTournament = async (req, res) => {
     if (!league) {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
-    
-    // Cambiar el estado del torneo a 'in_progress'
-    league.status = 'in_progress';
-    
-    // Crear emparejamientos para la primera ronda
-    const players = league.players;
-    const matches = [];
-    for (let i = 0; i < players.length; i += 2) {
-      matches.push({ player1: players[i], player2: players[i + 1], winner: null });
-    }
-    
-    league.matches = matches;
-    await league.save();
 
-    return res.json(league);
+    if (league.status !== 'in_progress') {
+      return res.status(400).json({ message: 'El torneo no está en progreso.' });
+    }
+
+    const currentRoundIndex = league.rounds.length - 1;
+    const currentRound = league.rounds[currentRoundIndex];
+    const winners = currentRound.matches.map(match => match.winner);
+
+    if (winners.length === 1) {
+      league.status = 'finalized';
+      await league.save();
+      return res.json({ message: 'El torneo ha terminado', league });
+    }
+
+    const newMatches = [];
+    for (let i = 0; i < winners.length; i += 2) {
+      newMatches.push({ player1: winners[i], player2: winners[i + 1] || null, winner: null, chatRoom: '', result: '' });
+    }
+
+    league.rounds.push({ matches: newMatches });
+    await league.save();
+    return res.json({ message: 'Nueva ronda iniciada', league });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-// Registrar el resultado de un emparejamiento
+// Registrar el resultado de un emparejamiento y actualizar la sala de chat y el resultado
 export const recordMatchResult = async (req, res) => {
   try {
-    const { leagueId, matchId, winnerId } = req.params; // O puedes obtener estos datos del cuerpo de la solicitud (req.body)
+    const { leagueId, roundNumber, matchId, winnerId, chatRoom, result } = req.body; 
 
     const league = await League.findById(leagueId);
     if (!league) {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
-    const match = league.matches.id(matchId);
+    if (league.status !== 'in_progress') {
+      return res.status(400).json({ message: 'El torneo no está en progreso.' });
+    }
+
+    const round = league.rounds[roundNumber - 1];
+    const match = round.matches.id(matchId);
+
     if (!match) {
       return res.status(404).json({ message: 'Emparejamiento no encontrado' });
     }
-    
-    // Actualizar el campo `winner` del emparejamiento correspondiente
-    match.winner = winnerId;
 
-    // Aquí podrías agregar la lógica para crear emparejamientos para la siguiente ronda
-    // o para cambiar el estado del torneo a 'finished' y asignar puntos a los jugadores
+    match.winner = winnerId;
+    match.chatRoom = chatRoom;
+    match.result = result;
 
     await league.save();
     
@@ -251,6 +299,10 @@ export const recordMatchResult = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+
+
+/*****TEMINA LOGICA DE EMPAREJAMIENTO ********************************************************************************************************* */
 
 // METODO GET DISCORDID
 export const getTournamentsByDiscordId = async (req, res) => {
@@ -373,23 +425,6 @@ export const createPlayerDeck = async (req, res) => {
   }
 };
 
-
-
-
-// METODO GET para obtener información de un mazo de jugador por ID
-/*export const getPlayerDeckById = async (req, res) => {
-  try {
-    const playerDeck = await PlayerDeck.findById(req.params.id).populate('user');
-    if (!playerDeck) {
-      return res.status(404).json({ message: "Mazo no encontrado" });
-    }
-    res.json(playerDeck);
-  } catch (error) {
-    res.status(500).json({ message: "Error al obtener el mazo", error });
-  }
-};  */
-
-
 //GET ID DECK PLAYER
 export const getPlayerDeck = async (req, res) => {
   try {
@@ -450,42 +485,42 @@ export const deletePlayerDeck = async (req, res) => {
   }
 };
 
-export const getPlayerDeckByDiscordId = async (req, res) => {
-  try {
-    const { leagueId } = req.params;
-    const { discordId } = req.query;
+  export const getPlayerDeckByDiscordId = async (req, res) => {
+    try {
+      const { leagueId } = req.params;
+      const { discordId } = req.query;
 
-    console.log('Buscando usuario con discordId:', discordId);
-    const user = await User.findOne({ discordId });
+      console.log('Buscando usuario con discordId:', discordId);
+      const user = await User.findOne({ discordId });
 
-    if (!user) {
-      console.log('Usuario no encontrado');
-      return res.status(404).json({ error: 'Usuario no encontrado' });
+      if (!user) {
+        console.log('Usuario no encontrado');
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      console.log('Usuario encontrado:', user);
+      console.log(`Buscando mazo con userId: ${user._id} y leagueId: ${leagueId}`);
+      
+      const playerDeck = await PlayerDeck.findOne({ user: user._id, leagueId: leagueId });
+
+      console.log('Consulta realizada:', PlayerDeck.findOne({ user: user._id, league: leagueId }).getFilter());
+      
+      if (!playerDeck) {
+        console.log('Mazo no encontrado para el usuario y la liga especificados:', user._id, leagueId);
+        return res.status(404).json({ error: 'Mazo no encontrado para el usuario especificado' });
+      }
+
+      console.log('Mazo encontrado - Main Deck:', playerDeck.main_deck.url);
+      console.log('Mazo encontrado - Extra Deck:', playerDeck.extra_deck.url);
+      console.log('Mazo encontrado - Side Deck:', playerDeck.side_deck.url);
+      console.log('Mazo encontrado - Especial Deck:', playerDeck.especial_deck.url);
+
+      res.status(200).json(playerDeck);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error al obtener el mazo del jugador' });
     }
-
-    console.log('Usuario encontrado:', user);
-    console.log(`Buscando mazo con userId: ${user._id} y leagueId: ${leagueId}`);
-    
-    const playerDeck = await PlayerDeck.findOne({ user: user._id, leagueId: leagueId });
-
-    console.log('Consulta realizada:', PlayerDeck.findOne({ user: user._id, league: leagueId }).getFilter());
-    
-    if (!playerDeck) {
-      console.log('Mazo no encontrado para el usuario y la liga especificados:', user._id, leagueId);
-      return res.status(404).json({ error: 'Mazo no encontrado para el usuario especificado' });
-    }
-
-    console.log('Mazo encontrado - Main Deck:', playerDeck.main_deck.url);
-    console.log('Mazo encontrado - Extra Deck:', playerDeck.extra_deck.url);
-    console.log('Mazo encontrado - Side Deck:', playerDeck.side_deck.url);
-    console.log('Mazo encontrado - Especial Deck:', playerDeck.especial_deck.url);
-
-    res.status(200).json(playerDeck);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener el mazo del jugador' });
-  }
-};
+  };
 
 
 

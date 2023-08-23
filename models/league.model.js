@@ -1,14 +1,12 @@
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
-//import PlayerDeck from './playerDeck.model';
-//
 
 const leagueSchema = mongoose.Schema({
   league_name: {
     type: String,
     required: true,
     trim: true,
-    unique: true // Agrega esta línea para hacer que el campo sea único
+    unique: true
   },
   league_format: {
     type: String,
@@ -26,7 +24,7 @@ const leagueSchema = mongoose.Schema({
   enlace_torneo: String,
   image: {
     url: String
-  },  
+  },
   infoTorneo: [
     {
       format: String,
@@ -39,7 +37,6 @@ const leagueSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  
   rounds: [{
     matches: [{
       player1: {
@@ -53,24 +50,32 @@ const leagueSchema = mongoose.Schema({
       winner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+      },
+      chatRoom: {
+        type: String,
+        default: ''
+      },
+      result: {
+        type: String,
+        default: ''
       }
     }]
   }],
   playerDecks: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'PlayerDeck'
-}],
+  }],
   status: {
     type: String,
-    enum: ['open', 'in_progress', 'finished'],
+    enum: ['open', 'in_progress', 'finalized'],
     default: 'open'
   },
   organizer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: false
-},
-discordId: String // Agrega este campo para almacenar el discordId
+  },
+  discordId: String
 });
 
 // Aplicar el plugin de paginación al esquema
