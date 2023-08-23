@@ -304,6 +304,27 @@ export const getPlayersByLeagueId = async (req, res) => {
   }
 };
 
+// Obtener jugadores y sus decks por ID de la liga
+export const getPlayersAndDecksByLeagueId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const league = await League.findById(id).populate('playerDecks'); // Usamos populate para obtener también los PlayerDecks
+
+    if (!league) {
+      return res.status(404).json({ message: 'El torneo no existe' });
+    }
+
+    const players = await User.find({ _id: { $in: league.players } }); // Obtén los jugadores por sus IDs
+    const playerDecks = await PlayerDeck.find({ leagueId: id }); // Obtén los PlayerDecks por ID de la liga
+
+    return res.json({ players, playerDecks });  // Devuelve tanto los jugadores como sus PlayerDecks
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 //cargar imagenes de decks 
 export const createPlayerDeck = async (req, res) => {
   try {

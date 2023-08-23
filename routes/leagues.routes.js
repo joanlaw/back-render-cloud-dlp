@@ -14,7 +14,8 @@ import {
    // getPlayerDeckById,
     updatePlayerDeck,   // Importa este método para actualizar
   deletePlayerDeck,  // Importa este método para eliminar
-  getPlayerDeckByDiscordId    
+  getPlayerDeckByDiscordId,
+  getPlayersAndDecksByLeagueId  
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -34,6 +35,9 @@ leaguesRouter.get('/leagues/:id', getLeagueById); // agrega esta línea
 leaguesRouter.get('/leagues/discordId/:discordId', getTournamentsByDiscordId);
 leaguesRouter.get('/leagues/organizer/:discordId', getLeaguesByOrganizer);
 leaguesRouter.get('/leagues/:id/players', getPlayersByLeagueId); // Agrega esta línea
+// Añade esta línea en tu archivo de rutas para usar el nuevo método
+leaguesRouter.get('/leagues/:id/players-decks', getPlayersAndDecksByLeagueId);
+
 
 leaguesRouter.post('/leagues', upload.single('image'), createLeague); // Utiliza el middleware "upload.single('file')" para manejar la subida de imágenes
 leaguesRouter.post(
