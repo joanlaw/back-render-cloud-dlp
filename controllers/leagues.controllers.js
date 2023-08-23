@@ -448,7 +448,7 @@ export const getPlayerDeckByDiscordId = async (req, res) => {
     console.log('Usuario encontrado:', user);
     console.log(`Buscando mazo con userId: ${user._id} y leagueId: ${leagueId}`);
     
-    const playerDeck = await PlayerDeck.findOne({ user: user._id, league: leagueId });
+    const playerDeck = await PlayerDeck.findOne({ user: user._id, leagueId: leagueId });
 
     console.log('Consulta realizada:', PlayerDeck.findOne({ user: user._id, league: leagueId }).getFilter());
     
