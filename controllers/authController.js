@@ -89,8 +89,15 @@ export const getUserInfo = (req, res) => {
 
 //info de usuarios sin autenticar
 export const getUserBasicInfo = (req, res) => {
-  // Obtener la información básica de todos los usuarios
-  User.find({}, '_id username avatar')
+  let query = {};
+
+  // Si se proporciona el parámetro ids, actualiza la consulta para filtrar por esos ids
+  if (req.query.ids) {
+    const ids = req.query.ids.split(','); // asumimos que los ids se envían como una cadena separada por comas
+    query._id = { $in: ids };
+  }
+
+  User.find(query, '_id username avatar')
     .then(users => {
       res.json(users);
     })
@@ -102,6 +109,7 @@ export const getUserBasicInfo = (req, res) => {
       });
     });
 };
+
 
 export const updateUserPoints = (req, res) => {
   const { discordId, points } = req.body;
