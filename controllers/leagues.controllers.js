@@ -199,20 +199,13 @@ export const enrollPlayer = async (req, res) => {
 export const startTournament = async (req, res) => {
   try {
     const { leagueId } = req.params;
-
-    console.log('Buscando torneo con ID:', leagueId); // Registro de seguimiento 1
-
     const league = await League.findById(leagueId).populate('players');
 
-    console.log('Torneo encontrado:', league); // Registro de seguimiento 2
-
     if (!league) {
-      console.log('Torneo no encontrado'); // Registro de seguimiento 3
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'open') {
-      console.log('Torneo no está en estado "open"'); // Registro de seguimiento 4
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
@@ -220,37 +213,29 @@ export const startTournament = async (req, res) => {
     league.current_round = 1;
 
     const matches = [];
-    console.log('Preparando emparejamientos...'); // Registro de seguimiento 5
-
     for (let i = 0; i < league.players.length; i += 2) {
+      const player1 = await Player.findOne({ username: league.players[i].username });
+      const player2 = league.players[i + 1] ? await Player.findOne({ username: league.players[i + 1].username }) : null;
+
       const chatRoom = uuidv4();
       matches.push({
-        player1: league.players[i].username,  // Cambiado de ._id a .username
-        player2: league.players[i + 1] ? league.players[i + 1].username : null,  // Cambiado de ._id a .username
+        player1: player1._id,
+        player2: player2 ? player2._id : null,
         winner: null,
         chatRoom,
         result: ''
       });
     }
 
-    console.log('Emparejamientos preparados:', matches); // Registro de seguimiento 6
-
     league.rounds.push({ matches });
-    
-    console.log('Guardando torneo actualizado...'); // Registro de seguimiento 7
     await league.save();
-    
-    console.log('Torneo guardado exitosamente'); // Registro de seguimiento 8
     return res.json(league);
 
   } catch (error) {
-    console.error('Error capturado:', error); // Registro de seguimiento de error
     return res.status(500).json({ message: error.message });
   }
 };
 
-
-// Iniciar la siguiente ronda
 export const startNextRound = async (req, res) => {
   try {
     const { leagueId } = req.params;
@@ -288,12 +273,9 @@ export const startNextRound = async (req, res) => {
   }
 };
 
-
-// Registrar el resultado de un emparejamiento y actualizar la sala de chat y el resultado
 export const recordMatchResult = async (req, res) => {
   try {
     const { leagueId, roundNumber, matchId, winnerId, chatRoom, result } = req.body; 
-
     const league = await League.findById(leagueId);
     if (!league) {
       return res.status(404).json({ message: 'Torneo no encontrado' });
@@ -321,7 +303,6 @@ export const recordMatchResult = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 /*****TEMINA LOGICA DE EMPAREJAMIENTO ********************************************************************************************************* */
 
