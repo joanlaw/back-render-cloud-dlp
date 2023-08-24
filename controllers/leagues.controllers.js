@@ -5,6 +5,8 @@ import PlayerDeck from '../models/playerDeck.model.js';
 import uploadToImgbb from '../utils/imgbb.js';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import ChatRoom from '../models/ChatRoom.model.js';
+import ChatMessage from '../models/ChatMessage.model.js';
 
 
 // METODO GET/
@@ -378,6 +380,60 @@ export const recordMatchResult = async (req, res) => {
 };
 
 /*****TEMINA LOGICA DE EMPAREJAMIENTO ********************************************************************************************************* */
+
+/*******************COMIENZA CHATROOM FUNCIONES**************************** */
+
+// Función para crear una sala de chat
+export const createChatRoom = async (req, res) => {
+  try {
+    const { leagueId } = req.params;
+    
+    // Lógica para crear la sala de chat en la base de datos
+    const chatRoom = await ChatRoom.create({
+      league: leagueId,
+      // Otros campos relevantes para la sala de chat
+    });
+
+    return res.json(chatRoom);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// Función para obtener los mensajes de una sala de chat
+export const getChatRoomMessages = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    
+    // Lógica para obtener los mensajes de la sala de chat
+    const messages = await ChatMessage.find({ chatRoom: roomId });
+
+    return res.json(messages);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// Función para enviar un mensaje a una sala de chat
+export const sendMessageToChatRoom = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const { content } = req.body;
+
+    // Lógica para enviar el mensaje a la sala de chat
+    const message = await ChatMessage.create({
+      chatRoom: roomId,
+      content,
+      // Otros campos relevantes para el mensaje
+    });
+
+    return res.json(message);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+/************TERMINA CHATROOM FUNCIONES*********** */
 
 // METODO GET DISCORDID
 export const getTournamentsByDiscordId = async (req, res) => {
