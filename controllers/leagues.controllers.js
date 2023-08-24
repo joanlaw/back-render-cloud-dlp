@@ -194,6 +194,21 @@ export const enrollPlayer = async (req, res) => {
   }
 };
 
+//METODO PARA ACCEDER A LOS MATCHUPS 
+export const getMatchesByLeagueAndRound = async (req, res) => {
+  try {
+    const { id, round } = req.params;
+    const league = await League.findById(id);
+    if (!league) {
+      return res.status(404).json({ message: "Liga no encontrada" });
+    }
+    const matches = league.rounds[round - 1]?.matches || [];
+    res.json(matches);
+  } catch (error) {
+    res.status(500).json({ message: "Error del servidor", error });
+  }
+};
+
 //LOGICA PARA TORNEO ALGORITMOS DE EMPAREJAMIENTO*****************************************************************************************************************
 // Iniciar el torneo y crear emparejamientos para la primera ronda
 export const startTournament = async (req, res) => {
