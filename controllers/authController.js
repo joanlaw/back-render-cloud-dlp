@@ -89,11 +89,11 @@ export const getUserInfo = (req, res) => {
 
 //info de usuarios sin autenticar
 export const getUserBasicInfo = (req, res) => {
-  const ids = req.query.ids ? req.query.ids.split(',') : [];
+  const ids = req.query.ids ? req.query.ids.split(',').filter(id => id && id.length === 24) : [];
 
   // Si no hay IDs proporcionados, puedes manejarlo como un error o simplemente devolver un array vacío.
   if (!ids.length) {
-      return res.status(400).json({ message: 'No se proporcionaron IDs' });
+      return res.status(400).json({ message: 'No se proporcionaron IDs válidos' });
   }
 
   // Utiliza los IDs para filtrar tu consulta
