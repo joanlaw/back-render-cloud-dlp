@@ -1,12 +1,11 @@
 import mongoose from 'mongoose'; // Importa mongoose
 import League from '../models/league.model.js';
 import User from '../models/User.js'
-import PlayerDeck from '../models/playerDeck.model.js';
-import uploadToImgbb from '../utils/imgbb.js';
-import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import ChatRoom from '../models/ChatRoom.model.js';
 import ChatMessage from '../models/ChatMessage.model.js';
+import uploadToImgbb from '../utils/imgbb.js';
+import PlayerDeck from '../models/playerDeck.model.js';
 
 
 // METODO GET/
@@ -237,39 +236,61 @@ export const startTournament = async (req, res) => {
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
-    league.status = 'in_progress';
-    league.current_round = 1;
-    
+    // Calcular el número objetivo de jugadores como la próxima potencia de 2
+    const numero_objetivo = Math.pow(2, Math.ceil(Math.log2(league.players.length)));
 
-    const matches = [];
-    let hasBye = league.players.length % 2 !== 0; // Verificar si necesitamos un pase
+    // Calcular la diferencia para determinar cuántos "pases automáticos" son necesarios
+    const pases_automaticos = numero_objetivo - league.players.length;
 
-    for (let i = 0; i < league.players.length; i += 2) {
-      const player1 = await User.findOne({ username: league.players[i].username });
+    // Calcular el número total de rondas
+    const totalRondas = Math.log2(numero_objetivo);
 
-      if (hasBye) {
-        matches.push({
-          player1: player1._id,
-          player2: null,
-          winner: null,
-          chatRoom: uuidv4(),
-          result: ''
-        });
-        hasBye = false;
-      } else {
-        const player2 = await User.findOne({ username: league.players[i + 1].username });
-        matches.push({
-          player1: player1._id,
-          player2: player2._id,
-          winner: null,
-          chatRoom: uuidv4(),
-          result: ''
-        });
+    // Inicializar una lista vacía para las rondas
+    const rondas = [];
+
+    // Inicializar la lista de jugadores activos
+    let jugadores_activos = [...league.players];
+
+    // Inicializar un contador para los "pases automáticos" distribuidos
+    let pases_distribuidos = 0;
+
+    for (let ronda = 1; ronda <= totalRondas; ronda++) {
+      const emparejamientos = [];
+      while (jugadores_activos.length > 0) {
+        // Si quedan "pases automáticos" por distribuir
+        if (pases_distribuidos < pases_automaticos) {
+          const jugador = jugadores_activos.shift();
+          emparejamientos.push({
+            player1: jugador._id,
+            player2: null,
+            chatRoom: uuidv4(),
+            winner: null,
+            result: ''
+          });
+          pases_distribuidos++;
+        } else {
+          const jugador1 = jugadores_activos.shift();
+          const jugador2 = jugadores_activos.shift() || null;
+          emparejamientos.push({
+            player1: jugador1._id,
+            player2: jugador2 ? jugador2._id : null,
+            chatRoom: uuidv4(),
+            winner: null,
+            result: ''
+          });
+        }
       }
+      // Añadir la lista de emparejamientos a la lista de rondas
+      rondas.push({ matches: emparejamientos });
     }
 
-    league.rounds.push({ matches });
+    league.rounds = rondas;
+    league.totalRounds = totalRondas;
+    league.current_round = 1;
+    league.status = 'in_progress';
+
     await league.save();
+
     return res.json(league);
 
   } catch (error) {
@@ -294,36 +315,32 @@ export const startNextRound = async (req, res) => {
     const currentRound = league.rounds[league.current_round - 1];
     const winners = currentRound.matches.map(match => match.winner);
 
-    if (winners.length === 1) {
+    // Verificar que todos los partidos tienen un ganador
+    if (winners.includes(null)) {
+      return res.status(400).json({ message: 'Todavía hay partidos pendientes en esta ronda.' });
+    }
+
+    // Comprobar si el torneo ha terminado
+    if (league.current_round === league.totalRounds) {
       league.status = 'finalized';
       await league.save();
       return res.json({ message: 'El torneo ha terminado', league });
     }
 
+    // Crear emparejamientos para la siguiente ronda
     const newMatches = [];
-    let hasBye = winners.length % 2 !== 0; // Verificar si necesitamos un pase
-
     for (let i = 0; i < winners.length; i += 2) {
-      if (hasBye) {
-        newMatches.push({
-          player1: winners[i],
-          player2: null,
-          winner: null,
-          chatRoom: '',
-          result: ''
-        });
-        hasBye = false;
-      } else {
-        newMatches.push({
-          player1: winners[i],
-          player2: winners[i + 1] || null,
-          winner: null,
-          chatRoom: '',
-          result: ''
-        });
-      }
+      newMatches.push({
+        player1: winners[i],
+        player2: winners[i + 1] || null,
+        winner: null,
+        chatRoom: uuidv4(), // Asumiendo que estás usando uuid para los IDs de las salas de chat
+        result: '',
+        status: 'pending' // Nuevo estado para el partido
+      });
     }
 
+    // Avanzar a la siguiente ronda
     league.current_round++;
     league.rounds.push({ matches: newMatches });
     await league.save();
@@ -359,12 +376,14 @@ export const recordMatchResult = async (req, res) => {
     // Si el emparejamiento tiene un pase directo (sin player2), el ganador es automáticamente player1.
     if (!match.player2) {
       match.winner = match.player1;
+      match.status = 'completed'; // Actualizar el estado del emparejamiento
     } else {
       // Verificar que el ID del ganador es válido
       if (winnerId !== match.player1.toString() && winnerId !== match.player2.toString()) {
         return res.status(400).json({ message: 'ID de ganador inválido' });
       }
       match.winner = winnerId;
+      match.status = 'completed'; // Actualizar el estado del emparejamiento
     }
 
     match.chatRoom = chatRoom;
@@ -378,6 +397,7 @@ export const recordMatchResult = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 /*****TEMINA LOGICA DE EMPAREJAMIENTO ********************************************************************************************************* */
 

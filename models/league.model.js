@@ -58,6 +58,11 @@ const leagueSchema = mongoose.Schema({
       result: {
         type: String,
         default: ''
+      },
+      status: {  // Nuevo campo para el estado del match
+        type: String,
+        enum: ['pending', 'in_progress', 'completed'],
+        default: 'pending'
       }
     }]
   }],
@@ -65,10 +70,18 @@ const leagueSchema = mongoose.Schema({
     type: Number,
     default: 0
   },
+  totalRounds: {
+    type: Number,
+    default: 0
+  },
   playerDecks: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'PlayerDeck'
   }],
+  totalRounds: {  // Nuevo campo para el total de rondas
+    type: Number,
+    default: 0
+  },
   status: {
     type: String,
     enum: ['open', 'in_progress', 'finalized'],
