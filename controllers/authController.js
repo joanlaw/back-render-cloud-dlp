@@ -89,26 +89,27 @@ export const getUserInfo = (req, res) => {
 
 //info de usuarios sin autenticar
 export const getUserBasicInfo = (req, res) => {
-  let query = {};
+  const ids = req.query.ids ? req.query.ids.split(',') : [];
 
-  // Si se proporciona el parámetro ids, actualiza la consulta para filtrar por esos ids
-  if (req.query.ids) {
-    const ids = req.query.ids.split(','); // asumimos que los ids se envían como una cadena separada por comas
-    query._id = { $in: ids };
+  // Si no hay IDs proporcionados, puedes manejarlo como un error o simplemente devolver un array vacío.
+  if (!ids.length) {
+      return res.status(400).json({ message: 'No se proporcionaron IDs' });
   }
 
-  User.find(query, '_id username avatar')
-    .then(users => {
-      res.json(users);
-    })
-    .catch(err => {
-      console.error('Error al obtener información de usuarios', err);
-      res.status(500).json({
-        success: false,
-        message: 'Error al obtener información de usuarios',
+  // Utiliza los IDs para filtrar tu consulta
+  User.find({ _id: { $in: ids } }, '_id username avatar')
+      .then(users => {
+          res.json(users);
+      })
+      .catch(err => {
+          console.error('Error al obtener información de usuarios', err);
+          res.status(500).json({
+              success: false,
+              message: 'Error al obtener información de usuarios',
+          });
       });
-    });
 };
+
 
 
 export const updateUserPoints = (req, res) => {
