@@ -211,6 +211,17 @@ export const getMatchesByLeagueAndRound = async (req, res) => {
 
 //LOGICA PARA TORNEO ALGORITMOS DE EMPAREJAMIENTO*****************************************************************************************************************
 // Iniciar el torneo y crear emparejamientos para la primera ronda
+// Función para calcular el número total de rondas:
+const calculateTotalRounds = (playerCount) => {
+  let totalRounds = 0;
+  while (playerCount > 1) {
+    playerCount = Math.ceil(playerCount / 2);
+    totalRounds++;
+  }
+  return totalRounds;
+};
+
+
 export const startTournament = async (req, res) => {
   try {
     const { leagueId } = req.params;
@@ -226,31 +237,44 @@ export const startTournament = async (req, res) => {
 
     league.status = 'in_progress';
     league.current_round = 1;
+    
 
     const matches = [];
-    for (let i = 0; i < league.players.length; i += 2) {
-      const player1 = await User.findOne({ username: league.players[i].username }); // Cambiado a User
-      const player2 = league.players[i + 1] ? await User.findOne({ username: league.players[i + 1].username }) : null; // Cambiado a User
+    let hasBye = league.players.length % 2 !== 0; // Verificar si necesitamos un pase
 
-      const chatRoom = uuidv4();
-      matches.push({
-        player1: player1._id,
-        player2: player2 ? player2._id : null,
-        winner: null,
-        chatRoom,
-        result: ''
-      });
+    for (let i = 0; i < league.players.length; i += 2) {
+      const player1 = await User.findOne({ username: league.players[i].username });
+
+      if (hasBye) {
+        matches.push({
+          player1: player1._id,
+          player2: null,
+          winner: null,
+          chatRoom: uuidv4(),
+          result: ''
+        });
+        hasBye = false;
+      } else {
+        const player2 = await User.findOne({ username: league.players[i + 1].username });
+        matches.push({
+          player1: player1._id,
+          player2: player2._id,
+          winner: null,
+          chatRoom: uuidv4(),
+          result: ''
+        });
+      }
     }
 
     league.rounds.push({ matches });
     await league.save();
-
     return res.json(league);
 
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 export const startNextRound = async (req, res) => {
   try {
@@ -268,20 +292,40 @@ export const startNextRound = async (req, res) => {
     const currentRound = league.rounds[league.current_round - 1];
     const winners = currentRound.matches.map(match => match.winner);
 
-    if (winners.length <= 1) {
+    if (winners.length === 1) {
       league.status = 'finalized';
       await league.save();
       return res.json({ message: 'El torneo ha terminado', league });
     }
 
     const newMatches = [];
+    let hasBye = winners.length % 2 !== 0; // Verificar si necesitamos un pase
+
     for (let i = 0; i < winners.length; i += 2) {
-      newMatches.push({ player1: winners[i], player2: winners[i + 1] || null, winner: null, chatRoom: '', result: '' });
+      if (hasBye) {
+        newMatches.push({
+          player1: winners[i],
+          player2: null,
+          winner: null,
+          chatRoom: '',
+          result: ''
+        });
+        hasBye = false;
+      } else {
+        newMatches.push({
+          player1: winners[i],
+          player2: winners[i + 1] || null,
+          winner: null,
+          chatRoom: '',
+          result: ''
+        });
+      }
     }
 
     league.current_round++;
     league.rounds.push({ matches: newMatches });
     await league.save();
+
     return res.json({ message: 'Nueva ronda iniciada', league });
 
   } catch (error) {
@@ -289,10 +333,12 @@ export const startNextRound = async (req, res) => {
   }
 };
 
+
 export const recordMatchResult = async (req, res) => {
   try {
     const { leagueId, roundNumber, matchId, winnerId, chatRoom, result } = req.body; 
     const league = await League.findById(leagueId);
+
     if (!league) {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
@@ -308,9 +354,20 @@ export const recordMatchResult = async (req, res) => {
       return res.status(404).json({ message: 'Emparejamiento no encontrado' });
     }
 
-    match.winner = winnerId;
+    // Si el emparejamiento tiene un pase directo (sin player2), el ganador es automáticamente player1.
+    if (!match.player2) {
+      match.winner = match.player1;
+    } else {
+      // Verificar que el ID del ganador es válido
+      if (winnerId !== match.player1.toString() && winnerId !== match.player2.toString()) {
+        return res.status(400).json({ message: 'ID de ganador inválido' });
+      }
+      match.winner = winnerId;
+    }
+
     match.chatRoom = chatRoom;
     match.result = result;
+
     await league.save();
     
     return res.json(league);
