@@ -199,7 +199,11 @@ export const enrollPlayer = async (req, res) => {
 export const startTournament = async (req, res) => {
   try {
     const { leagueId } = req.params;
+    console.log(`League ID: ${leagueId}`); // Verificar si se obtiene el ID de liga
+
     const league = await League.findById(leagueId).populate('players');
+
+    console.log('League:', league); // Verificar si se obtiene la liga
 
     if (!league) {
       return res.status(404).json({ message: 'Torneo no encontrado' });
@@ -214,8 +218,12 @@ export const startTournament = async (req, res) => {
 
     const matches = [];
     for (let i = 0; i < league.players.length; i += 2) {
+      console.log(`Creating match for player index: ${i}`);
+
       const player1 = await Player.findOne({ username: league.players[i].username });
       const player2 = league.players[i + 1] ? await Player.findOne({ username: league.players[i + 1].username }) : null;
+
+      console.log(`Player 1 ID: ${player1._id}, Player 2 ID: ${player2 ? player2._id : 'None'}`);
 
       const chatRoom = uuidv4();
       matches.push({
@@ -229,9 +237,13 @@ export const startTournament = async (req, res) => {
 
     league.rounds.push({ matches });
     await league.save();
+
+    console.log('Tournament started:', league);
+
     return res.json(league);
 
   } catch (error) {
+    console.error('Error:', error); // Mostrar detalles del error
     return res.status(500).json({ message: error.message });
   }
 };
