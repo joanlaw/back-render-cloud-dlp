@@ -87,7 +87,21 @@ export const getUserInfo = (req, res) => {
   }
 };
 
-
+//info de usuarios sin autenticar
+export const getUserBasicInfo = (req, res) => {
+  // Obtener la información básica de todos los usuarios
+  User.find({}, '_id username avatar')
+    .then(users => {
+      res.json(users);
+    })
+    .catch(err => {
+      console.error('Error al obtener información de usuarios', err);
+      res.status(500).json({
+        success: false,
+        message: 'Error al obtener información de usuarios',
+      });
+    });
+};
 
 export const updateUserPoints = (req, res) => {
   const { discordId, points } = req.body;
