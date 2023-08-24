@@ -217,7 +217,13 @@ export const startTournament = async (req, res) => {
     const matches = [];
     for (let i = 0; i < league.players.length; i += 2) {
       const chatRoom = uuidv4();
-      matches.push({ player1: league.players[i]._id, player2: league.players[i + 1]?._id, winner: null, chatRoom, result: '' });
+      matches.push({
+        player1: league.players[i].username,  // Cambiado de ._id a .username
+        player2: league.players[i + 1] ? league.players[i + 1].username : null,  // Cambiado de ._id a .username
+        winner: null,
+        chatRoom,
+        result: ''
+      });
     }
 
     league.rounds.push({ matches });
