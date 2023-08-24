@@ -195,19 +195,24 @@ export const enrollPlayer = async (req, res) => {
 };
 
 //LOGICA PARA TORNEO ALGORITMOS DE EMPAREJAMIENTO*****************************************************************************************************************
-
-// Iniciar el torneo y crear emparejamientos para la primera ronda
 // Iniciar el torneo y crear emparejamientos para la primera ronda
 export const startTournament = async (req, res) => {
   try {
     const { leagueId } = req.params;
+
+    console.log('Buscando torneo con ID:', leagueId); // Registro de seguimiento 1
+
     const league = await League.findById(leagueId).populate('players');
 
+    console.log('Torneo encontrado:', league); // Registro de seguimiento 2
+
     if (!league) {
+      console.log('Torneo no encontrado'); // Registro de seguimiento 3
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'open') {
+      console.log('Torneo no está en estado "open"'); // Registro de seguimiento 4
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
@@ -215,6 +220,8 @@ export const startTournament = async (req, res) => {
     league.current_round = 1;
 
     const matches = [];
+    console.log('Preparando emparejamientos...'); // Registro de seguimiento 5
+
     for (let i = 0; i < league.players.length; i += 2) {
       const chatRoom = uuidv4();
       matches.push({
@@ -226,14 +233,22 @@ export const startTournament = async (req, res) => {
       });
     }
 
+    console.log('Emparejamientos preparados:', matches); // Registro de seguimiento 6
+
     league.rounds.push({ matches });
+    
+    console.log('Guardando torneo actualizado...'); // Registro de seguimiento 7
     await league.save();
+    
+    console.log('Torneo guardado exitosamente'); // Registro de seguimiento 8
     return res.json(league);
 
   } catch (error) {
+    console.error('Error capturado:', error); // Registro de seguimiento de error
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // Iniciar la siguiente ronda
 export const startNextRound = async (req, res) => {
