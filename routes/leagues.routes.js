@@ -73,13 +73,13 @@ leaguesRouter.post('/leagues/:leagueId/start-next-round', startNextRound); // Nu
 leaguesRouter.post('/leagues/record-match-result', recordMatchResult); // Nueva ruta para registrar el resultado de un emparejamiento
 leaguesRouter.get('/leagues/:id/rounds/:round/matches', getMatchesByLeagueAndRound);
 
-// Ruta para crear una sala de chat
-leaguesRouter.post('/leagues/:leagueId/create-chat-room', createChatRoom);
+  // Ruta para crear una sala de chat
+  leaguesRouter.post('/leagues/:leagueId/create-chat-room', createChatRoom);
 
-// Ruta para obtener los mensajes de una sala de chat
-leaguesRouter.get('/chat-rooms/:roomId/messages', getChatRoomMessages);
+  // Ruta para obtener los mensajes de una sala de chat
+  leaguesRouter.get('/chat-rooms/:roomId/messages', getChatRoomMessages);
 
-// Ruta para enviar un mensaje a una sala de chat
-leaguesRouter.post('/chat-rooms/:roomId/send-message', sendMessageToChatRoom);
+  // Ruta para enviar un mensaje a una sala de chat
+  leaguesRouter.post('/chat-rooms/:roomId/send-message', sendMessageToChatRoom);
 
 export default leaguesRouter;

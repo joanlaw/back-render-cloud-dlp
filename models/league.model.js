@@ -52,8 +52,8 @@ const leagueSchema = mongoose.Schema({
         ref: 'User'
       },
       chatRoom: {
-        type: String,
-        default: ''
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ChatRoom',
       },
       result: {
         type: String,
