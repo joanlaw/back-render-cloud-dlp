@@ -229,21 +229,26 @@ export const startTournament = async (req, res) => {
     const league = await League.findById(leagueId).populate('players');
 
     if (!league) {
+      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'open') {
+      console.log('No puedes iniciar un torneo ya en progreso o finalizado.');
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
     // Calcular el número objetivo de jugadores como la próxima potencia de 2
     const numero_objetivo = Math.pow(2, Math.ceil(Math.log2(league.players.length)));
+    console.log('Número objetivo de jugadores:', numero_objetivo);
 
     // Calcular la diferencia para determinar cuántos "pases automáticos" son necesarios
     const pases_automaticos = numero_objetivo - league.players.length;
+    console.log('Pases automáticos:', pases_automaticos);
 
     // Calcular el número total de rondas
     const totalRondas = Math.log2(numero_objetivo);
+    console.log('Número total de rondas:', totalRondas);
 
     // Inicializar una lista vacía para las rondas
     const rondas = [];
@@ -290,13 +295,16 @@ export const startTournament = async (req, res) => {
     league.status = 'in_progress';
 
     await league.save();
+    console.log('Torneo iniciado exitosamente:', league);
 
     return res.json(league);
 
   } catch (error) {
+    console.error("Error al iniciar el torneo:", error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 export const startNextRound = async (req, res) => {
