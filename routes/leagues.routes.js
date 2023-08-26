@@ -74,7 +74,12 @@ leaguesRouter.post('/leagues/:leagueId/start-next-round', startNextRound); // Nu
 leaguesRouter.post('/leagues/record-match-result', recordMatchResult); // Nueva ruta para registrar el resultado de un emparejamiento
 leaguesRouter.get('/leagues/:id/rounds/:round/matches', getMatchesByLeagueAndRound);
 
-leaguesRouter.get('/leagues/:leagueId/rounds/:roundNumber/match', getMatchByPlayerLeagueAndRound);
+leaguesRouter.get(
+  '/leagues/:leagueId/rounds/:roundNumber/match',
+  passport.authenticate('jwt', { session: false }),
+  getMatchByPlayerLeagueAndRound
+);
+
 leaguesRouter.get('/leagues/:leagueId/current-round', getCurrentRound);
 
 
