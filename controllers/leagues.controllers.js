@@ -378,8 +378,19 @@ export const recordScores = async (req, res) => {
     const { leagueId, roundNumber, matchId, scorePlayer1, scorePlayer2 } = req.body;
     const league = await League.findById(leagueId);
 
+    if (!league) {
+      return res.status(404).json({ message: 'League not found.' });
+    }
+
     const round = league.rounds[roundNumber - 1];
+    if (!round) {
+      return res.status(404).json({ message: 'Round not found.' });
+    }
+
     const match = round.matches.id(matchId);
+    if (!match) {
+      return res.status(404).json({ message: 'Match not found.' });
+    }
 
     match.scores.player1 = scorePlayer1;
     match.scores.player2 = scorePlayer2;
@@ -387,9 +398,11 @@ export const recordScores = async (req, res) => {
     await league.save();
     res.status(200).json({ message: 'Scores recorded successfully' });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 
