@@ -374,7 +374,7 @@ export const startNextRound = async (req, res) => {
 };
 
 export const recordScores = async (req, res) => {
-  console.log("Inside recordScores function"); // Agregar este console.log
+  console.log("Inside recordScores function");
   try {
     const { leagueId, roundNumber, matchId, scorePlayer1, scorePlayer2 } = req.body;
     console.log("League ID:", leagueId);
@@ -398,7 +398,7 @@ export const recordScores = async (req, res) => {
       return res.status(404).json({ message: 'Round not found.', location: 'rounds array' });
     }
 
-    const match = round.matches.id(matchId);
+    const match = round.matches.find(match => match._id.toString() === matchId); // Use find method to match by _id
     console.log("Match:", match);
     if (!match) {
       console.log("Match not found.");
@@ -410,8 +410,6 @@ export const recordScores = async (req, res) => {
 
     await league.save();
     console.log("Scores recorded successfully.");
-
-    // Agregar un console log para verificar si se actualiza correctamente el league después de guardar
     console.log("Updated League:", league);
 
     res.status(200).json({ message: 'Scores recorded successfully' });
@@ -420,6 +418,7 @@ export const recordScores = async (req, res) => {
     res.status(500).json({ error: err.message, location: 'Catch block' });
   }
 };
+
 
 export const recordMatchResult = async (req, res) => {
   try {
