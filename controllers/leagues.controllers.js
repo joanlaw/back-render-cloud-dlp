@@ -273,7 +273,12 @@ export const startTournament = async (req, res) => {
             player2: null,
             chatRoom: newChatRoom._id,
             winner: null,
-            result: ''
+            result: '',
+            scores: {
+              player1: 0,
+              player2: 0
+            },
+            status: 'pending'
           });
           pases_distribuidos++;
         } else {
@@ -284,9 +289,14 @@ export const startTournament = async (req, res) => {
             player2: jugador2 ? jugador2._id : null,
             chatRoom: newChatRoom._id,
             winner: null,
-            result: ''
+            result: '',
+            scores: {
+              player1: 0,
+              player2: 0
+            },
+            status: 'pending'
           });
-        }
+        }        
       }
       rondas.push({ matches: emparejamientos });
     }
@@ -363,11 +373,29 @@ export const startNextRound = async (req, res) => {
   }
 };
 
+export const recordScores = async (req, res) => {
+  try {
+    const { leagueId, roundNumber, matchId, scorePlayer1, scorePlayer2 } = req.body;
+    const league = await League.findById(leagueId);
+
+    const round = league.rounds[roundNumber - 1];
+    const match = round.matches.id(matchId);
+
+    match.scores.player1 = scorePlayer1;
+    match.scores.player2 = scorePlayer2;
+
+    await league.save();
+    res.status(200).json({ message: 'Scores recorded successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 
 export const recordMatchResult = async (req, res) => {
   try {
-    const { leagueId, roundNumber, matchId, winnerId, chatRoom, result } = req.body; 
+    const { leagueId, roundNumber, matchId, chatRoom, result } = req.body; 
     const league = await League.findById(leagueId);
 
     if (!league) {
@@ -390,11 +418,16 @@ export const recordMatchResult = async (req, res) => {
       match.winner = match.player1;
       match.status = 'completed'; // Actualizar el estado del emparejamiento
     } else {
-      // Verificar que el ID del ganador es válido
-      if (winnerId !== match.player1.toString() && winnerId !== match.player2.toString()) {
-        return res.status(400).json({ message: 'ID de ganador inválido' });
+      // Determinar el ganador basado en los scores.
+      if (match.scores.player1 > match.scores.player2) {
+        match.winner = match.player1;
+      } else if (match.scores.player1 < match.scores.player2) {
+        match.winner = match.player2;
+      } else {
+        // Código para manejar empates si es necesario
+        // Por ejemplo, podrías poner match.winner = null; si no hay un claro ganador
       }
-      match.winner = winnerId;
+
       match.status = 'completed'; // Actualizar el estado del emparejamiento
     }
 
@@ -409,6 +442,10 @@ export const recordMatchResult = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+
+
+///TERMINA ALGORITMOS
 
 export const getMatchByPlayerLeagueAndRound = async (req, res) => {
   try {
