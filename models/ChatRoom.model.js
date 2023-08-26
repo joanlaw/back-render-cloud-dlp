@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const chatRoomSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: false,
   },
   participants: [{
     type: mongoose.Schema.Types.ObjectId,
