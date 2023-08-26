@@ -379,17 +379,17 @@ export const recordScores = async (req, res) => {
     const league = await League.findById(leagueId);
 
     if (!league) {
-      return res.status(404).json({ message: 'League not found.' });
+      return res.status(404).json({ message: 'League not found.', location: 'League.findById' });
     }
 
     const round = league.rounds[roundNumber - 1];
     if (!round) {
-      return res.status(404).json({ message: 'Round not found.' });
+      return res.status(404).json({ message: 'Round not found.', location: 'rounds array' });
     }
 
     const match = round.matches.id(matchId);
     if (!match) {
-      return res.status(404).json({ message: 'Match not found.' });
+      return res.status(404).json({ message: 'Match not found.', location: 'matches array' });
     }
 
     match.scores.player1 = scorePlayer1;
@@ -399,9 +399,10 @@ export const recordScores = async (req, res) => {
     res.status(200).json({ message: 'Scores recorded successfully' });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, location: 'Catch block' });
   }
 };
+
 
 
 
