@@ -448,9 +448,9 @@ export const getMatchByPlayerLeagueAndRound = async (req, res) => {
     console.log(`Ronda: ${JSON.stringify(round)}`);
     
     const match = round.matches.find(m => 
-      (m.player1.toString() === userId && m.player2.toString() === userId) ||
-      (m.player2 && m.player2.toString() === userId && m.player1.toString() === userId)
+      m.player1 === userId || m.player2 === userId
     );
+    
     
 
     if (!match) {
