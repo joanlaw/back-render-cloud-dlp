@@ -225,31 +225,46 @@ const calculateTotalRounds = (playerCount) => {
 
 export const startTournament = async (req, res) => {
   try {
+    console.log("Inicio de la función startTournament");
+    
     const { leagueId } = req.params;
     const league = await League.findById(leagueId).populate('players');
 
     if (!league) {
+      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'open') {
+      console.log('No puedes iniciar un torneo ya en progreso o finalizado.');
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
     const numero_objetivo = Math.pow(2, Math.ceil(Math.log2(league.players.length)));
     const pases_automaticos = numero_objetivo - league.players.length;
     const totalRondas = Math.log2(numero_objetivo);
+    
+    console.log("Número objetivo de jugadores:", numero_objetivo);
+    console.log("Pases automáticos:", pases_automaticos);
+    console.log("Total de rondas:", totalRondas);
 
     const rondas = [];
     let jugadores_activos = [...league.players];
     let pases_distribuidos = 0;
 
     for (let ronda = 1; ronda <= totalRondas; ronda++) {
+      console.log("Iniciando ronda:", ronda);
+      
       const emparejamientos = [];
+      
       while (jugadores_activos.length > 0) {
+        console.log("Creando sala de chat...");
+        
         const newChatRoom = await ChatRoom.create({
           // Aquí puedes añadir campos adicionales si los necesitas
         });
+
+        console.log("Sala de chat creada:", newChatRoom._id);
 
         if (pases_distribuidos < pases_automaticos) {
           const jugador = jugadores_activos.shift();
@@ -282,10 +297,13 @@ export const startTournament = async (req, res) => {
     league.status = 'in_progress';
 
     await league.save();
+    
+    console.log("Torneo iniciado con éxito");
 
     return res.json(league);
 
   } catch (error) {
+    console.error("Error al iniciar el torneo:", error);
     return res.status(500).json({ message: error.message });
   }
 };
