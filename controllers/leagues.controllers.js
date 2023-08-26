@@ -412,44 +412,59 @@ export const recordMatchResult = async (req, res) => {
 
 export const getMatchByPlayerLeagueAndRound = async (req, res) => {
   try {
+    console.log('Entrando a getMatchByPlayerLeagueAndRound');
+
     const { leagueId, roundNumber } = req.params;
+    console.log(`Parametros: leagueId=${leagueId}, roundNumber=${roundNumber}`);
+
     const { discordId } = req.user;  // Obtenido desde el token JWT
+    console.log(`discordId del usuario: ${discordId}`);
 
     // Busca el _id del usuario basado en su discordId
     const user = await User.findOne({ discordId });
     if (!user) {
+      console.log('Usuario no encontrado');
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+    console.log(`Usuario encontrado: ${JSON.stringify(user)}`);
 
     // Ahora usamos el _id de MongoDB para buscar el emparejamiento
     const userId = user._id;
+    console.log(`userId de MongoDB: ${userId}`);
 
     const league = await League.findById(leagueId);
-
     if (!league) {
+      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
+    console.log(`Torneo encontrado: ${JSON.stringify(league)}`);
 
     if (roundNumber > league.current_round || roundNumber <= 0) {
+      console.log('Ronda no válida');
       return res.status(400).json({ message: 'Ronda no válida' });
     }
 
     const round = league.rounds[roundNumber - 1];
+    console.log(`Ronda: ${JSON.stringify(round)}`);
     
     const match = round.matches.find(m => 
       m.player1.toString() === userId || (m.player2 && m.player2.toString() === userId)
     );
 
     if (!match) {
+      console.log('Emparejamiento no encontrado');
       return res.status(404).json({ message: 'Emparejamiento no encontrado' });
     }
+    console.log(`Emparejamiento encontrado: ${JSON.stringify(match)}`);
     
     return res.json(match);
 
   } catch (error) {
+    console.error(`Error: ${error.message}`);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 export const getCurrentRound = async (req, res) => {
