@@ -448,27 +448,29 @@ export const getChatRoomMessages = async (req, res) => {
 // Función para enviar un mensaje a una sala de chat
 export const sendMessageToChatRoom = async (req, res) => {
   try {
-    console.log("Inicio de sendMessageToChatRoom");  // Nuevo
+    console.log("Inicio de sendMessageToChatRoom"); // Depuración
     const { roomId } = req.params;
     const { content } = req.body;
+    const sender = req.user.discordId;  // Asumiendo que el ID del usuario autenticado está en req.user.discordId
 
-    console.log("roomId:", roomId);  // Nuevo
-    console.log("content:", content);  // Nuevo
+    console.log(`roomId: ${roomId}, content: ${content}, sender: ${sender}`); // Depuración
 
     const message = await ChatMessage.create({
       chatRoom: roomId,
       content,
-      // No es necesario el remitente si la sala es abierta
+      sender
     });
 
-    console.log("Mensaje creado:", message);  // Nuevo
+    console.log("Mensaje creado exitosamente:", message);  // Depuración
 
     return res.json(message);
   } catch (error) {
-    console.error("Error en sendMessageToChatRoom:", error);  // Nuevo
+    console.error("Error en sendMessageToChatRoom:", error);  // Depuración
     return res.status(500).json({ message: error.message });
   }
 };
+
+
 
 
 
