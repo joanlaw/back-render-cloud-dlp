@@ -428,10 +428,6 @@ export const getMatchByPlayerLeagueAndRound = async (req, res) => {
     }
     console.log(`Usuario encontrado: ${JSON.stringify(user)}`);
 
-    console.log('Buscando emparejamiento para userId:', userId);
-    console.log('Emparejamientos en la ronda:', round.matches);
-
-
     // Ahora usamos el _id de MongoDB para buscar el emparejamiento
     const userId = user._id;
     console.log(`userId de MongoDB: ${userId}`);
