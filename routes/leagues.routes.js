@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer'; // Importa multer
+import passport from 'passport';
 import {
     getLeagues,
     createLeague,
@@ -76,10 +77,16 @@ leaguesRouter.get('/leagues/:id/rounds/:round/matches', getMatchesByLeagueAndRou
   // Ruta para crear una sala de chat
   leaguesRouter.post('/leagues/:leagueId/create-chat-room', createChatRoom);
 
+  // Ruta para enviar un mensaje a una sala de chat
+leaguesRouter.post(
+  '/chat-rooms/:roomId/send-message',
+  passport.authenticate('jwt', { session: false }),  // Añadir middleware de autenticación aquí
+  sendMessageToChatRoom
+);
+
   // Ruta para obtener los mensajes de una sala de chat
   leaguesRouter.get('/chat-rooms/:roomId/messages', getChatRoomMessages);
 
-  // Ruta para enviar un mensaje a una sala de chat
-  leaguesRouter.post('/chat-rooms/:roomId/send-message', sendMessageToChatRoom);
+
 
 export default leaguesRouter;
