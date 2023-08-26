@@ -412,47 +412,42 @@ export const recordMatchResult = async (req, res) => {
 
 export const getMatchByPlayerLeagueAndRound = async (req, res) => {
   try {
-    console.log('Entrando a getMatchByPlayerLeagueAndRound');
-    
     const { leagueId, roundNumber } = req.params;
     const { discordId } = req.user;  // Obtenido desde el token JWT
 
-    console.log(`Parametros: leagueId=${leagueId}, roundNumber=${roundNumber}, discordId=${discordId}`);
-    
+    // Busca el _id del jugador basado en su discordId
+    const player = await Player.findOne({ discordId });
+    if (!player) {
+      return res.status(404).json({ message: 'Jugador no encontrado' });
+    }
+    const playerId = player._id;
+
     const league = await League.findById(leagueId);
 
     if (!league) {
-      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
-    console.log(`Torneo encontrado: ${JSON.stringify(league)}`);
-
     if (roundNumber > league.current_round || roundNumber <= 0) {
-      console.log('Ronda no válida');
       return res.status(400).json({ message: 'Ronda no válida' });
     }
 
     const round = league.rounds[roundNumber - 1];
-    console.log(`Ronda: ${JSON.stringify(round)}`);
-    
     const match = round.matches.find(m => 
-      m.player1.toString() === discordId || (m.player2 && m.player2.toString() === discordId)
+      m.player1.toString() === playerId || (m.player2 && m.player2.toString() === playerId)
     );
 
     if (!match) {
-      console.log('Emparejamiento no encontrado');
       return res.status(404).json({ message: 'Emparejamiento no encontrado' });
     }
-    
-    console.log(`Emparejamiento encontrado: ${JSON.stringify(match)}`);
+
     return res.json(match);
 
   } catch (error) {
-    console.log('Error:', error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 export const getCurrentRound = async (req, res) => {
