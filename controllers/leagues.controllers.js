@@ -229,46 +229,34 @@ export const startTournament = async (req, res) => {
     const league = await League.findById(leagueId).populate('players');
 
     if (!league) {
-      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'open') {
-      console.log('No puedes iniciar un torneo ya en progreso o finalizado.');
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
-    // Calcular el número objetivo de jugadores como la próxima potencia de 2
     const numero_objetivo = Math.pow(2, Math.ceil(Math.log2(league.players.length)));
-    console.log('Número objetivo de jugadores:', numero_objetivo);
-
-    // Calcular la diferencia para determinar cuántos "pases automáticos" son necesarios
     const pases_automaticos = numero_objetivo - league.players.length;
-    console.log('Pases automáticos:', pases_automaticos);
-
-    // Calcular el número total de rondas
     const totalRondas = Math.log2(numero_objetivo);
-    console.log('Número total de rondas:', totalRondas);
 
-    // Inicializar una lista vacía para las rondas
     const rondas = [];
-
-    // Inicializar la lista de jugadores activos
     let jugadores_activos = [...league.players];
-
-    // Inicializar un contador para los "pases automáticos" distribuidos
     let pases_distribuidos = 0;
 
     for (let ronda = 1; ronda <= totalRondas; ronda++) {
       const emparejamientos = [];
       while (jugadores_activos.length > 0) {
-        // Si quedan "pases automáticos" por distribuir
+        const newChatRoom = await ChatRoom.create({
+          // Aquí puedes añadir campos adicionales si los necesitas
+        });
+
         if (pases_distribuidos < pases_automaticos) {
           const jugador = jugadores_activos.shift();
           emparejamientos.push({
             player1: jugador._id,
             player2: null,
-            chatRoom: uuidv4(),
+            chatRoom: newChatRoom._id,
             winner: null,
             result: ''
           });
@@ -279,13 +267,12 @@ export const startTournament = async (req, res) => {
           emparejamientos.push({
             player1: jugador1._id,
             player2: jugador2 ? jugador2._id : null,
-            chatRoom: uuidv4(),
+            chatRoom: newChatRoom._id,
             winner: null,
             result: ''
           });
         }
       }
-      // Añadir la lista de emparejamientos a la lista de rondas
       rondas.push({ matches: emparejamientos });
     }
 
@@ -295,12 +282,10 @@ export const startTournament = async (req, res) => {
     league.status = 'in_progress';
 
     await league.save();
-    console.log('Torneo iniciado exitosamente:', league);
 
     return res.json(league);
 
   } catch (error) {
-    console.error("Error al iniciar el torneo:", error);
     return res.status(500).json({ message: error.message });
   }
 };
@@ -323,32 +308,32 @@ export const startNextRound = async (req, res) => {
     const currentRound = league.rounds[league.current_round - 1];
     const winners = currentRound.matches.map(match => match.winner);
 
-    // Verificar que todos los partidos tienen un ganador
     if (winners.includes(null)) {
       return res.status(400).json({ message: 'Todavía hay partidos pendientes en esta ronda.' });
     }
 
-    // Comprobar si el torneo ha terminado
     if (league.current_round === league.totalRounds) {
       league.status = 'finalized';
       await league.save();
       return res.json({ message: 'El torneo ha terminado', league });
     }
 
-    // Crear emparejamientos para la siguiente ronda
     const newMatches = [];
     for (let i = 0; i < winners.length; i += 2) {
+      const newChatRoom = await ChatRoom.create({
+        // Aquí puedes añadir campos adicionales si los necesitas
+      });
+      
       newMatches.push({
         player1: winners[i],
         player2: winners[i + 1] || null,
         winner: null,
-        chatRoom: uuidv4(), // Asumiendo que estás usando uuid para los IDs de las salas de chat
+        chatRoom: newChatRoom._id,
         result: '',
-        status: 'pending' // Nuevo estado para el partido
+        status: 'pending'
       });
     }
 
-    // Avanzar a la siguiente ronda
     league.current_round++;
     league.rounds.push({ matches: newMatches });
     await league.save();
@@ -359,6 +344,7 @@ export const startNextRound = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 export const recordMatchResult = async (req, res) => {
@@ -416,10 +402,9 @@ export const createChatRoom = async (req, res) => {
   try {
     const { leagueId } = req.params;
     
-    // Lógica para crear la sala de chat en la base de datos
     const chatRoom = await ChatRoom.create({
       league: leagueId,
-      // Otros campos relevantes para la sala de chat
+      // No es necesario almacenar los participantes si la sala es abierta
     });
 
     return res.json(chatRoom);
@@ -433,7 +418,6 @@ export const getChatRoomMessages = async (req, res) => {
   try {
     const { roomId } = req.params;
     
-    // Lógica para obtener los mensajes de la sala de chat
     const messages = await ChatMessage.find({ chatRoom: roomId });
 
     return res.json(messages);
@@ -448,11 +432,10 @@ export const sendMessageToChatRoom = async (req, res) => {
     const { roomId } = req.params;
     const { content } = req.body;
 
-    // Lógica para enviar el mensaje a la sala de chat
     const message = await ChatMessage.create({
       chatRoom: roomId,
       content,
-      // Otros campos relevantes para el mensaje
+      // No es necesario el remitente si la sala es abierta
     });
 
     return res.json(message);
@@ -460,6 +443,7 @@ export const sendMessageToChatRoom = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 /************TERMINA CHATROOM FUNCIONES*********** */
 

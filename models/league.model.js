@@ -52,9 +52,9 @@ const leagueSchema = mongoose.Schema({
         ref: 'User'
       },
       chatRoom: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'ChatRoom',
-      },
+      },      
       result: {
         type: String,
         default: ''
