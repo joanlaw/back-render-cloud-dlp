@@ -374,6 +374,7 @@ export const startNextRound = async (req, res) => {
 };
 
 export const recordScores = async (req, res) => {
+  console.log("Inside recordScores function"); // Agregar este console.log
   try {
     const { leagueId, roundNumber, matchId, scorePlayer1, scorePlayer2 } = req.body;
     console.log("League ID:", leagueId);
