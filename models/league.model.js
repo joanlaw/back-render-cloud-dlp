@@ -40,22 +40,21 @@ const leagueSchema = mongoose.Schema({
   rounds: [{
     matches: [{
       player1: {
-        type: Schema.Types.ObjectId,
-        ref: 'Player'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
       },
       player2: {
-        type: Schema.Types.ObjectId,
-        ref: 'Player'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
       },
       winner: {
-        type: Schema.Types.ObjectId,
-        ref: 'Player',
-        default: null
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
       },
       chatRoom: {
-        type: Schema.Types.ObjectId,
-        ref: 'ChatRoom'
-      },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ChatRoom',
+      },      
       result: {
         type: String,
         default: ''
@@ -64,8 +63,9 @@ const leagueSchema = mongoose.Schema({
         player1: Number,
         player2: Number
       },
-      status: {
+      status: {  // Nuevo campo para el estado del match
         type: String,
+        enum: ['pending', 'in_progress', 'completed'],
         default: 'pending'
       }
     }]

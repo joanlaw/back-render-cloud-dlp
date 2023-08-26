@@ -74,7 +74,7 @@ leaguesRouter.post('/leagues/:leagueId/start-next-round', startNextRound); // Nu
 leaguesRouter.post('/leagues/record-match-result', recordMatchResult); // Nueva ruta para registrar el resultado de un emparejamiento
 leaguesRouter.get('/leagues/:id/rounds/:round/matches', getMatchesByLeagueAndRound);
 
-leaguesRouter.post('/leagues/record-scores', recordScores);  // Nueva ruta para registrar los puntajes de un emparejamiento
+leaguesRouter.post('/leagues/:leagueId/rounds/:roundNumber/record-scores', recordScores); // Nueva ruta para registrar los puntajes de un emparejamiento
 
 
 leaguesRouter.get(
