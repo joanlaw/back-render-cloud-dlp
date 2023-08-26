@@ -445,10 +445,15 @@ export const getChatRoomMessages = async (req, res) => {
 };
 
 // Función para enviar un mensaje a una sala de chat
+// Función para enviar un mensaje a una sala de chat
 export const sendMessageToChatRoom = async (req, res) => {
   try {
+    console.log("Inicio de sendMessageToChatRoom");  // Nuevo
     const { roomId } = req.params;
     const { content } = req.body;
+
+    console.log("roomId:", roomId);  // Nuevo
+    console.log("content:", content);  // Nuevo
 
     const message = await ChatMessage.create({
       chatRoom: roomId,
@@ -456,11 +461,15 @@ export const sendMessageToChatRoom = async (req, res) => {
       // No es necesario el remitente si la sala es abierta
     });
 
+    console.log("Mensaje creado:", message);  // Nuevo
+
     return res.json(message);
   } catch (error) {
+    console.error("Error en sendMessageToChatRoom:", error);  // Nuevo
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 /************TERMINA CHATROOM FUNCIONES*********** */
