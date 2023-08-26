@@ -410,6 +410,55 @@ export const recordMatchResult = async (req, res) => {
   }
 };
 
+export const getMatchByPlayerLeagueAndRound = async (req, res) => {
+  try {
+    const { leagueId, roundNumber } = req.params;
+    const { discordId } = req.user;  // Obtenido desde el token JWT
+    
+    const league = await League.findById(leagueId);
+
+    if (!league) {
+      return res.status(404).json({ message: 'Torneo no encontrado' });
+    }
+
+    if (roundNumber > league.current_round || roundNumber <= 0) {
+      return res.status(400).json({ message: 'Ronda no válida' });
+    }
+
+    const round = league.rounds[roundNumber - 1];
+    
+    const match = round.matches.find(m => 
+      m.player1.toString() === discordId || (m.player2 && m.player2.toString() === discordId)
+    );
+
+    if (!match) {
+      return res.status(404).json({ message: 'Emparejamiento no encontrado' });
+    }
+    
+    return res.json(match);
+
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getCurrentRound = async (req, res) => {
+  try {
+    const { leagueId } = req.params;
+    
+    const league = await League.findById(leagueId);
+
+    if (!league) {
+      return res.status(404).json({ message: 'Torneo no encontrado' });
+    }
+
+    return res.json({ current_round: league.current_round });
+
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 
 /*****TEMINA LOGICA DE EMPAREJAMIENTO ********************************************************************************************************* */
 

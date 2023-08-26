@@ -17,7 +17,7 @@ import {
   deletePlayerDeck,  // Importa este método para eliminar
   getPlayerDeckByDiscordId,
   getPlayersAndDecksByLeagueId,
-  startTournament, startNextRound, recordMatchResult, getMatchesByLeagueAndRound, createChatRoom, getChatRoomMessages, sendMessageToChatRoom  
+  startTournament, startNextRound, recordMatchResult, getMatchesByLeagueAndRound, createChatRoom, getChatRoomMessages, sendMessageToChatRoom, getMatchByPlayerLeagueAndRound, getCurrentRound  
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -73,6 +73,10 @@ leaguesRouter.post('/leagues/:leagueId/start-tournament', startTournament); // N
 leaguesRouter.post('/leagues/:leagueId/start-next-round', startNextRound); // Nueva ruta para iniciar la siguiente ronda
 leaguesRouter.post('/leagues/record-match-result', recordMatchResult); // Nueva ruta para registrar el resultado de un emparejamiento
 leaguesRouter.get('/leagues/:id/rounds/:round/matches', getMatchesByLeagueAndRound);
+
+leaguesRouter.get('/leagues/:leagueId/rounds/:roundNumber/match', getMatchByPlayerLeagueAndRound);
+leaguesRouter.get('/leagues/:leagueId/current-round', getCurrentRound);
+
 
   // Ruta para crear una sala de chat
   leaguesRouter.post('/leagues/:leagueId/create-chat-room', createChatRoom);
