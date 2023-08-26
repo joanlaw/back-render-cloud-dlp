@@ -446,11 +446,12 @@ export const getMatchByPlayerLeagueAndRound = async (req, res) => {
 
     const round = league.rounds[roundNumber - 1];
     console.log(`Ronda: ${JSON.stringify(round)}`);
+
+    const ObjectId = mongoose.Types.ObjectId;
     
     const match = round.matches.find(m => 
-      m.player1.toString() === userId || m.player2.toString() === userId
-    );    
-    
+      m.player1.equals(ObjectId(userId)) || m.player2.equals(ObjectId(userId))
+    );
     
 
     if (!match) {
