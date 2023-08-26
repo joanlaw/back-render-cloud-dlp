@@ -376,7 +376,12 @@ export const startNextRound = async (req, res) => {
 export const recordScores = async (req, res) => {
   console.log("Inside recordScores function");
   try {
-    const { leagueId, roundNumber, matchId, scorePlayer1, scorePlayer2 } = req.body;
+    // Extrae leagueId y roundNumber de los parámetros de la URL
+    const { leagueId, roundNumber } = req.params;
+
+    // Extrae matchId, scorePlayer1, y scorePlayer2 del cuerpo de la petición
+    const { matchId, scorePlayer1, scorePlayer2 } = req.body;
+
     console.log("League ID:", leagueId);
     console.log("Round Number:", roundNumber);
     console.log("Match ID:", matchId);
@@ -393,13 +398,15 @@ export const recordScores = async (req, res) => {
 
     const round = league.rounds[roundNumber - 1];
     console.log("Round:", round);
+
     if (!round) {
       console.log("Round not found.");
       return res.status(404).json({ message: 'Round not found.', location: 'rounds array' });
     }
 
-    const match = round.matches.find(match => match._id.toString() === matchId); // Use find method to match by _id
+    const match = round.matches.find(match => match._id.toString() === matchId);
     console.log("Match:", match);
+
     if (!match) {
       console.log("Match not found.");
       return res.status(404).json({ message: 'Match not found.', location: 'matches array' });
@@ -418,6 +425,7 @@ export const recordScores = async (req, res) => {
     res.status(500).json({ error: err.message, location: 'Catch block' });
   }
 };
+
 
 
 export const recordMatchResult = async (req, res) => {
