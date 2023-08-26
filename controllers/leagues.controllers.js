@@ -415,12 +415,14 @@ export const getMatchByPlayerLeagueAndRound = async (req, res) => {
     const { leagueId, roundNumber } = req.params;
     const { discordId } = req.user;  // Obtenido desde el token JWT
 
-    // Busca el _id del jugador basado en su discordId
-    const player = await Player.findOne({ discordId });
-    if (!player) {
-      return res.status(404).json({ message: 'Jugador no encontrado' });
+    // Busca el _id del usuario basado en su discordId
+    const user = await User.findOne({ discordId });
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-    const playerId = player._id;
+
+    // Ahora usamos el _id de MongoDB para buscar el emparejamiento
+    const userId = user._id;
 
     const league = await League.findById(leagueId);
 
@@ -433,21 +435,21 @@ export const getMatchByPlayerLeagueAndRound = async (req, res) => {
     }
 
     const round = league.rounds[roundNumber - 1];
+    
     const match = round.matches.find(m => 
-      m.player1.toString() === playerId || (m.player2 && m.player2.toString() === playerId)
+      m.player1.toString() === userId || (m.player2 && m.player2.toString() === userId)
     );
 
     if (!match) {
       return res.status(404).json({ message: 'Emparejamiento no encontrado' });
     }
-
+    
     return res.json(match);
 
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 export const getCurrentRound = async (req, res) => {
