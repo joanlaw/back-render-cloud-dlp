@@ -376,19 +376,31 @@ export const startNextRound = async (req, res) => {
 export const recordScores = async (req, res) => {
   try {
     const { leagueId, roundNumber, matchId, scorePlayer1, scorePlayer2 } = req.body;
+    console.log("League ID:", leagueId);
+    console.log("Round Number:", roundNumber);
+    console.log("Match ID:", matchId);
+    console.log("Score Player 1:", scorePlayer1);
+    console.log("Score Player 2:", scorePlayer2);
+    
     const league = await League.findById(leagueId);
+    console.log("League:", league);
 
     if (!league) {
+      console.log("League not found.");
       return res.status(404).json({ message: 'League not found.', location: 'League.findById' });
     }
 
     const round = league.rounds[roundNumber - 1];
+    console.log("Round:", round);
     if (!round) {
+      console.log("Round not found.");
       return res.status(404).json({ message: 'Round not found.', location: 'rounds array' });
     }
 
     const match = round.matches.id(matchId);
+    console.log("Match:", match);
     if (!match) {
+      console.log("Match not found.");
       return res.status(404).json({ message: 'Match not found.', location: 'matches array' });
     }
 
@@ -396,9 +408,10 @@ export const recordScores = async (req, res) => {
     match.scores.player2 = scorePlayer2;
 
     await league.save();
+    console.log("Scores recorded successfully.");
     res.status(200).json({ message: 'Scores recorded successfully' });
   } catch (err) {
-    console.log(err);
+    console.log("Error:", err);
     res.status(500).json({ error: err.message, location: 'Catch block' });
   }
 };
