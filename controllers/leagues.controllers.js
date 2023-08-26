@@ -381,7 +381,7 @@ export const recordScores = async (req, res) => {
     console.log("Match ID:", matchId);
     console.log("Score Player 1:", scorePlayer1);
     console.log("Score Player 2:", scorePlayer2);
-    
+
     const league = await League.findById(leagueId);
     console.log("League:", league);
 
@@ -409,6 +409,10 @@ export const recordScores = async (req, res) => {
 
     await league.save();
     console.log("Scores recorded successfully.");
+
+    // Agregar un console log para verificar si se actualiza correctamente el league después de guardar
+    console.log("Updated League:", league);
+
     res.status(200).json({ message: 'Scores recorded successfully' });
   } catch (err) {
     console.log("Error:", err);
@@ -416,59 +420,47 @@ export const recordScores = async (req, res) => {
   }
 };
 
-
-
-
-
 export const recordMatchResult = async (req, res) => {
   try {
-    const { leagueId, roundNumber, matchId, chatRoom, result } = req.body; 
+    const { leagueId, roundNumber, matchId, chatRoom, result } = req.body;
+    console.log("League ID:", leagueId);
+    console.log("Round Number:", roundNumber);
+    console.log("Match ID:", matchId);
+    console.log("Chat Room:", chatRoom);
+    console.log("Result:", result);
+
     const league = await League.findById(leagueId);
+    console.log("League:", league);
 
     if (!league) {
+      console.log("Torneo no encontrado.");
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'in_progress') {
+      console.log("El torneo no está en progreso.");
       return res.status(400).json({ message: 'El torneo no está en progreso.' });
     }
 
     const round = league.rounds[roundNumber - 1];
+    console.log("Round:", round);
+
     const match = round.matches.id(matchId);
+    console.log("Match:", match);
 
     if (!match) {
+      console.log("Emparejamiento no encontrado.");
       return res.status(404).json({ message: 'Emparejamiento no encontrado' });
     }
 
-    // Si el emparejamiento tiene un pase directo (sin player2), el ganador es automáticamente player1.
-    if (!match.player2) {
-      match.winner = match.player1;
-      match.status = 'completed'; // Actualizar el estado del emparejamiento
-    } else {
-      // Determinar el ganador basado en los scores.
-      if (match.scores.player1 > match.scores.player2) {
-        match.winner = match.player1;
-      } else if (match.scores.player1 < match.scores.player2) {
-        match.winner = match.player2;
-      } else {
-        // Código para manejar empates si es necesario
-        // Por ejemplo, podrías poner match.winner = null; si no hay un claro ganador
-      }
-
-      match.status = 'completed'; // Actualizar el estado del emparejamiento
-    }
-
-    match.chatRoom = chatRoom;
-    match.result = result;
-
-    await league.save();
-    
-    return res.json(league);
+    // Resto del código aquí...
 
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.log("Error:", error);
+    res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
