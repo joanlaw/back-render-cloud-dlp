@@ -240,19 +240,16 @@ export const startTournament = async (req, res) => {
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
-    const numero_objetivo = Math.pow(2, Math.ceil(Math.log2(league.players.length)));
-    const pases_automaticos = numero_objetivo - league.players.length;
-    const totalRondas = Math.log2(numero_objetivo);
+    // Calcula el número mínimo de rondas necesarias en función del número de jugadores.
+    const minRounds = Math.ceil(Math.log2(league.players.length));
+    const totalRounds = league.players.length > 1 ? minRounds : 1;
     
-    console.log("Número objetivo de jugadores:", numero_objetivo);
-    console.log("Pases automáticos:", pases_automaticos);
-    console.log("Total de rondas:", totalRondas);
+    console.log("Total de rondas:", totalRounds);
 
     const rondas = [];
     let jugadores_activos = [...league.players];
-    let pases_distribuidos = 0;
 
-    for (let ronda = 1; ronda <= totalRondas; ronda++) {
+    for (let ronda = 1; ronda <= totalRounds; ronda++) {
       console.log("Iniciando ronda:", ronda);
       
       const emparejamientos = [];
@@ -266,43 +263,27 @@ export const startTournament = async (req, res) => {
 
         console.log("Sala de chat creada:", newChatRoom._id);
 
-        if (pases_distribuidos < pases_automaticos) {
-          const jugador = jugadores_activos.shift();
-          emparejamientos.push({
-            player1: jugador._id,
-            player2: null,
-            chatRoom: newChatRoom._id,
-            winner: null,
-            result: '',
-            scores: {
-              player1: 0,
-              player2: 0
-            },
-            status: 'pending'
-          });
-          pases_distribuidos++;
-        } else {
-          const jugador1 = jugadores_activos.shift();
-          const jugador2 = jugadores_activos.shift() || null;
-          emparejamientos.push({
-            player1: jugador1._id,
-            player2: jugador2 ? jugador2._id : null,
-            chatRoom: newChatRoom._id,
-            winner: null,
-            result: '',
-            scores: {
-              player1: 0,
-              player2: 0
-            },
-            status: 'pending'
-          });
-        }        
+        const jugador1 = jugadores_activos.shift();
+        const jugador2 = jugadores_activos.shift() || null;
+
+        emparejamientos.push({
+          player1: jugador1._id,
+          player2: jugador2 ? jugador2._id : null,
+          chatRoom: newChatRoom._id,
+          winner: null,
+          result: '',
+          scores: {
+            player1: 0,
+            player2: 0
+          },
+          status: 'pending'
+        });      
       }
       rondas.push({ matches: emparejamientos });
     }
 
     league.rounds = rondas;
-    league.totalRounds = totalRondas;
+    league.totalRounds = totalRounds;
     league.current_round = 1;
     league.status = 'in_progress';
 
@@ -317,6 +298,7 @@ export const startTournament = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
@@ -340,7 +322,7 @@ export const startNextRound = async (req, res) => {
       return res.status(400).json({ message: 'Todavía hay partidos pendientes en esta ronda.' });
     }
 
-    if (league.current_round === league.totalRounds) {
+    if (league.current_round >= league.totalRounds) {
       league.status = 'finalized';
       await league.save();
       return res.json({ message: 'El torneo ha terminado', league });
@@ -373,6 +355,7 @@ export const startNextRound = async (req, res) => {
   }
 };
 
+//
 export const recordScores = async (req, res) => {
   console.log("Inside recordScores function");
   try {
