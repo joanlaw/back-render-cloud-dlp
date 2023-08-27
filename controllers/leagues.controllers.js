@@ -300,7 +300,7 @@ export const startTournament = async (req, res) => {
 };
 
 
-
+//
 
 export const startNextRound = async (req, res) => {
   try {
@@ -328,24 +328,24 @@ export const startNextRound = async (req, res) => {
       return res.json({ message: 'El torneo ha terminado', league });
     }
 
-    const newMatches = [];
-    for (let i = 0; i < winners.length; i += 2) {
-      const newChatRoom = await ChatRoom.create({
-        // Aquí puedes añadir campos adicionales si los necesitas
-      });
-      
-      newMatches.push({
-        player1: winners[i],
-        player2: winners[i + 1] || null,
-        winner: null,
-        chatRoom: newChatRoom._id,
-        result: '',
-        status: 'pending'
-      });
+    // Llenar la siguiente ronda con los ganadores
+    const nextRound = league.rounds[league.current_round];
+    if (nextRound && nextRound.matches) {
+      for (let i = 0; i < winners.length; i += 2) {
+        nextRound.matches.push({
+          player1: winners[i],
+          player2: winners[i + 1] || null,
+          winner: null,
+          chatRoom: await ChatRoom.create({}),
+          result: '',
+          status: 'pending'
+        });
+      }
     }
 
+    // Incrementar la ronda actual
     league.current_round++;
-    league.rounds.push({ matches: newMatches });
+
     await league.save();
 
     return res.json({ message: 'Nueva ronda iniciada', league });
@@ -354,6 +354,7 @@ export const startNextRound = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 //
 export const recordScores = async (req, res) => {
