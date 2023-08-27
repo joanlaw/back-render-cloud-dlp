@@ -376,10 +376,7 @@ export const startNextRound = async (req, res) => {
 export const recordScores = async (req, res) => {
   console.log("Inside recordScores function");
   try {
-    // Extrae leagueId y roundNumber de los parámetros de la URL
     const { leagueId, roundNumber } = req.params;
-
-    // Extrae matchId, scorePlayer1, y scorePlayer2 del cuerpo de la petición
     const { matchId, scorePlayer1, scorePlayer2 } = req.body;
 
     console.log("League ID:", leagueId);
@@ -412,14 +409,24 @@ export const recordScores = async (req, res) => {
       return res.status(404).json({ message: 'Match not found.', location: 'matches array' });
     }
 
+    // Actualizar puntuaciones
     match.scores.player1 = scorePlayer1;
     match.scores.player2 = scorePlayer2;
 
+    // Determinar el ganador basado en las puntuaciones y actualizar el campo "winner"
+    if (scorePlayer1 > scorePlayer2) {
+      match.winner = match.player1;
+    } else if (scorePlayer2 > scorePlayer1) {
+      match.winner = match.player2;
+    } else {
+      match.winner = 'draw'; // O puedes usar null, según tu diseño
+    }
+
     await league.save();
-    console.log("Scores recorded successfully.");
+    console.log("Scores and winner recorded successfully.");
     console.log("Updated League:", league);
 
-    res.status(200).json({ message: 'Scores recorded successfully' });
+    res.status(200).json({ message: 'Scores and winner recorded successfully' });
   } catch (err) {
     console.log("Error:", err);
     res.status(500).json({ error: err.message, location: 'Catch block' });
@@ -428,6 +435,7 @@ export const recordScores = async (req, res) => {
 
 
 
+//
 export const recordMatchResult = async (req, res) => {
   try {
     const { leagueId, roundNumber, matchId, chatRoom, result } = req.body;
