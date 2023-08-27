@@ -70,7 +70,7 @@ export const getLeagueById = async (req, res) => {
 // METODO POST
 export const createLeague = async (req, res) => {
   try {
-    let { league_name, league_format, start_date, enlace_torneo, infoTorneo, organizer } = req.body;
+    let { league_name, league_format, start_date, enlace_torneo, infoTorneo, organizer, reglas } = req.body;
 
     // Aquí agregamos la verificación y el parseo
     if (typeof infoTorneo === 'string') {
@@ -94,6 +94,8 @@ export const createLeague = async (req, res) => {
       image: {
         url: image.url // Utiliza solo la URL de la imagen
       },
+      reglas,
+      enlace_torneo,
       infoTorneo,
       organizer: user._id,
     });
