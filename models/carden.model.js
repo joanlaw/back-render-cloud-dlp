@@ -66,6 +66,9 @@ const cardSchema = mongoose.Schema({
   descripcion: {
     type: String
   },
+  descripcion_es: {
+    type: String
+  },
   efecto_pendulo: {
     type: String,
     trim: true
