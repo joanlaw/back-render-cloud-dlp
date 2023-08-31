@@ -703,10 +703,11 @@ export const createPlayerDeck = async (req, res) => {
     const uploads = {};
 
     for (const deck of decks) {
-      if (!req.files[deck] || !req.files[deck][0]) {
-        return res.status(400).json({ error: `Falta el archivo de ${deck}` });
+      if (req.files[deck] && req.files[deck][0]) {
+        uploads[deck] = await uploadToImgbb(req.files[deck][0].path);
+      } else {
+        uploads[deck] = { url: null };  // O un valor por defecto, si lo prefieres
       }
-      uploads[deck] = await uploadToImgbb(req.files[deck][0].path);
     }
 
     const newPlayerDeck = new PlayerDeck({
@@ -731,6 +732,7 @@ export const createPlayerDeck = async (req, res) => {
     res.status(500).json({ error: 'Hubo un error al crear el mazo del jugador.' });
   }
 };
+
 
 //GET ID DECK PLAYER
 export const getPlayerDeck = async (req, res) => {
