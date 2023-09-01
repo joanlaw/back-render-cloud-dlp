@@ -864,42 +864,57 @@ export const deletePlayerDeck = async (req, res) => {
   };
 
   // Obtener todos los partidos para un jugador en una liga específica
-// Obtener todos los partidos para un jugador en una liga específica
-export const getMatchesByPlayerAndLeagueId = async (req, res) => {
-  try {
-    const { leagueId, discordId } = req.params;  // Cambiado a discordId
-    const league = await League.findById(leagueId);
-
-    if (!league) {
-      return res.status(404).json({ message: 'El torneo no existe' });
-    }
-
-    // Busca el User correspondiente al discordId para obtener el playerId
-    const user = await User.findOne({ discordId: discordId });
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-
-    const playerId = user._id;  // Aquí tienes el playerId correspondiente al discordId
-
-    const matchesForPlayer = [];
-    
-    for (const round of league.rounds) {
-      for (const match of round.matches) {
-        if (match.player1.toString() === playerId.toString() || match.player2.toString() === playerId.toString()) {
-          matchesForPlayer.push({
-            roundId: round._id,
-            match
-          });
+  export const getMatchesByPlayerAndLeagueId = async (req, res) => {
+    try {
+      const { leagueId, discordId } = req.params;  // Cambiado a discordId
+      
+      console.log("Received leagueId:", leagueId);
+      console.log("Received discordId:", discordId);
+  
+      const league = await League.findById(leagueId);
+  
+      if (!league) {
+        console.log("League not found.");
+        return res.status(404).json({ message: 'El torneo no existe' });
+      }
+  
+      console.log("League found:", league);
+  
+      // Busca el User correspondiente al discordId para obtener el playerId
+      const user = await User.findOne({ discordId: discordId });
+  
+      if (!user) {
+        console.log("User not found.");
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      console.log("User found:", user);
+  
+      const playerId = user._id;  // Aquí tienes el playerId correspondiente al discordId
+      console.log("Player ID:", playerId);
+  
+      const matchesForPlayer = [];
+      
+      for (const round of league.rounds) {
+        for (const match of round.matches) {
+          if (match.player1.toString() === playerId.toString() || match.player2.toString() === playerId.toString()) {
+            console.log("Match found for player:", match);
+            matchesForPlayer.push({
+              roundId: round._id,
+              match
+            });
+          }
         }
       }
+      
+      console.log("Matches for player:", matchesForPlayer);
+  
+      return res.json(matchesForPlayer);
+    } catch (error) {
+      console.log("An error occurred:", error);
+      return res.status(500).json({ message: error.message });
     }
-    
-    return res.json(matchesForPlayer);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
+  };
+  
 
 
