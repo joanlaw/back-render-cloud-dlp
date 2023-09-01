@@ -86,7 +86,7 @@ leaguesRouter.get(
   getMatchByPlayerLeagueAndRound
 );
 
-leaguesRouter.get('/leagues/:leagueId/players/:playerId/matches', getMatchesByPlayerAndLeagueId);
+leaguesRouter.get('/leagues/:leagueId/players/:discordId/matches', getMatchesByPlayerAndLeagueId);
 
 
 leaguesRouter.get('/leagues/:leagueId/current-round', getCurrentRound);
