@@ -682,7 +682,29 @@ export const getPlayersAndDecksByLeagueId = async (req, res) => {
   }
 };
 
+// En tu controlador (controllers/leaguesController.js)
+export const removePlayerFromLeague = async (req, res) => {
+  try {
+    const { id, playerId } = req.params;
 
+    // Encuentra la liga por ID
+    const league = await League.findById(id);
+
+    if (!league) {
+      return res.status(404).json({ message: 'El torneo no existe' });
+    }
+
+    // Filtra los jugadores para eliminar el ID del jugador
+    league.players = league.players.filter(player => player.toString() !== playerId);
+
+    // Guarda la liga actualizada
+    await league.save();
+
+    return res.json({ message: 'Jugador eliminado de la liga' });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 //cargar imagenes de decks 
 export const createPlayerDeck = async (req, res) => {

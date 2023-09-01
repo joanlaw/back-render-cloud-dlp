@@ -17,7 +17,7 @@ import {
   deletePlayerDeck,  // Importa este método para eliminar
   getPlayerDeckByDiscordId,
   getPlayersAndDecksByLeagueId,
-  startTournament, startNextRound, recordMatchResult, getMatchesByLeagueAndRound, createChatRoom, getChatRoomMessages, sendMessageToChatRoom, getMatchByPlayerLeagueAndRound, getCurrentRound, recordScores  
+  startTournament, startNextRound, recordMatchResult, getMatchesByLeagueAndRound, createChatRoom, getChatRoomMessages, sendMessageToChatRoom, getMatchByPlayerLeagueAndRound, getCurrentRound, recordScores, removePlayerFromLeague  
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -60,6 +60,8 @@ leaguesRouter.put('/leagues/:leagueId/playerdecks/:id', updatePlayerDeck);
 
 // Eliminar un PlayerDeck
 leaguesRouter.delete('/leagues/:leagueId/playerdecks/:id', deletePlayerDeck);
+
+leaguesRouter.delete('/leagues/:id/players/:playerId', removePlayerFromLeague);
 
 
 
