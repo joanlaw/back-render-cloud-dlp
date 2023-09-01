@@ -682,7 +682,7 @@ export const getPlayersAndDecksByLeagueId = async (req, res) => {
   }
 };
 
-// En tu controlador (controllers/leaguesController.js)
+// DELETE PLAYERS EN LEAGUES 
 export const removePlayerFromLeague = async (req, res) => {
   try {
     const { id, playerId } = req.params;
@@ -695,16 +695,26 @@ export const removePlayerFromLeague = async (req, res) => {
     }
 
     // Filtra los jugadores para eliminar el ID del jugador
-    league.players = league.players.filter(player => player.toString() !== playerId);
+    league.players = league.players.filter(player => {
+      const isMatch = player.toString() === playerId;
+      if (isMatch) {
+        console.log(`Eliminando jugador con ID ${playerId}`);
+      }
+      return !isMatch;
+    });
 
     // Guarda la liga actualizada
     await league.save();
 
+    console.log('Liga actualizada:', league);
+
     return res.json({ message: 'Jugador eliminado de la liga' });
   } catch (error) {
+    console.error('Error al eliminar jugador:', error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 //cargar imagenes de decks 
 export const createPlayerDeck = async (req, res) => {
