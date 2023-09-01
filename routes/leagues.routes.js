@@ -86,7 +86,12 @@ leaguesRouter.get(
   getMatchByPlayerLeagueAndRound
 );
 
-leaguesRouter.get('/leagues/:leagueId/players/:playerId/matches', getMatchesByPlayerAndLeagueId);
+leaguesRouter.get(
+  '/leagues/:leagueId/players/:playerId/matches',
+  passport.authenticate('jwt', { session: false }),
+  getMatchesByPlayerAndLeagueId
+);
+
 
 
 leaguesRouter.get('/leagues/:leagueId/current-round', getCurrentRound);
