@@ -39,6 +39,8 @@ const leagueSchema = mongoose.Schema({
   }],
   rounds: [{
     matches: [{
+      matchNumber: Number,  // Nuevo campo
+      fromMatch: Number,    // Nuevo campo para indicar desde qué match viene un jugador
       player1: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

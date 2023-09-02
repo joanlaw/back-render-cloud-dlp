@@ -247,49 +247,34 @@ export const startTournament = async (req, res) => {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
-    console.log('Torneo encontrado:', leagueId);
-
     if (league.status !== 'open') {
       console.log('No puedes iniciar un torneo ya en progreso o finalizado.');
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
-    console.log('El torneo está abierto y listo para empezar.');
-
     const totalPlayers = league.players.length;
-    console.log(`Total de jugadores: ${totalPlayers}`);
-
     const requiredPlayers = nextPowerOf2(totalPlayers);
-    console.log(`Jugadores requeridos para la próxima potencia de 2: ${requiredPlayers}`);
-
     const playersToEliminate = totalPlayers - requiredPlayers;
-    console.log(`Jugadores a eliminar: ${playersToEliminate}`);
-
     const totalRounds = Math.log2(requiredPlayers);
-    console.log(`Total de rondas: ${totalRounds}`);
 
+    let matchCounter = 1;  // Nuevo contador para el número del match
     const rondas = [];
     let remainingPlayers = [...league.players];
 
     if (playersToEliminate > 0) {
-      console.log('Entrando en el bloque para eliminar jugadores.');
-
       const shuffledPlayers = [...remainingPlayers].sort(() => Math.random() - 0.5);
-      console.log('Jugadores mezclados:', shuffledPlayers);
-
       const firstRoundPlayers = shuffledPlayers.splice(0, playersToEliminate);
-      console.log('Jugadores para la primera ronda:', firstRoundPlayers);
-
+      
       const firstRoundMatches = [];
 
       while (firstRoundPlayers.length > 0) {
         const newChatRoom = await ChatRoom.create({ /* ... */ });
-        console.log('Nueva sala de chat creada:', newChatRoom._id);
 
         const jugador1 = firstRoundPlayers.shift();
         const jugador2 = firstRoundPlayers.shift() || null;
 
         firstRoundMatches.push({
+          matchNumber: matchCounter++,  // Usar y actualizar el contador de matches
           player1: jugador1._id,
           player2: jugador2 ? jugador2._id : null,
           chatRoom: newChatRoom._id,
@@ -303,22 +288,47 @@ export const startTournament = async (req, res) => {
         });
       }
 
-      console.log('Emparejamientos de la primera ronda:', firstRoundMatches);
-
       rondas.push({ matches: firstRoundMatches });
       remainingPlayers = shuffledPlayers;
     }
 
-    console.log('Rondas a asignar:', JSON.stringify(rondas, null, 2));
+    // Lógica para crear las rondas y matches principales
+    while (remainingPlayers.length > 1) {
+      const roundMatches = [];
+      let waitingForMatchNumber = matchCounter;  // Los ganadores de estos matches irán a la próxima ronda
+
+      for (let i = 0; i < remainingPlayers.length; i += 2) {
+        const newChatRoom = await ChatRoom.create({ /* ... */ });
+
+        const jugador1 = remainingPlayers[i]._id;
+        const jugador2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
+
+        roundMatches.push({
+          matchNumber: matchCounter++,
+          fromMatch: waitingForMatchNumber++,  // Desde qué match vendrá el ganador
+          player1: jugador1,
+          player2: jugador2,
+          chatRoom: newChatRoom._id,
+          winner: null,
+          result: '',
+          scores: {
+            player1: 0,
+            player2: 0
+          },
+          status: 'pending'
+        });
+      }
+
+      rondas.push({ matches: roundMatches });
+      remainingPlayers = roundMatches.map(m => m.fromMatch);  // Los ganadores de estos matches jugarán en la próxima ronda
+    }
+
     league.rounds = rondas;
     league.totalRounds = totalRounds;
     league.current_round = 1;
     league.status = 'in_progress';
 
     league.markModified('rounds');
-
-    console.log('Objeto league antes de guardar:', JSON.stringify(league, null, 2));
-
     await league.save();
 
     console.log("Torneo iniciado con éxito");
@@ -352,19 +362,7 @@ export const startNextRound = async (req, res) => {
     }
 
     const currentRound = league.rounds[league.current_round - 1];
-    let winners;
-
-    if (league.qualificationRound && league.current_round === 1) {
-      // Lógica especial para manejar la ronda de clasificación
-      winners = currentRound.matches.map(match => match.winner).filter(w => w);
-      // Añadir a los jugadores que no estaban en la ronda de clasificación
-      const allPlayerIds = league.players.map(p => p._id.toString());
-      const winnerIds = winners.map(w => w.toString());
-      const skippedPlayers = allPlayerIds.filter(id => !winnerIds.includes(id));
-      winners = winners.concat(skippedPlayers);
-    } else {
-      winners = currentRound.matches.map(match => match.winner);
-    }
+    let winners = currentRound.matches.map(match => match.winner).filter(w => w);
 
     if (winners.includes(null)) {
       console.log('Todavía hay partidos pendientes en esta ronda.');
@@ -378,39 +376,19 @@ export const startNextRound = async (req, res) => {
       return res.json({ message: 'El torneo ha terminado', league });
     }
 
-    console.log('Preparando para llenar la siguiente ronda');
-
     const nextRound = { matches: [] };
-    let noPartnerPlayer = null;
+    let waitingForMatchNumber = league.rounds.flat().length + 1;  // Siguiente número de match disponible
 
     for (let i = 0; i < winners.length; i += 2) {
-      const player1 = winners[i];
-      const player2 = winners[i + 1];
-
-      if (!player2) {
-        console.log(`Jugador sin pareja: ${player1}`);
-        noPartnerPlayer = player1;
-        continue;
-      }
-
       const newChatRoom = await ChatRoom.create({ /* ... */ });
       
+      const player1 = winners[i];
+      const player2 = winners[i + 1] || null;
+
       nextRound.matches.push({
+        matchNumber: waitingForMatchNumber++,  // Usar y actualizar el contador de matches
         player1: player1,
         player2: player2,
-        winner: null,
-        chatRoom: newChatRoom._id,
-        result: '',
-        status: 'pending'
-      });
-    }
-
-    if (noPartnerPlayer) {
-      console.log(`Añadiendo jugador sin pareja a la siguiente ronda: ${noPartnerPlayer}`);
-      const newChatRoom = await ChatRoom.create({ /* ... */ });
-      nextRound.matches.push({
-        player1: noPartnerPlayer,
-        player2: null,
         winner: null,
         chatRoom: newChatRoom._id,
         result: '',
@@ -440,14 +418,7 @@ export const recordScores = async (req, res) => {
     const { leagueId, roundNumber } = req.params;
     const { matchId, scorePlayer1, scorePlayer2 } = req.body;
 
-    console.log("League ID:", leagueId);
-    console.log("Round Number:", roundNumber);
-    console.log("Match ID:", matchId);
-    console.log("Score Player 1:", scorePlayer1);
-    console.log("Score Player 2:", scorePlayer2);
-
     const league = await League.findById(leagueId);
-    console.log("League:", league);
 
     if (!league) {
       console.log("League not found.");
@@ -455,7 +426,6 @@ export const recordScores = async (req, res) => {
     }
 
     const round = league.rounds[roundNumber - 1];
-    console.log("Round:", round);
 
     if (!round) {
       console.log("Round not found.");
@@ -463,7 +433,6 @@ export const recordScores = async (req, res) => {
     }
 
     const match = round.matches.find(match => match._id.toString() === matchId);
-    console.log("Match:", match);
 
     if (!match) {
       console.log("Match not found.");
@@ -483,6 +452,16 @@ export const recordScores = async (req, res) => {
       match.winner = 'draw'; // O puedes usar null, según tu diseño
     }
 
+    // Actualizar también los ganadores de los matches previos
+    const waitingMatch = round.matches.find(m => m.matchNumber === match.fromMatch);
+    if (waitingMatch) {
+      if (waitingMatch.player1.toString() === match.winner.toString()) {
+        waitingMatch.player1 = match.winner;
+      } else if (waitingMatch.player2 && waitingMatch.player2.toString() === match.winner.toString()) {
+        waitingMatch.player2 = match.winner;
+      }
+    }
+
     await league.save();
     console.log("Scores and winner recorded successfully.");
     console.log("Updated League:", league);
@@ -493,6 +472,7 @@ export const recordScores = async (req, res) => {
     res.status(500).json({ error: err.message, location: 'Catch block' });
   }
 };
+
 
 
 //
