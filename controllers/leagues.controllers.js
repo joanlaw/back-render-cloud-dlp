@@ -237,48 +237,47 @@ const nextPowerOf2 = (n) => {
 
 export const startTournament = async (req, res) => {
   try {
-    console.log("Inicio de la función startTournament");
-    const { leagueId } = req.params;
-    const league = await League.findById(leagueId).populate('players');
+    const { id } = req.params;
+    const liga = await Liga.findById(id);
 
-    if (!league) {
-      return res.status(404).json({ message: 'Torneo no encontrado' });
+    if (!liga) {
+      return res.status(404).json({ message: 'Liga no encontrada' });
     }
 
-    if (league.status !== 'open') {
-      return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
+    if (liga.status !== 'pending') {
+      return res.status(400).json({ message: 'La liga ya ha comenzado o ha terminado' });
     }
 
-    const totalPlayers = league.players.length;
-    const requiredPlayers = nextPowerOf2(totalPlayers);
-    const playersToEliminate = totalPlayers - requiredPlayers;
-    const totalRounds = Math.log2(requiredPlayers) + (playersToEliminate > 0 ? 1 : 0);
+    const players = liga.players;
+    const playersCount = players.length;
+    let roundsCount = Math.ceil(Math.log2(playersCount));
+    const totalMatches = Math.pow(2, roundsCount) - 1;
+    const playersToEliminate = Math.pow(2, roundsCount) - playersCount;
 
-    let matchCounter = 1;
-    const rondas = [];
-    let remainingPlayers = [...league.players];
+    let remainingPlayers = [...players];
+    let rondas = [];
 
     if (playersToEliminate > 0) {
       const firstRoundMatches = [];
       const firstRoundPlayers = remainingPlayers.splice(0, playersToEliminate + playersToEliminate % 2);
 
       for (let i = 0; i < firstRoundPlayers.length; i += 2) {
-        const newChatRoom = await ChatRoom.create({ /* ... */ });
-        const jugador1 = firstRoundPlayers[i]._id;
+        const matchNumber = i / 2 + 1;
+        const jugador1 = firstRoundPlayers[i] ? firstRoundPlayers[i]._id : null;
         const jugador2 = firstRoundPlayers[i + 1] ? firstRoundPlayers[i + 1]._id : null;
 
         firstRoundMatches.push({
-          matchNumber: matchCounter++,
-          player1: jugador1,
-          player2: jugador2,
-          chatRoom: newChatRoom._id,
-          winner: null,
-          result: '',
           scores: {
             player1: 0,
-            player2: 0
+            player2: 0,
           },
-          status: 'pending'
+          matchNumber,
+          player1: jugador1,
+          player2: jugador2,
+          winner: null,
+          chatRoom: 'id_chat_room',
+          result: '',
+          status: 'pending',
         });
       }
 
@@ -289,22 +288,22 @@ export const startTournament = async (req, res) => {
       const roundMatches = [];
 
       for (let i = 0; i < remainingPlayers.length; i += 2) {
-        const newChatRoom = await ChatRoom.create({ /* ... */ });
-        const jugador1 = remainingPlayers[i]._id;
+        const matchNumber = rondas.flatMap(r => r.matches).length + 1;
+        const jugador1 = remainingPlayers[i] ? remainingPlayers[i]._id : null;
         const jugador2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
 
         roundMatches.push({
-          matchNumber: matchCounter++,
-          player1: jugador1,
-          player2: jugador2,
-          chatRoom: newChatRoom._id,
-          winner: null,
-          result: '',
           scores: {
             player1: 0,
-            player2: 0
+            player2: 0,
           },
-          status: 'pending'
+          matchNumber,
+          player1: jugador1,
+          player2: jugador2,
+          winner: null,
+          chatRoom: 'id_chat_room',
+          result: '',
+          status: 'pending',
         });
       }
 
@@ -312,22 +311,24 @@ export const startTournament = async (req, res) => {
       remainingPlayers = roundMatches.map(m => m.winner);
     }
 
-    league.rounds = rondas;
-    league.totalRounds = totalRounds;
-    league.current_round = 1;
-    league.status = 'in_progress';
+    liga.status = 'in_progress';
+    liga.rounds = rondas;
+    liga.current_round = 1;
+    liga.totalRounds = roundsCount;
 
-    league.markModified('rounds');
-    await league.save();
+    await liga.save();
 
-    console.log("Torneo iniciado con éxito");
-    return res.json(league);
+    return res.status(200).json({
+      message: 'Torneo iniciado con éxito',
+      liga,
+    });
 
   } catch (error) {
     console.error("Error al iniciar el torneo:", error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
