@@ -322,8 +322,14 @@ export const startNextRound = async (req, res) => {
     }
 
     const currentRound = league.rounds[league.current_round - 1];
-    const winners = currentRound.matches.map(match => match.winner);
-
+    const winners = currentRound.matches.map(match => {
+      if (match.player2 === null) {
+        match.winner = match.player1;  // Marcar automáticamente a player1 como el ganador
+        return match.player1;
+      }
+      return match.winner;
+    });
+    
     if (winners.includes(null)) {
       console.log('Todavía hay partidos pendientes en esta ronda.');
       return res.status(400).json({ message: 'Todavía hay partidos pendientes en esta ronda.' });
