@@ -247,30 +247,44 @@ export const startTournament = async (req, res) => {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
+    console.log('Torneo encontrado:', leagueId);
+
     if (league.status !== 'open') {
       console.log('No puedes iniciar un torneo ya en progreso o finalizado.');
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
+    console.log('El torneo está abierto y listo para empezar.');
+
     const totalPlayers = league.players.length;
+    console.log(`Total de jugadores: ${totalPlayers}`);
+
     const requiredPlayers = nextPowerOf2(totalPlayers);
+    console.log(`Jugadores requeridos para la próxima potencia de 2: ${requiredPlayers}`);
+
     const playersToEliminate = totalPlayers - requiredPlayers;
+    console.log(`Jugadores a eliminar: ${playersToEliminate}`);
 
     const totalRounds = Math.log2(requiredPlayers);
+    console.log(`Total de rondas: ${totalRounds}`);
+
     const rondas = [];
     let remainingPlayers = [...league.players];
 
     if (playersToEliminate > 0) {
-      // Mezclar aleatoriamente el array de jugadores
-      const shuffledPlayers = [...remainingPlayers].sort(() => Math.random() - 0.5);
+      console.log('Entrando en el bloque para eliminar jugadores.');
 
-      // Tomar los primeros 'playersToEliminate' jugadores para la ronda preliminar
+      const shuffledPlayers = [...remainingPlayers].sort(() => Math.random() - 0.5);
+      console.log('Jugadores mezclados:', shuffledPlayers);
+
       const firstRoundPlayers = shuffledPlayers.splice(0, playersToEliminate);
+      console.log('Jugadores para la primera ronda:', firstRoundPlayers);
 
       const firstRoundMatches = [];
 
       while (firstRoundPlayers.length > 0) {
         const newChatRoom = await ChatRoom.create({ /* ... */ });
+        console.log('Nueva sala de chat creada:', newChatRoom._id);
 
         const jugador1 = firstRoundPlayers.shift();
         const jugador2 = firstRoundPlayers.shift() || null;
@@ -289,12 +303,12 @@ export const startTournament = async (req, res) => {
         });
       }
 
+      console.log('Emparejamientos de la primera ronda:', firstRoundMatches);
+
       rondas.push({ matches: firstRoundMatches });
-      remainingPlayers = shuffledPlayers;  // Jugadores restantes después de la primera ronda
+      remainingPlayers = shuffledPlayers;
     }
 
-    // Aquí puedes continuar con la creación de las rondas siguientes si es necesario
-    // ...
     console.log('Rondas a asignar:', JSON.stringify(rondas, null, 2));
     league.rounds = rondas;
     league.totalRounds = totalRounds;
@@ -303,7 +317,7 @@ export const startTournament = async (req, res) => {
 
     league.markModified('rounds');
 
-    console.log('Objeto league antes de guardar:', JSON.stringify(league, null, 2));  // Agregar esta línea
+    console.log('Objeto league antes de guardar:', JSON.stringify(league, null, 2));
 
     await league.save();
 
@@ -315,7 +329,6 @@ export const startTournament = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 
