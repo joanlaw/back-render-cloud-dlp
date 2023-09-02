@@ -237,7 +237,20 @@ const nextPowerOf2 = (n) => {
 
 export const startTournament = async (req, res) => {
   try {
-    // ... (parte inicial del código no modificada)
+    console.log("Inicio de la función startTournament");
+
+    const { leagueId } = req.params;
+    const league = await League.findById(leagueId).populate('players');
+
+    if (!league) {
+      console.log('Torneo no encontrado');
+      return res.status(404).json({ message: 'Torneo no encontrado' });
+    }
+
+    if (league.status !== 'open') {
+      console.log('No puedes iniciar un torneo ya en progreso o finalizado.');
+      return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
+    }
     
     const totalPlayers = league.players.length;
     const requiredPlayers = nextPowerOf2(totalPlayers);
