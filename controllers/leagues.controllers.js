@@ -332,17 +332,38 @@ export const startNextRound = async (req, res) => {
 
     // Llenar la siguiente ronda con los ganadores
     const nextRound = league.rounds[league.current_round];
-    if (nextRound && nextRound.matches) {
-      for (let i = 0; i < winners.length; i += 2) {
-        nextRound.matches.push({
-          player1: winners[i],
-          player2: winners[i + 1] || null,
-          winner: null,
-          chatRoom: await ChatRoom.create({}),
-          result: '',
-          status: 'pending'
-        });
+    let noPartnerPlayer = null;  // Jugador sin pareja
+
+    for (let i = 0; i < winners.length; i += 2) {
+      const player1 = winners[i];
+      const player2 = winners[i + 1];
+
+      // Verificar si hay un jugador sin pareja
+      if (!player2) {
+        noPartnerPlayer = player1;
+        continue;
       }
+
+      nextRound.matches.push({
+        player1: player1,
+        player2: player2,
+        winner: null,
+        chatRoom: await ChatRoom.create({}),
+        result: '',
+        status: 'pending'
+      });
+    }
+
+    // Si hay un jugador sin pareja, añadirlo aquí
+    if (noPartnerPlayer) {
+      nextRound.matches.push({
+        player1: noPartnerPlayer,
+        player2: null,
+        winner: null,
+        chatRoom: await ChatRoom.create({}),
+        result: '',
+        status: 'pending'
+      });
     }
 
     // Incrementar la ronda actual
