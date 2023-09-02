@@ -235,7 +235,7 @@ const nextPowerOf2 = (n) => {
   return 1 << count;
 };
 
-const startTournament = async (req, res) => {
+export const startTournament = async (req, res) => {
   try {
     const { id } = req.params;
     const league = await League.findById(id);
