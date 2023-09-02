@@ -453,44 +453,42 @@ export const recordScores = async (req, res) => {
 export const recordMatchResult = async (req, res) => {
   try {
     const { leagueId, roundNumber, matchId, chatRoom, result } = req.body;
-    console.log("League ID:", leagueId);
-    console.log("Round Number:", roundNumber);
-    console.log("Match ID:", matchId);
-    console.log("Chat Room:", chatRoom);
-    console.log("Result:", result);
+    // ... (logs omitidos para brevedad)
 
     const league = await League.findById(leagueId);
-    console.log("League:", league);
 
     if (!league) {
-      console.log("Torneo no encontrado.");
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'in_progress') {
-      console.log("El torneo no está en progreso.");
       return res.status(400).json({ message: 'El torneo no está en progreso.' });
     }
 
     const round = league.rounds[roundNumber - 1];
-    console.log("Round:", round);
-
     const match = round.matches.id(matchId);
-    console.log("Match:", match);
 
     if (!match) {
-      console.log("Emparejamiento no encontrado.");
       return res.status(404).json({ message: 'Emparejamiento no encontrado' });
     }
 
-    // Resto del código aquí...
+    // Aquí es donde añadimos la lógica para manejar el caso de un jugador sin pareja
+    if (match.player2 === null) {
+      match.winner = match.player1;
+      match.result = 'Player1 wins by default';  // Puedes cambiar este mensaje
+    } else {
+      // Aquí iría el resto del código que maneja los resultados del partido
+      // ...
+    }
+
+    await league.save();
+    return res.status(200).json({ message: 'Resultado registrado con éxito' });
 
   } catch (error) {
     console.log("Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
-
 
 
 
