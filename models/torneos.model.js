@@ -39,12 +39,32 @@ const torneoSchema = mongoose.Schema({
     required: true,
     trim: true
   },
-  top3: {
+  top4_1: {
     type: String,
     required: true,
     trim: true
   },
-  top4: {
+  top4_2: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  top8_1: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  top8_2: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  top8_3: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  top_4: {
     type: String,
     required: true,
     trim: true

@@ -27,7 +27,7 @@ export const getTorneos = async (req, res) => {
 // METODO POST
 export const createTorneo = async (req, res) => {
   try {
-    const { nombre, fecha, organizador, informacion_torneo, formato_torneo, banner, top1, top2, top3, top4 } = req.body;
+    const { nombre, fecha, organizador, informacion_torneo, formato_torneo, banner, top1, top2, top4_1, top4_2, top8_1, top8_2, top8_3, top8_4, decks  } = req.body;
 
     const torneo = new Torneo({
       nombre,
@@ -37,9 +37,7 @@ export const createTorneo = async (req, res) => {
       formato_torneo,
       banner,
       top1,
-      top2,
-      top3,
-      top4
+      top2,top4_1, top4_2, top8_1, top8_2, top8_3, top8_4, decks
     });
 
     await torneo.save();
