@@ -68,7 +68,20 @@ const torneoSchema = mongoose.Schema({
     type: String,
     required: true,
     trim: true
-  }
+  },
+  decks: [
+    {
+      nombre: {
+        type: String,
+        required: true
+      },
+      cantidad: {
+        type: Number,
+        required: true
+      }
+    }
+  ]
+  
 });
 
 // Aplicar el plugin de paginación al esquema
