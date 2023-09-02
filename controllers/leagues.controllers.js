@@ -238,24 +238,20 @@ const nextPowerOf2 = (n) => {
 export const startTournament = async (req, res) => {
   try {
     const { id } = req.params;
-    const liga = await Liga.findById(id);
+    const league = await Liga.findById(id);
 
-    if (!liga) {
+    if (!league) {
       return res.status(404).json({ message: 'Liga no encontrada' });
     }
 
-    if (liga.status !== 'pending') {
-      return res.status(400).json({ message: 'La liga ya ha comenzado o ha terminado' });
-    }
-
-    const players = liga.players;
+    const players = league.players;
     const playersCount = players.length;
     let roundsCount = Math.ceil(Math.log2(playersCount));
     const totalMatches = Math.pow(2, roundsCount) - 1;
     const playersToEliminate = Math.pow(2, roundsCount) - playersCount;
 
     let remainingPlayers = [...players];
-    let rondas = [];
+    let rounds = [];
 
     if (playersToEliminate > 0) {
       const firstRoundMatches = [];
@@ -281,14 +277,14 @@ export const startTournament = async (req, res) => {
         });
       }
 
-      rondas.push({ matches: firstRoundMatches });
+      rounds.push({ matches: firstRoundMatches });
     }
 
     while (remainingPlayers.length > 1) {
       const roundMatches = [];
 
       for (let i = 0; i < remainingPlayers.length; i += 2) {
-        const matchNumber = rondas.flatMap(r => r.matches).length + 1;
+        const matchNumber = rounds.flatMap(r => r.matches).length + 1;
         const jugador1 = remainingPlayers[i] ? remainingPlayers[i]._id : null;
         const jugador2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
 
@@ -307,20 +303,20 @@ export const startTournament = async (req, res) => {
         });
       }
 
-      rondas.push({ matches: roundMatches });
+      rounds.push({ matches: roundMatches });
       remainingPlayers = roundMatches.map(m => m.winner);
     }
 
-    liga.status = 'in_progress';
-    liga.rounds = rondas;
-    liga.current_round = 1;
-    liga.totalRounds = roundsCount;
+    league.status = 'in_progress';
+    league.rounds = rounds;
+    league.current_round = 1;
+    league.totalRounds = roundsCount;
 
-    await liga.save();
+    await league.save();
 
     return res.status(200).json({
       message: 'Torneo iniciado con éxito',
-      liga,
+      league,
     });
 
   } catch (error) {
@@ -328,6 +324,7 @@ export const startTournament = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
