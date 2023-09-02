@@ -928,28 +928,24 @@ export const deletePlayerDeck = async (req, res) => {
 // Obtener todos los partidos para un jugador en una liga específica
 export const getMatchesByPlayerAndLeagueId = async (req, res) => {
   try {
-    const { leagueId, discordId } = req.params;  // Cambiado a discordId
+    const { leagueId, discordId } = req.params;
     
-    // Log para verificar si los parámetros se reciben correctamente
     console.log("Received leagueId:", leagueId);
     console.log("Received discordId:", discordId);
 
-    // Validación de parámetros
     if (!discordId || !leagueId) {
-      console.log("Missing parameters.");  // Log para cuando falten parámetros
+      console.log("Missing parameters.");
       return res.status(400).json({ message: 'Faltan parámetros en la petición.' });
     }
 
     const league = await League.findById(leagueId);
 
-    // Log para verificar si se encontró la liga
     if (!league) {
       console.log("League not found.");
       return res.status(404).json({ message: 'El torneo no existe' });
     }
     console.log("League found:", league);
 
-    // Log para verificar si se encontró el usuario
     const user = await User.findOne({ discordId: discordId });
     if (!user) {
       console.log("User not found.");
@@ -958,30 +954,28 @@ export const getMatchesByPlayerAndLeagueId = async (req, res) => {
     console.log("User found:", user);
 
     const playerId = user._id;
-    // Log para verificar el playerId
     console.log("Player ID:", playerId);
 
     const matchesForPlayer = [];
     
     for (const round of league.rounds) {
-      for (const match of round.matches) {
-        if (match.player1.toString() === playerId.toString() || match.player2.toString() === playerId.toString()) {
-          // Log para cuando se encuentra un partido para el jugador
-          console.log("Match found for player:", match);
-          matchesForPlayer.push({
-            roundId: round._id,
-            match
-          });
+      if (round.matches && round.matches.length > 0) {
+        for (const match of round.matches) {
+          if (match && (match.player1.toString() === playerId.toString() || match.player2.toString() === playerId.toString())) {
+            console.log("Match found for player:", match);
+            matchesForPlayer.push({
+              roundId: round._id,
+              match
+            });
+          }
         }
       }
     }
 
-    // Log para verificar todos los partidos encontrados para el jugador
     console.log("Matches for player:", matchesForPlayer);
 
     return res.json(matchesForPlayer);
   } catch (error) {
-    // Log para cualquier otro error
     console.log("An error occurred:", error);
     return res.status(500).json({ message: error.message });
   }
