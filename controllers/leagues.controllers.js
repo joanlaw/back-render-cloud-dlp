@@ -961,7 +961,13 @@ export const getMatchesByPlayerAndLeagueId = async (req, res) => {
     for (const round of league.rounds) {
       if (round.matches && round.matches.length > 0) {
         for (const match of round.matches) {
-          if (match && (match.player1.toString() === playerId.toString() || match.player2.toString() === playerId.toString())) {
+          if (
+            match &&
+            match.player1 &&
+            match.player2 &&
+            (match.player1.toString() === playerId.toString() ||
+            match.player2.toString() === playerId.toString())
+          ) {
             console.log("Match found for player:", match);
             matchesForPlayer.push({
               roundId: round._id,
@@ -971,6 +977,7 @@ export const getMatchesByPlayerAndLeagueId = async (req, res) => {
         }
       }
     }
+    
 
     console.log("Matches for player:", matchesForPlayer);
 
