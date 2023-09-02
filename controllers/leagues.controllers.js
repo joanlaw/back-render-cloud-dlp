@@ -237,82 +237,96 @@ const nextPowerOf2 = (n) => {
 
 export const startTournament = async (req, res) => {
   try {
-    console.log('Inicio de la función startTournament');
+    // ... (parte inicial del código no modificada)
     
-    const { leagueId } = req.params;
-    const league = await League.findById(leagueId);
-    
-    if (!league) {
-      console.log('Liga no encontrada');
-      return res.status(404).json({ message: 'Liga no encontrada' });
-    }
-    
-    const playerCount = league.players.length;
-    let totalRounds = Math.ceil(Math.log2(playerCount));
-    
-    const nextPowerOfTwo = Math.pow(2, totalRounds);
-    const playersToEliminate = nextPowerOfTwo - playerCount;
-    
-    // Calcular la primera ronda preliminar
+    const totalPlayers = league.players.length;
+    const requiredPlayers = nextPowerOf2(totalPlayers);
+    const playersToEliminate = totalPlayers - requiredPlayers;
+    const totalRounds = Math.log2(requiredPlayers);
+
+    let matchCounter = 1;
+    const rondas = [];
     let remainingPlayers = [...league.players];
-    let matches = [];
-    let matchNumber = 1;
-    
-    for (let i = 0; i < playersToEliminate * 2; i += 2) {
-      const newChatRoom = await ChatRoom.create({ /* ... */ });
-      
-      matches.push({
-        matchNumber: matchNumber++,
-        player1: remainingPlayers[i]._id,
-        player2: remainingPlayers[i + 1]._id,
-        winner: null,
-        chatRoom: newChatRoom._id,
-        result: '',
-        status: 'pending',
-        scores: {
-          player1: 0,
-          player2: 0
-        }
-      });
-    }
-    
-    remainingPlayers = remainingPlayers.slice(playersToEliminate * 2);
-    
-    // Ahora agregar los matches para los jugadores restantes
-    for (let i = 0; i < remainingPlayers.length; i++) {
-      const newChatRoom = await ChatRoom.create({ /* ... */ });
+    let eliminatedPlayers = [];
 
-      matches.push({
-        matchNumber: matchNumber++,
-        player1: remainingPlayers[i]._id,
-        player2: null,
-        winner: null,
-        chatRoom: newChatRoom._id,
-        result: '',
-        status: 'pending',
-        scores: {
-          player1: 0,
-          player2: 0
-        }
-      });
+    // Primera ronda para eliminar a los jugadores adicionales
+    if (playersToEliminate > 0) {
+      const firstRoundMatches = [];
+      const firstRoundPlayers = remainingPlayers.splice(0, playersToEliminate * 2);  // Corrección aquí
+
+      while (firstRoundPlayers.length > 0) {
+        const newChatRoom = await ChatRoom.create({ /* ... */ });
+
+        const jugador1 = firstRoundPlayers.shift();
+        const jugador2 = firstRoundPlayers.shift() || null;
+
+        firstRoundMatches.push({
+          matchNumber: matchCounter++,
+          player1: jugador1._id,
+          player2: jugador2 ? jugador2._id : null,
+          chatRoom: newChatRoom._id,
+          winner: null,
+          result: '',
+          scores: {
+            player1: 0,
+            player2: 0
+          },
+          status: 'pending'
+        });
+      }
+
+      rondas.push({ matches: firstRoundMatches });
+      eliminatedPlayers = eliminatedPlayers.concat(firstRoundPlayers);
     }
 
-    // Guardar todo en el documento de la liga
-    league.rounds.push({ matches });
-    league.current_round = 1;
+    // Rondas subsiguientes
+    while (remainingPlayers.length > 1) {
+      const roundMatches = [];
+      let waitingForMatchNumber = matchCounter;
+
+      for (let i = 0; i < remainingPlayers.length; i += 2) {
+        const newChatRoom = await ChatRoom.create({ /* ... */ });
+
+        const jugador1 = remainingPlayers[i]._id;
+        const jugador2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
+
+        roundMatches.push({
+          matchNumber: matchCounter++,
+          fromMatch: waitingForMatchNumber++,
+          player1: jugador1,
+          player2: jugador2,
+          chatRoom: newChatRoom._id,
+          winner: null,
+          result: '',
+          scores: {
+            player1: 0,
+            player2: 0
+          },
+          status: 'pending'
+        });
+      }
+
+      rondas.push({ matches: roundMatches });
+      remainingPlayers = roundMatches.map(m => m.fromMatch);
+    }
+
+    league.rounds = rondas;
     league.totalRounds = totalRounds;
+    league.current_round = 1;
     league.status = 'in_progress';
-    
+
+    league.markModified('rounds');
     await league.save();
-    
-    console.log('Torneo iniciado');
-    return res.json({ message: 'Torneo iniciado', league });
-    
+
+    console.log("Torneo iniciado con éxito");
+    return res.json(league);
+
   } catch (error) {
-    console.error('Error al iniciar el torneo:', error);
+    console.error("Error al iniciar el torneo:", error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 //
