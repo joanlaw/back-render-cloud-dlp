@@ -228,7 +228,7 @@ export const getMatchesByLeagueAndRound = async (req, res) => {
 const nextPowerOf2 = (n) => {
   let count = 0;
   if (n && !(n & (n - 1))) return n;
-  while (n !== 0) {
+  while (n != 0) {
     n >>= 1;
     count += 1;
   }
@@ -252,61 +252,55 @@ export const startTournament = async (req, res) => {
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
-    const requiredPlayers = nextPowerOf2(league.players.length);
-    const playersToEliminate = league.players.length - requiredPlayers;
+    const totalPlayers = league.players.length;
+    const requiredPlayers = nextPowerOf2(totalPlayers);
+    const playersToEliminate = totalPlayers - requiredPlayers;
+
     const totalRounds = Math.log2(requiredPlayers);
-
-    // Lista para almacenar rondas y emparejamientos
     const rondas = [];
-    const emparejamientos = [];
+    let remainingPlayers = [...league.players];
 
-    // Copiar lista de jugadores para manipulación
-    let jugadores_activos = [...league.players];
-
-    // Determinar si se necesita una ronda de clasificación
     if (playersToEliminate > 0) {
-      league.qualificationRound = true;
-
       // Mezclar aleatoriamente el array de jugadores
-      jugadores_activos.sort(() => Math.random() - 0.5);
+      const shuffledPlayers = [...remainingPlayers].sort(() => Math.random() - 0.5);
 
       // Tomar los primeros 'playersToEliminate' jugadores para la ronda preliminar
-      jugadores_activos = jugadores_activos.slice(0, playersToEliminate);
-    } else {
-      league.qualificationRound = false;
+      const firstRoundPlayers = shuffledPlayers.splice(0, playersToEliminate);
+
+      const firstRoundMatches = [];
+
+      while (firstRoundPlayers.length > 0) {
+        const newChatRoom = await ChatRoom.create({ /* ... */ });
+
+        const jugador1 = firstRoundPlayers.shift();
+        const jugador2 = firstRoundPlayers.shift() || null;
+
+        firstRoundMatches.push({
+          player1: jugador1._id,
+          player2: jugador2 ? jugador2._id : null,
+          chatRoom: newChatRoom._id,
+          winner: null,
+          result: '',
+          scores: {
+            player1: 0,
+            player2: 0
+          },
+          status: 'pending'
+        });
+      }
+
+      rondas.push({ matches: firstRoundMatches });
+      remainingPlayers = shuffledPlayers;  // Jugadores restantes después de la primera ronda
     }
 
-    // Crear emparejamientos para la primera ronda
-    while (jugadores_activos.length > 0) {
-      const newChatRoom = await ChatRoom.create({ /* Campos adicionales si los necesitas */ });
+    // Aquí puedes continuar con la creación de las rondas siguientes si es necesario
+    // ...
 
-      const jugador1 = jugadores_activos.shift();
-      const jugador2 = jugadores_activos.shift() || null;
-
-      emparejamientos.push({
-        player1: jugador1._id,
-        player2: jugador2 ? jugador2._id : null,
-        chatRoom: newChatRoom._id,
-        winner: null,
-        result: '',
-        scores: {
-          player1: 0,
-          player2: 0
-        },
-        status: 'pending'
-      });
-    }
-
-    // Añadir emparejamientos a la lista de rondas
-    rondas.push({ matches: emparejamientos });
-
-    // Actualizar el torneo con la información de la ronda y emparejamientos
     league.rounds = rondas;
     league.totalRounds = totalRounds;
     league.current_round = 1;
     league.status = 'in_progress';
 
-    // Guardar cambios en la base de datos
     await league.save();
 
     console.log("Torneo iniciado con éxito");
@@ -472,13 +466,6 @@ export const recordScores = async (req, res) => {
       match.winner = 'draw'; // O puedes usar null, según tu diseño
     }
 
-    // Lógica para manejar la ronda de clasificación
-    if (league.qualificationRound && roundNumber === 1) {
-      if (match.winner) {
-        match.status = 'completed';
-      }
-    }
-  
     await league.save();
     console.log("Scores and winner recorded successfully.");
     console.log("Updated League:", league);
@@ -489,7 +476,6 @@ export const recordScores = async (req, res) => {
     res.status(500).json({ error: err.message, location: 'Catch block' });
   }
 };
-
 
 
 //
