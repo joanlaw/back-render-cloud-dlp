@@ -301,6 +301,8 @@ export const startTournament = async (req, res) => {
     league.current_round = 1;
     league.status = 'in_progress';
 
+    console.log('Objeto league antes de guardar:', JSON.stringify(league, null, 2));  // Agregar esta línea
+
     await league.save();
 
     console.log("Torneo iniciado con éxito");
