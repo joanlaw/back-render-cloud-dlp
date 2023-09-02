@@ -306,14 +306,18 @@ export const startTournament = async (req, res) => {
 
 export const startNextRound = async (req, res) => {
   try {
+    console.log('Inicio de la función startNextRound');
+
     const { leagueId } = req.params;
     const league = await League.findById(leagueId);
 
     if (!league) {
+      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'in_progress') {
+      console.log('El torneo no está en progreso.');
       return res.status(400).json({ message: 'El torneo no está en progreso.' });
     }
 
@@ -321,25 +325,28 @@ export const startNextRound = async (req, res) => {
     const winners = currentRound.matches.map(match => match.winner);
 
     if (winners.includes(null)) {
+      console.log('Todavía hay partidos pendientes en esta ronda.');
       return res.status(400).json({ message: 'Todavía hay partidos pendientes en esta ronda.' });
     }
 
     if (league.current_round >= league.totalRounds) {
+      console.log('El torneo ha terminado');
       league.status = 'finalized';
       await league.save();
       return res.json({ message: 'El torneo ha terminado', league });
     }
 
-    // Llenar la siguiente ronda con los ganadores
+    console.log('Preparando para llenar la siguiente ronda');
+
     const nextRound = league.rounds[league.current_round];
-    let noPartnerPlayer = null;  // Jugador sin pareja
+    let noPartnerPlayer = null;
 
     for (let i = 0; i < winners.length; i += 2) {
       const player1 = winners[i];
       const player2 = winners[i + 1];
-
-      // Verificar si hay un jugador sin pareja
+      
       if (!player2) {
+        console.log(`Jugador sin pareja: ${player1}`);
         noPartnerPlayer = player1;
         continue;
       }
@@ -354,8 +361,8 @@ export const startNextRound = async (req, res) => {
       });
     }
 
-    // Si hay un jugador sin pareja, añadirlo aquí
     if (noPartnerPlayer) {
+      console.log(`Añadiendo jugador sin pareja a la siguiente ronda: ${noPartnerPlayer}`);
       nextRound.matches.push({
         player1: noPartnerPlayer,
         player2: null,
@@ -366,14 +373,14 @@ export const startNextRound = async (req, res) => {
       });
     }
 
-    // Incrementar la ronda actual
     league.current_round++;
-
     await league.save();
 
+    console.log('Nueva ronda iniciada');
     return res.json({ message: 'Nueva ronda iniciada', league });
 
   } catch (error) {
+    console.error('Error al iniciar la siguiente ronda:', error);
     return res.status(500).json({ message: error.message });
   }
 };
