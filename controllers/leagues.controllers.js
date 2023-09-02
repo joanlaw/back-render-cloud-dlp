@@ -295,12 +295,12 @@ export const startTournament = async (req, res) => {
 
     // Aquí puedes continuar con la creación de las rondas siguientes si es necesario
     // ...
-
+    console.log('Rondas a asignar:', JSON.stringify(rondas, null, 2));
     league.rounds = rondas;
     league.totalRounds = totalRounds;
     league.current_round = 1;
     league.status = 'in_progress';
-    
+
     league.markModified('rounds');
 
     console.log('Objeto league antes de guardar:', JSON.stringify(league, null, 2));  // Agregar esta línea
