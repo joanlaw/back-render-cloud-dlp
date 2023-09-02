@@ -235,13 +235,17 @@ const nextPowerOf2 = (n) => {
   return 1 << count;
 };
 
-export const startTournament = async (req, res) => {
+const startTournament = async (req, res) => {
   try {
     const { id } = req.params;
-    const league = await Liga.findById(id);
+    const league = await League.findById(id);
 
     if (!league) {
       return res.status(404).json({ message: 'Liga no encontrada' });
+    }
+
+    if (league.status !== 'pending') {
+      return res.status(400).json({ message: 'La liga ya ha comenzado o ha terminado' });
     }
 
     const players = league.players;
@@ -259,8 +263,8 @@ export const startTournament = async (req, res) => {
 
       for (let i = 0; i < firstRoundPlayers.length; i += 2) {
         const matchNumber = i / 2 + 1;
-        const jugador1 = firstRoundPlayers[i] ? firstRoundPlayers[i]._id : null;
-        const jugador2 = firstRoundPlayers[i + 1] ? firstRoundPlayers[i + 1]._id : null;
+        const player1 = firstRoundPlayers[i] ? firstRoundPlayers[i]._id : null;
+        const player2 = firstRoundPlayers[i + 1] ? firstRoundPlayers[i + 1]._id : null;
 
         firstRoundMatches.push({
           scores: {
@@ -268,8 +272,8 @@ export const startTournament = async (req, res) => {
             player2: 0,
           },
           matchNumber,
-          player1: jugador1,
-          player2: jugador2,
+          player1,
+          player2,
           winner: null,
           chatRoom: 'id_chat_room',
           result: '',
@@ -285,8 +289,8 @@ export const startTournament = async (req, res) => {
 
       for (let i = 0; i < remainingPlayers.length; i += 2) {
         const matchNumber = rounds.flatMap(r => r.matches).length + 1;
-        const jugador1 = remainingPlayers[i] ? remainingPlayers[i]._id : null;
-        const jugador2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
+        const player1 = remainingPlayers[i] ? remainingPlayers[i]._id : null;
+        const player2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
 
         roundMatches.push({
           scores: {
@@ -294,8 +298,8 @@ export const startTournament = async (req, res) => {
             player2: 0,
           },
           matchNumber,
-          player1: jugador1,
-          player2: jugador2,
+          player1,
+          player2,
           winner: null,
           chatRoom: 'id_chat_room',
           result: '',
@@ -324,6 +328,7 @@ export const startTournament = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
