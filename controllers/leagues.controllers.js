@@ -228,7 +228,7 @@ export const getMatchesByLeagueAndRound = async (req, res) => {
 const nextPowerOf2 = (n) => {
   let count = 0;
   if (n && !(n & (n - 1))) return n;
-  while (n != 0) {
+  while (n !== 0) {
     n >>= 1;
     count += 1;
   }
@@ -254,52 +254,59 @@ export const startTournament = async (req, res) => {
 
     const requiredPlayers = nextPowerOf2(league.players.length);
     const playersToEliminate = league.players.length - requiredPlayers;
-
     const totalRounds = Math.log2(requiredPlayers);
-    const rondas = [];
 
+    // Lista para almacenar rondas y emparejamientos
+    const rondas = [];
+    const emparejamientos = [];
+
+    // Copiar lista de jugadores para manipulación
+    let jugadores_activos = [...league.players];
+
+    // Determinar si se necesita una ronda de clasificación
     if (playersToEliminate > 0) {
-      // Inicializar la ronda de clasificación
       league.qualificationRound = true;
 
       // Mezclar aleatoriamente el array de jugadores
-      const shuffledPlayers = [...league.players].sort(() => Math.random() - 0.5);
+      jugadores_activos.sort(() => Math.random() - 0.5);
 
       // Tomar los primeros 'playersToEliminate' jugadores para la ronda preliminar
-      const qualifyingPlayers = shuffledPlayers.slice(0, playersToEliminate);
-
-      const qualifyingMatches = [];
-
-      while (qualifyingPlayers.length > 0) {
-        const newChatRoom = await ChatRoom.create({ /* ... */ });
-
-        const jugador1 = qualifyingPlayers.shift();
-        const jugador2 = qualifyingPlayers.shift() || null;
-
-        qualifyingMatches.push({
-          player1: jugador1._id,
-          player2: jugador2 ? jugador2._id : null,
-          chatRoom: newChatRoom._id,
-          winner: null,
-          result: '',
-          scores: {
-            player1: 0,
-            player2: 0
-          },
-          status: 'pending'
-        });
-      }
-
-      rondas.push({ matches: qualifyingMatches });
+      jugadores_activos = jugadores_activos.slice(0, playersToEliminate);
     } else {
       league.qualificationRound = false;
     }
 
+    // Crear emparejamientos para la primera ronda
+    while (jugadores_activos.length > 0) {
+      const newChatRoom = await ChatRoom.create({ /* Campos adicionales si los necesitas */ });
+
+      const jugador1 = jugadores_activos.shift();
+      const jugador2 = jugadores_activos.shift() || null;
+
+      emparejamientos.push({
+        player1: jugador1._id,
+        player2: jugador2 ? jugador2._id : null,
+        chatRoom: newChatRoom._id,
+        winner: null,
+        result: '',
+        scores: {
+          player1: 0,
+          player2: 0
+        },
+        status: 'pending'
+      });
+    }
+
+    // Añadir emparejamientos a la lista de rondas
+    rondas.push({ matches: emparejamientos });
+
+    // Actualizar el torneo con la información de la ronda y emparejamientos
     league.rounds = rondas;
     league.totalRounds = totalRounds;
     league.current_round = 1;
     league.status = 'in_progress';
 
+    // Guardar cambios en la base de datos
     await league.save();
 
     console.log("Torneo iniciado con éxito");
@@ -310,6 +317,7 @@ export const startTournament = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
