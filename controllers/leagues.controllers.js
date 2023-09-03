@@ -251,15 +251,21 @@ export const startTournament = async (req, res) => {
     const requiredPlayers = nextPowerOf2(totalPlayers);
     console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
 
+    const numberOfByes = requiredPlayers - totalPlayers;
+    console.log(`Número de BYE: ${numberOfByes}`);
+
     const totalRounds = Math.log2(requiredPlayers);
     console.log(`Total de rondas: ${totalRounds}`);
 
     let matchCounter = 1;
     const rounds = [];
 
-    let remainingPlayers = [...Array(requiredPlayers).keys()].map(i => {
-      return i < totalPlayers ? league.players[i]._id : null;
-    });
+    let remainingPlayers = [...Array(totalPlayers).keys()].map(i => league.players[i]._id);
+
+    // Añadir "BYE" al final del array
+    for (let i = 0; i < numberOfByes; i++) {
+      remainingPlayers.push(null);
+    }
 
     console.log('Jugadores iniciales:', remainingPlayers);
 
@@ -279,15 +285,14 @@ export const startTournament = async (req, res) => {
           matchNumber: matchCounter++,
           player1,
           player2,
-          winner: null,
+          winner: player1 === null ? player2 : (player2 === null ? player1 : null),
           result: '',
           scores: { player1: 0, player2: 0 },
-          status: 'pending'
+          status: player1 === null || player2 === null ? 'completed' : 'pending'
         };
 
         roundMatches.push(newMatch);
 
-        // Asumiendo que quieres guardar el número del partido para futuras referencias
         nextRoundPlayers.push(null); // El ganador del partido se determinará más tarde
       }
 
@@ -311,7 +316,6 @@ export const startTournament = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 //
 
