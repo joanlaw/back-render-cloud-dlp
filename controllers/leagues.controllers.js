@@ -274,6 +274,8 @@ export const startTournament = async (req, res) => {
         const player2 = remainingPlayers[i + 1];
 
         console.log(`Emparejando ${player1} con ${player2}`);
+        console.log('Tipo de player1:', typeof player1);
+        console.log('Tipo de player2:', typeof player2);
 
         const newMatch = {
           matchNumber: matchCounter++,
@@ -289,8 +291,12 @@ export const startTournament = async (req, res) => {
         nextRoundPlayers.push({ matchNumber: newMatch.matchNumber, winner: null });
       }
 
+      console.log('roundMatches antes de añadir a rounds:', roundMatches);
       rounds.push({ matches: roundMatches });
+      console.log('Estado actual de rounds:', rounds);
+
       remainingPlayers = nextRoundPlayers;
+      console.log('Jugadores para la siguiente ronda:', nextRoundPlayers);
     }
 
     league.rounds = rounds;
@@ -298,18 +304,20 @@ export const startTournament = async (req, res) => {
     league.current_round = 1;
     league.status = 'in_progress';
 
+    console.log('Guardar estado de la liga:', league);
     league.markModified('rounds');
     await league.save();
+    console.log('Liga guardada exitosamente');
 
     console.log('Torneo iniciado con éxito');
     return res.json(league);
 
   } catch (error) {
     console.error('Error al iniciar el torneo:', error);
+    console.error('Detalle del error:', JSON.stringify(error));
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 //
