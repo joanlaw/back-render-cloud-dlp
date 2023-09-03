@@ -231,84 +231,73 @@ const nextPowerOf2 = n => Math.pow(2, Math.ceil(Math.log2(n)));
 export const startTournament = async (req, res) => {
   try {
     console.log('Inicio de startTournament');
-
+    
     const { leagueId } = req.params;
-    const league = await League.findById(leagueId).populate('players');
-
+    const league = await League.findById(leagueId);
+    
     if (!league) {
       console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
-
-    if (league.status !== 'open') {
-      console.log('Torneo ya en progreso o finalizado');
-      return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
+    
+    if (league.status !== 'pending') {
+      console.log('El torneo ya ha comenzado o ha terminado.');
+      return res.status(400).json({ message: 'El torneo ya ha comenzado o ha terminado.' });
     }
 
     const totalPlayers = league.players.length;
-    console.log(`Total de jugadores: ${totalPlayers}`);
-
-    const requiredPlayers = nextPowerOf2(totalPlayers);
-    console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
-
-    const totalRounds = Math.log2(requiredPlayers);
-    console.log(`Total de rondas: ${totalRounds}`);
-
-    let matchCounter = 1;
-    const rounds = [];
-
-    let remainingPlayers = [...Array(requiredPlayers).keys()].map(i => {
-      return i < totalPlayers ? league.players[i]._id : 'BYE';
+    console.log('Total de jugadores:', totalPlayers);
+    
+    let totalRounds = Math.ceil(Math.log2(totalPlayers));
+    const requiredPlayers = Math.pow(2, totalRounds);
+    console.log('Jugadores requeridos para torneo completo:', requiredPlayers);
+    
+    console.log('Total de rondas:', totalRounds);
+    
+    const BYE = mongoose.Types.ObjectId("000000000000000000000000");  // Fixed ObjectId for "BYE"
+    
+    let initialPlayers = [...Array(requiredPlayers).keys()].map(i => {
+      return i < totalPlayers ? league.players[i] : BYE;
     });
 
-    console.log('Jugadores iniciales:', remainingPlayers);
+    console.log('Jugadores iniciales:', initialPlayers);
+    
+    let rounds = [];
 
-    for (let r = 1; r <= totalRounds; r++) {
-      console.log(`Creando ronda ${r}`);
-
-      const roundMatches = [];
-      const nextRoundPlayers = [];
-
-      for (let i = 0; i < remainingPlayers.length; i += 2) {
-        const player1 = remainingPlayers[i];
-        const player2 = remainingPlayers[i + 1];
-
-        console.log(`Emparejando ${player1} con ${player2}`);
-
-        const newMatch = {
-          matchNumber: matchCounter++,
-          player1,
-          player2,
+    for (let round = 1; round <= totalRounds; round++) {
+      console.log(`Creando ronda ${round}`);
+      
+      let matches = [];
+      for (let i = 0; i < initialPlayers.length; i += 2) {
+        console.log(`Emparejando ${initialPlayers[i]} con ${initialPlayers[i + 1]}`);
+        
+        matches.push({
+          matchNumber: i / 2 + 1,
+          player1: initialPlayers[i],
+          player2: initialPlayers[i + 1],
           winner: null,
           result: '',
-          scores: { player1: 0, player2: 0 },
-          status: (player1 === 'BYE' || player2 === 'BYE') ? 'completed' : 'pending'
-        };
-
-        roundMatches.push(newMatch);
-
-        // Asumiendo que quieres guardar el número del partido para futuras referencias
-        nextRoundPlayers.push(null); // El ganador del partido se determinará más tarde
+          status: 'pending'
+        });
       }
-
-      rounds.push({ matches: roundMatches });
-      remainingPlayers = nextRoundPlayers; // Ahora nextRoundPlayers solo contiene ObjectIds o nulos
+      
+      rounds.push({ matches });
+      initialPlayers = matches.map(match => match.winner);
     }
-
+    
     league.rounds = rounds;
-    league.totalRounds = totalRounds;
-    league.current_round = 1;
     league.status = 'in_progress';
-
-    league.markModified('rounds');
+    league.current_round = 1;
+    league.totalRounds = totalRounds;
+    
     await league.save();
-
-    console.log('Torneo iniciado con éxito');
-    return res.json(league);
-
+    
+    console.log('Torneo iniciado');
+    res.json({ message: 'Torneo iniciado', league });
+    
   } catch (error) {
     console.error('Error al iniciar el torneo:', error);
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -317,8 +306,8 @@ export const startTournament = async (req, res) => {
 
 export const startNextRound = async (req, res) => {
   try {
-    console.log('Inicio de la función startNextRound');
-
+    console.log('Inicio de startNextRound');
+    
     const { leagueId } = req.params;
     const league = await League.findById(leagueId);
 
@@ -332,60 +321,47 @@ export const startNextRound = async (req, res) => {
       return res.status(400).json({ message: 'El torneo no está en progreso.' });
     }
 
-    const currentRound = league.rounds[league.current_round - 1];
-    const winners = currentRound.matches.map(match => match.winner === 'BYE' ? match.player1 : match.winner).filter(w => w);
-
-    if (winners.includes(null)) {
-      console.log('Todavía hay partidos pendientes en esta ronda.');
-      return res.status(400).json({ message: 'Todavía hay partidos pendientes en esta ronda.' });
-    }
-
     if (league.current_round >= league.totalRounds) {
-      console.log('El torneo ha terminado');
-      league.status = 'finalized';
-      await league.save();
-      return res.json({ message: 'El torneo ha terminado', league });
+      console.log('El torneo ya ha terminado.');
+      return res.status(400).json({ message: 'El torneo ya ha terminado.' });
     }
 
-    const nextRoundMatches = [];
-    let waitingForMatchNumber = league.rounds.flat().length + 1;
+    const currentRound = league.rounds[league.current_round - 1];
+    const nextRound = league.rounds[league.current_round];
 
-    for (let i = 0; i < winners.length; i += 2) {
-      const newChatRoom = await ChatRoom.create({ /* ... */ });
+    const BYE = mongoose.Types.ObjectId("000000000000000000000000");  // Fixed ObjectId for "BYE"
 
-      const player1 = winners[i];
-      const player2 = winners[i + 1] || 'BYE';
-
-      const winner = player2 === 'BYE' ? player1 : null;
-
-      nextRoundMatches.push({
-        matchNumber: waitingForMatchNumber++,
-        player1: player1,
-        player2: player2,
-        winner: winner,
-        chatRoom: newChatRoom._id,
-        result: '',
-        status: player2 === 'BYE' ? 'completed' : 'pending',
-        scores: {
-          player1: player2 === 'BYE' ? 1 : 0,
-          player2: 0
-        }
-      });
+    // Check if all matches in current round are completed
+    for (const match of currentRound.matches) {
+      if (match.status !== 'completed') {
+        console.log('Todas las partidas de la ronda actual deben completarse antes de avanzar.');
+        return res.status(400).json({ message: 'Todas las partidas de la ronda actual deben completarse antes de avanzar.' });
+      }
     }
 
-    league.rounds.push({ matches: nextRoundMatches });
-    league.current_round++;
+    // Update winners for the next round
+    for (let i = 0; i < nextRound.matches.length; i++) {
+      const match1 = currentRound.matches[2 * i];
+      const match2 = currentRound.matches[2 * i + 1];
+
+      const player1 = match1.winner === BYE ? match1.player2 : match1.winner;
+      const player2 = match2.winner === BYE ? match2.player2 : match2.winner;
+
+      nextRound.matches[i].player1 = player1;
+      nextRound.matches[i].player2 = player2;
+    }
+
+    league.current_round += 1;
     await league.save();
 
-    console.log('Nueva ronda iniciada');
-    return res.json({ message: 'Nueva ronda iniciada', league });
+    console.log('Siguiente ronda iniciada');
+    res.json({ message: 'Siguiente ronda iniciada', league });
 
   } catch (error) {
     console.error('Error al iniciar la siguiente ronda:', error);
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
-
 
 
 
@@ -393,57 +369,64 @@ export const startNextRound = async (req, res) => {
 //
 export const recordScores = async (req, res) => {
   try {
-    console.log("Inside recordScores function");
-
-    const { leagueId, roundNumber } = req.params;
-    const { matchId, scorePlayer1, scorePlayer2 } = req.body;
+    const { leagueId, roundNumber, matchNumber, scores } = req.body;
 
     const league = await League.findById(leagueId);
 
     if (!league) {
-      console.log("League not found.");
-      return res.status(404).json({ message: 'League not found.', location: 'League.findById' });
+      return res.status(404).json({ message: 'League not found' });
     }
 
-    const round = league.rounds[roundNumber - 1];
+    if (league.status !== 'in_progress') {
+      return res.status(400).json({ message: 'The league is not in progress' });
+    }
+
+    const round = league.rounds.find(r => r._id === roundNumber);
 
     if (!round) {
-      console.log("Round not found.");
-      return res.status(404).json({ message: 'Round not found.', location: 'rounds array' });
+      return res.status(404).json({ message: 'Round not found' });
     }
 
-    const match = round.matches.find(match => match._id.toString() === matchId);
+    const match = round.matches.find(m => m.matchNumber === matchNumber);
 
     if (!match) {
-      console.log("Match not found.");
-      return res.status(404).json({ message: 'Match not found.', location: 'matches array' });
+      return res.status(404).json({ message: 'Match not found' });
     }
 
-    // Skip updating scores if the match is a BYE
-    if (match.player1 === 'BYE' || match.player2 === 'BYE') {
-      console.log("This match is a BYE. No need to record scores.");
-      return res.status(400).json({ message: 'This match is a BYE. No need to record scores.' });
-    }
+    const BYE = mongoose.Types.ObjectId("000000000000000000000000");  // Fixed ObjectId for "BYE"
 
-    match.scores.player1 = scorePlayer1;
-    match.scores.player2 = scorePlayer2;
-
-    if (scorePlayer1 > scorePlayer2) {
-      match.winner = match.player1;
-    } else if (scorePlayer2 > scorePlayer1) {
+    if (match.player1.equals(BYE)) {
       match.winner = match.player2;
+      match.status = 'completed';
+      match.result = `${match.player2} won by default`;
+    } else if (match.player2.equals(BYE)) {
+      match.winner = match.player1;
+      match.status = 'completed';
+      match.result = `${match.player1} won by default`;
     } else {
-      match.winner = 'draw';
+      match.scores = scores;
+
+      if (scores.player1 > scores.player2) {
+        match.winner = match.player1;
+        match.result = `${match.player1} won`;
+      } else if (scores.player2 > scores.player1) {
+        match.winner = match.player2;
+        match.result = `${match.player2} won`;
+      } else {
+        match.winner = null;
+        match.result = 'It\'s a tie';
+      }
+
+      match.status = 'completed';
     }
 
     await league.save();
-    console.log("Scores and winner recorded successfully.");
-    console.log("Updated League:", league);
 
-    res.status(200).json({ message: 'Scores and winner recorded successfully' });
-  } catch (err) {
-    console.log("Error:", err);
-    res.status(500).json({ error: err.message, location: 'Catch block' });
+    res.json({ message: 'Scores recorded', league });
+
+  } catch (error) {
+    console.error('Error while recording scores:', error);
+    res.status(500).json({ message: 'An error occurred while recording scores' });
   }
 };
 
