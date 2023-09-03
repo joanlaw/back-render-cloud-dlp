@@ -251,21 +251,15 @@ export const startTournament = async (req, res) => {
     const requiredPlayers = nextPowerOf2(totalPlayers);
     console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
 
-    const numberOfByes = requiredPlayers - totalPlayers;
-    console.log(`Número de BYE: ${numberOfByes}`);
-
     const totalRounds = Math.log2(requiredPlayers);
     console.log(`Total de rondas: ${totalRounds}`);
 
     let matchCounter = 1;
     const rounds = [];
 
-    let remainingPlayers = [...Array(totalPlayers).keys()].map(i => league.players[i]._id);
-
-    // Añadir "BYE" al final del array
-    for (let i = 0; i < numberOfByes; i++) {
-      remainingPlayers.push(null);
-    }
+    let remainingPlayers = [...Array(requiredPlayers).keys()].map(i => {
+      return i < totalPlayers ? league.players[i]._id : 'BYE';
+    });
 
     console.log('Jugadores iniciales:', remainingPlayers);
 
@@ -285,14 +279,15 @@ export const startTournament = async (req, res) => {
           matchNumber: matchCounter++,
           player1,
           player2,
-          winner: player1 === null ? player2 : (player2 === null ? player1 : null),
+          winner: null,
           result: '',
           scores: { player1: 0, player2: 0 },
-          status: player1 === null || player2 === null ? 'completed' : 'pending'
+          status: (player1 === 'BYE' || player2 === 'BYE') ? 'completed' : 'pending'
         };
 
         roundMatches.push(newMatch);
 
+        // Asumiendo que quieres guardar el número del partido para futuras referencias
         nextRoundPlayers.push(null); // El ganador del partido se determinará más tarde
       }
 
@@ -317,6 +312,7 @@ export const startTournament = async (req, res) => {
   }
 };
 
+
 //
 
 export const startNextRound = async (req, res) => {
@@ -337,7 +333,7 @@ export const startNextRound = async (req, res) => {
     }
 
     const currentRound = league.rounds[league.current_round - 1];
-    const winners = currentRound.matches.map(match => match.winner).filter(w => w);
+    const winners = currentRound.matches.map(match => match.winner === 'BYE' ? match.player1 : match.winner).filter(w => w);
 
     if (winners.includes(null)) {
       console.log('Todavía hay partidos pendientes en esta ronda.');
@@ -358,18 +354,20 @@ export const startNextRound = async (req, res) => {
       const newChatRoom = await ChatRoom.create({ /* ... */ });
 
       const player1 = winners[i];
-      const player2 = winners[i + 1] || null;
+      const player2 = winners[i + 1] || 'BYE';
+
+      const winner = player2 === 'BYE' ? player1 : null;
 
       nextRoundMatches.push({
         matchNumber: waitingForMatchNumber++,
         player1: player1,
         player2: player2,
-        winner: null,
+        winner: winner,
         chatRoom: newChatRoom._id,
         result: '',
-        status: 'pending',
+        status: player2 === 'BYE' ? 'completed' : 'pending',
         scores: {
-          player1: 0,
+          player1: player2 === 'BYE' ? 1 : 0,
           player2: 0
         }
       });
@@ -387,6 +385,7 @@ export const startNextRound = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
@@ -420,6 +419,12 @@ export const recordScores = async (req, res) => {
       return res.status(404).json({ message: 'Match not found.', location: 'matches array' });
     }
 
+    // Skip updating scores if the match is a BYE
+    if (match.player1 === 'BYE' || match.player2 === 'BYE') {
+      console.log("This match is a BYE. No need to record scores.");
+      return res.status(400).json({ message: 'This match is a BYE. No need to record scores.' });
+    }
+
     match.scores.player1 = scorePlayer1;
     match.scores.player2 = scorePlayer2;
 
@@ -441,6 +446,7 @@ export const recordScores = async (req, res) => {
     res.status(500).json({ error: err.message, location: 'Catch block' });
   }
 };
+
 
 
 
