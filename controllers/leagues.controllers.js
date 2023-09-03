@@ -240,7 +240,7 @@ export const startTournament = async (req, res) => {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
     
-    if (league.status !== 'pending') {
+    if (league.status !== 'open') {
       console.log('El torneo ya ha comenzado o ha terminado.');
       return res.status(400).json({ message: 'El torneo ya ha comenzado o ha terminado.' });
     }
@@ -248,10 +248,10 @@ export const startTournament = async (req, res) => {
     const totalPlayers = league.players.length;
     console.log('Total de jugadores:', totalPlayers);
     
-    let totalRounds = Math.ceil(Math.log2(totalPlayers));
-    const requiredPlayers = Math.pow(2, totalRounds);
+    const requiredPlayers = nextPowerOf2(totalPlayers);
     console.log('Jugadores requeridos para torneo completo:', requiredPlayers);
     
+    const totalRounds = Math.ceil(Math.log2(requiredPlayers));
     console.log('Total de rondas:', totalRounds);
     
     const BYE = mongoose.Types.ObjectId("000000000000000000000000");  // Fixed ObjectId for "BYE"
