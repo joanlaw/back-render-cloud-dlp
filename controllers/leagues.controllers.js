@@ -371,9 +371,14 @@ export const startNextRound = async (req, res) => {
 //
 export const recordScores = async (req, res) => {
   try {
+    console.log('Starting recordScores function');
+    console.log('Request body:', req.body);
+
     const { leagueId, roundNumber, matchNumber, scores } = req.body;
 
     const league = await League.findById(leagueId);
+
+    console.log('Found league:', league);
 
     if (!league) {
       return res.status(404).json({ message: 'League not found' });
@@ -385,11 +390,15 @@ export const recordScores = async (req, res) => {
 
     const round = league.rounds.find(r => r._id === roundNumber);
 
+    console.log('Found round:', round);
+
     if (!round) {
       return res.status(404).json({ message: 'Round not found' });
     }
 
     const match = round.matches.find(m => m.matchNumber === matchNumber);
+
+    console.log('Found match:', match);
 
     if (!match) {
       return res.status(404).json({ message: 'Match not found' });
@@ -408,6 +417,8 @@ export const recordScores = async (req, res) => {
     } else {
       match.scores = scores;
 
+      console.log('Assigning scores:', scores);
+
       if (scores.player1 > scores.player2) {
         match.winner = match.player1;
         match.result = `${match.player1} won`;
@@ -424,6 +435,7 @@ export const recordScores = async (req, res) => {
 
     await league.save();
 
+    console.log('Successfully recorded scores');
     res.json({ message: 'Scores recorded', league });
 
   } catch (error) {
@@ -431,6 +443,7 @@ export const recordScores = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while recording scores' });
   }
 };
+
 
 
 
