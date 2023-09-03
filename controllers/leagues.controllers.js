@@ -231,7 +231,7 @@ const nextPowerOf2 = n => Math.pow(2, Math.ceil(Math.log2(n)));
 export const startTournament = async (req, res) => {
   try {
     console.log('Inicio de startTournament');
-    
+
     const { leagueId } = req.params;
     const league = await League.findById(leagueId).populate('players');
 
@@ -247,10 +247,10 @@ export const startTournament = async (req, res) => {
 
     const totalPlayers = league.players.length;
     console.log(`Total de jugadores: ${totalPlayers}`);
-    
+
     const requiredPlayers = nextPowerOf2(totalPlayers);
     console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
-    
+
     const totalRounds = Math.log2(requiredPlayers);
     console.log(`Total de rondas: ${totalRounds}`);
 
@@ -265,7 +265,7 @@ export const startTournament = async (req, res) => {
 
     for (let r = 1; r <= totalRounds; r++) {
       console.log(`Creando ronda ${r}`);
-      
+
       const roundMatches = [];
       const nextRoundPlayers = [];
 
@@ -274,8 +274,6 @@ export const startTournament = async (req, res) => {
         const player2 = remainingPlayers[i + 1];
 
         console.log(`Emparejando ${player1} con ${player2}`);
-        console.log('Tipo de player1:', typeof player1);
-        console.log('Tipo de player2:', typeof player2);
 
         const newMatch = {
           matchNumber: matchCounter++,
@@ -288,15 +286,13 @@ export const startTournament = async (req, res) => {
         };
 
         roundMatches.push(newMatch);
-        nextRoundPlayers.push({ matchNumber: newMatch.matchNumber, winner: null });
+
+        // Asumiendo que quieres guardar el número del partido para futuras referencias
+        nextRoundPlayers.push(null); // El ganador del partido se determinará más tarde
       }
 
-      console.log('roundMatches antes de añadir a rounds:', roundMatches);
       rounds.push({ matches: roundMatches });
-      console.log('Estado actual de rounds:', rounds);
-
-      remainingPlayers = nextRoundPlayers;
-      console.log('Jugadores para la siguiente ronda:', nextRoundPlayers);
+      remainingPlayers = nextRoundPlayers; // Ahora nextRoundPlayers solo contiene ObjectIds o nulos
     }
 
     league.rounds = rounds;
@@ -304,17 +300,14 @@ export const startTournament = async (req, res) => {
     league.current_round = 1;
     league.status = 'in_progress';
 
-    console.log('Guardar estado de la liga:', league);
     league.markModified('rounds');
     await league.save();
-    console.log('Liga guardada exitosamente');
 
     console.log('Torneo iniciado con éxito');
     return res.json(league);
 
   } catch (error) {
     console.error('Error al iniciar el torneo:', error);
-    console.error('Detalle del error:', JSON.stringify(error));
     return res.status(500).json({ message: error.message });
   }
 };
