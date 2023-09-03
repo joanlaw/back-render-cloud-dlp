@@ -230,36 +230,50 @@ const nextPowerOf2 = n => Math.pow(2, Math.ceil(Math.log2(n)));
 
 export const startTournament = async (req, res) => {
   try {
+    console.log('Inicio de startTournament');
+    
     const { leagueId } = req.params;
     const league = await League.findById(leagueId).populate('players');
 
     if (!league) {
+      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'open') {
+      console.log('Torneo ya en progreso o finalizado');
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
     const totalPlayers = league.players.length;
+    console.log(`Total de jugadores: ${totalPlayers}`);
+    
     const requiredPlayers = nextPowerOf2(totalPlayers);
+    console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
+    
     const totalRounds = Math.log2(requiredPlayers);
+    console.log(`Total de rondas: ${totalRounds}`);
 
     let matchCounter = 1;
-    let playerCounter = 1;
     const rounds = [];
 
     let remainingPlayers = [...Array(requiredPlayers).keys()].map(i => {
       return i < totalPlayers ? league.players[i]._id : null;
     });
 
+    console.log('Jugadores iniciales:', remainingPlayers);
+
     for (let r = 1; r <= totalRounds; r++) {
+      console.log(`Creando ronda ${r}`);
+      
       const roundMatches = [];
       const nextRoundPlayers = [];
 
       for (let i = 0; i < remainingPlayers.length; i += 2) {
         const player1 = remainingPlayers[i];
         const player2 = remainingPlayers[i + 1];
+
+        console.log(`Emparejando ${player1} con ${player2}`);
 
         const newMatch = {
           matchNumber: matchCounter++,
@@ -287,9 +301,11 @@ export const startTournament = async (req, res) => {
     league.markModified('rounds');
     await league.save();
 
+    console.log('Torneo iniciado con éxito');
     return res.json(league);
 
   } catch (error) {
+    console.error('Error al iniciar el torneo:', error);
     return res.status(500).json({ message: error.message });
   }
 };
