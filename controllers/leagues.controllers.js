@@ -257,7 +257,7 @@ export const startTournament = async (req, res) => {
     const requiredPlayers = nextPowerOf2(totalPlayers);
     console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
 
-    const playersToEliminate = requiredPlayers - totalPlayers;  // Corregido aquí
+    const playersToEliminate = totalPlayers - requiredPlayers;
     console.log(`Jugadores a eliminar en la primera ronda: ${playersToEliminate}`);
 
     const totalRounds = Math.log2(requiredPlayers) + (playersToEliminate > 0 ? 1 : 0);
@@ -319,24 +319,14 @@ export const startTournament = async (req, res) => {
         });
       }
 
-      while (roundMatches.length < requiredPlayers / 2) {
-        roundMatches.push({
-          matchNumber: matchCounter++,
-          player1: null,
-          player2: null,
-          chatRoom: await ChatRoom.create({ /* ... */ }),
-          winner: null,
-          result: '',
-          scores: {
-            player1: 0,
-            player2: 0
-          },
-          status: 'pending'
-        });
+      // Actualización de remainingPlayers
+      remainingPlayers = [];
+      for (let match of roundMatches) {
+        if (match.player1) remainingPlayers.push(match.player1);
+        if (match.player2) remainingPlayers.push(match.player2);
       }
 
       rounds.push({ matches: roundMatches });
-      remainingPlayers = roundMatches.map(m => m.winner);
     }
 
     league.rounds = rounds;
@@ -355,6 +345,7 @@ export const startTournament = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 //
