@@ -280,7 +280,8 @@ export const startTournament = async (req, res) => {
           player2: initialPlayers[i + 1],
           winner: null,
           result: '',
-          status: 'pending'
+          status: 'pending',
+          scores: { player1: 0, player2: 0 }  // Inicializando scores aquí
         });
       }
       
@@ -303,7 +304,6 @@ export const startTournament = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 //
 
 export const startNextRound = async (req, res) => {
