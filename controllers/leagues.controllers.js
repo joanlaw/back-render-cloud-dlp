@@ -257,7 +257,7 @@ export const startTournament = async (req, res) => {
     const requiredPlayers = nextPowerOf2(totalPlayers);
     console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
 
-    const playersToEliminate = totalPlayers - requiredPlayers;
+    const playersToEliminate = requiredPlayers - totalPlayers;  // Corregido aquí
     console.log(`Jugadores a eliminar en la primera ronda: ${playersToEliminate}`);
 
     const totalRounds = Math.log2(requiredPlayers) + (playersToEliminate > 0 ? 1 : 0);
