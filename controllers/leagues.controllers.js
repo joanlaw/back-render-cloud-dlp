@@ -371,31 +371,46 @@ export const startNextRound = async (req, res) => {
 //
 export const recordScores = async (req, res) => {
   try {
-    console.log('Starting recordScores function');
+    console.log('--- Starting recordScores function ---');
+    
+    // Log the request body and params
+    console.log('Request body:', req.body);
+    console.log('Request params:', req.params);
+
     const { leagueId, roundNumber, matchNumber, scores } = req.body;
 
+    // Log the variables just before using them
+    console.log(`About to find league with ID: ${leagueId}`);
     const league = await League.findById(leagueId);
-    console.log('Found league:', league);
+    
+    console.log('--- Found league: ---');
+    console.log(league);
 
     if (!league) {
       return res.status(404).json({ message: 'League not found' });
     }
 
+    console.log(`About to find round number: ${roundNumber}`);
     const round = league.rounds[roundNumber - 1];
-    console.log('Found round:', round);
+    
+    console.log('--- Found round: ---');
+    console.log(round);
 
     if (!round) {
       return res.status(404).json({ message: 'Round not found' });
     }
 
+    console.log(`About to find match number: ${matchNumber}`);
     const match = round.matches.find(m => m.matchNumber === matchNumber);
-    console.log('Found match:', match);
+
+    console.log('--- Found match: ---');
+    console.log(match);
 
     if (!match) {
       return res.status(404).json({ message: 'Match not found' });
     }
 
-    const BYE = mongoose.Types.ObjectId("000000000000000000000000");  // Fixed ObjectId for "BYE"
+    const BYE = mongoose.Types.ObjectId("000000000000000000000000");
 
     if (match.player1.equals(BYE)) {
       match.winner = match.player2;
@@ -407,6 +422,7 @@ export const recordScores = async (req, res) => {
       match.result = `${match.player1} won by default`;
     } else {
       match.scores = scores;
+
       if (scores.player1 > scores.player2) {
         match.winner = match.player1;
         match.result = `${match.player1} won`;
@@ -417,16 +433,18 @@ export const recordScores = async (req, res) => {
         match.winner = null;
         match.result = 'It\'s a tie';
       }
+
       match.status = 'completed';
     }
 
+    console.log('--- About to save the league ---');
     await league.save();
 
-    console.log('Successfully recorded scores');
+    console.log('--- Successfully recorded scores ---');
     res.json({ message: 'Scores recorded', league });
 
   } catch (error) {
-    console.error('Error while recording scores:', error);
+    console.error('--- Error while recording scores: ---', error);
     res.status(500).json({ message: 'An error occurred while recording scores' });
   }
 };
