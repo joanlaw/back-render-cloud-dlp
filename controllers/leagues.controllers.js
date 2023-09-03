@@ -377,7 +377,7 @@ export const recordScores = async (req, res) => {
     console.log('Request body:', req.body);
     console.log('Request params:', req.params);
 
-    const { matchNumber, scores } = req.body;
+    const { matchId, scores } = req.body;
     const { leagueId, roundNumber } = req.params;
 
 
@@ -403,7 +403,8 @@ export const recordScores = async (req, res) => {
     }
 
     console.log(`About to find match number: ${matchNumber}`);
-    const match = round.matches.find(m => m.matchNumber === matchNumber);
+    const match = round.matches.find(m => m._id.toString() === matchId);
+
 
     console.log('--- Found match: ---');
     console.log(match);
