@@ -237,7 +237,6 @@ const nextPowerOf2 = (n) => {
 
 export const startTournament = async (req, res) => {
   try {
-    console.log("Inicio de la función startTournament");
     const { leagueId } = req.params;
     const league = await League.findById(leagueId).populate('players');
 
@@ -252,13 +251,11 @@ export const startTournament = async (req, res) => {
     const totalPlayers = league.players.length;
     const requiredPlayers = nextPowerOf2(totalPlayers);
     const playersToEliminate = totalPlayers - requiredPlayers;
+    const totalRounds = Math.log2(requiredPlayers) + (playersToEliminate > 0 ? 1 : 0);
 
     let matchCounter = 1;
     const rounds = [];
     let remainingPlayers = [...league.players];
-
-    // Correct the totalRounds calculation
-    const totalRounds = Math.log2(requiredPlayers) + (playersToEliminate > 0 ? 1 : 0);
 
     if (playersToEliminate > 0) {
       const firstRoundMatches = [];
@@ -310,24 +307,37 @@ export const startTournament = async (req, res) => {
         });
       }
 
+      while (roundMatches.length < requiredPlayers / 2) {
+        roundMatches.push({
+          matchNumber: matchCounter++,
+          player1: null,
+          player2: null,
+          chatRoom: await ChatRoom.create({ /* ... */ }),
+          winner: null,
+          result: '',
+          scores: {
+            player1: 0,
+            player2: 0
+          },
+          status: 'pending'
+        });
+      }
+
       rounds.push({ matches: roundMatches });
-      // Simulate winners for the next round (This should be updated based on actual match results)
-      remainingPlayers = remainingPlayers.slice(0, remainingPlayers.length / 2);
+      remainingPlayers = roundMatches.map(m => m.winner);
     }
 
     league.rounds = rounds;
-    league.totalRounds = totalRounds;  // Corrected totalRounds
+    league.totalRounds = totalRounds;
     league.current_round = 1;
     league.status = 'in_progress';
 
     league.markModified('rounds');
     await league.save();
 
-    console.log("Torneo iniciado con éxito");
     return res.json(league);
 
   } catch (error) {
-    console.error("Error al iniciar el torneo:", error);
     return res.status(500).json({ message: error.message });
   }
 };
