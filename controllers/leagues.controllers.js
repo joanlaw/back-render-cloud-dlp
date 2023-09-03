@@ -251,15 +251,18 @@ export const startTournament = async (req, res) => {
     const requiredPlayers = nextPowerOf2(totalPlayers);
     console.log('Jugadores requeridos para torneo completo:', requiredPlayers);
     
-    const totalRounds = Math.ceil(Math.log2(requiredPlayers));
+    const totalRounds = Math.log2(requiredPlayers);
     console.log('Total de rondas:', totalRounds);
     
-    const BYE = mongoose.Types.ObjectId("000000000000000000000000");  // Fixed ObjectId for "BYE"
+    const BYE = mongoose.Types.ObjectId("000000000000000000000000");
     
     let initialPlayers = [...Array(requiredPlayers).keys()].map(i => {
       return i < totalPlayers ? league.players[i] : BYE;
     });
 
+    // Mezclar los jugadores y los "BYE" de manera aleatoria
+    initialPlayers = initialPlayers.sort(() => Math.random() - 0.5);
+    
     console.log('Jugadores iniciales:', initialPlayers);
     
     let rounds = [];
@@ -300,7 +303,6 @@ export const startTournament = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 //
 
