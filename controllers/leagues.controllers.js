@@ -237,12 +237,19 @@ const nextPowerOf2 = (n) => {
 
 export const startTournament = async (req, res) => {
   try {
+    console.log("Iniciando torneo...");  // Log inicial
+
     const { id } = req.params;
+    console.log(`ID de la liga: ${id}`);  // Log del ID de la liga
+
     const league = await League.findById(id);
 
     if (!league) {
+      console.log("Liga no encontrada");  // Log si la liga no se encuentra
       return res.status(404).json({ message: 'Liga no encontrada' });
     }
+
+    console.log(`Estado de la liga: ${league.status}`);  // Log del estado de la liga
 
     if (league.status !== 'pending') {
       return res.status(400).json({ message: 'La liga ya ha comenzado o ha terminado' });
@@ -250,6 +257,8 @@ export const startTournament = async (req, res) => {
 
     const players = league.players;
     const playersCount = players.length;
+    console.log(`Número de jugadores: ${playersCount}`);  // Log del número de jugadores
+
     let roundsCount = Math.ceil(Math.log2(playersCount));
     const totalMatches = Math.pow(2, roundsCount) - 1;
     const playersToEliminate = Math.pow(2, roundsCount) - playersCount;
@@ -258,6 +267,7 @@ export const startTournament = async (req, res) => {
     let rounds = [];
 
     if (playersToEliminate > 0) {
+      console.log(`Jugadores a eliminar: ${playersToEliminate}`);  // Log de jugadores a eliminar
       const firstRoundMatches = [];
       const firstRoundPlayers = remainingPlayers.splice(0, playersToEliminate + playersToEliminate % 2);
 
@@ -318,13 +328,15 @@ export const startTournament = async (req, res) => {
 
     await league.save();
 
+    console.log("Torneo iniciado con éxito");  // Log final
+
     return res.status(200).json({
       message: 'Torneo iniciado con éxito',
       league,
     });
 
   } catch (error) {
-    console.error("Error al iniciar el torneo:", error);
+    console.error("Error al iniciar el torneo:", error);  // Log de error
     return res.status(500).json({ message: error.message });
   }
 };
