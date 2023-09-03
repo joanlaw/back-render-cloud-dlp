@@ -237,27 +237,38 @@ const nextPowerOf2 = (n) => {
 
 export const startTournament = async (req, res) => {
   try {
+    console.log('Inicio de startTournament');
     const { leagueId } = req.params;
     const league = await League.findById(leagueId).populate('players');
 
     if (!league) {
+      console.log('Torneo no encontrado');
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
     if (league.status !== 'open') {
+      console.log('Torneo ya en progreso o finalizado');
       return res.status(400).json({ message: 'No puedes iniciar un torneo ya en progreso o finalizado.' });
     }
 
     const totalPlayers = league.players.length;
+    console.log(`Total de jugadores: ${totalPlayers}`);
+
     const requiredPlayers = nextPowerOf2(totalPlayers);
+    console.log(`Jugadores requeridos para torneo completo: ${requiredPlayers}`);
+
     const playersToEliminate = totalPlayers - requiredPlayers;
+    console.log(`Jugadores a eliminar en la primera ronda: ${playersToEliminate}`);
+
     const totalRounds = Math.log2(requiredPlayers) + (playersToEliminate > 0 ? 1 : 0);
+    console.log(`Total de rondas: ${totalRounds}`);
 
     let matchCounter = 1;
     const rounds = [];
     let remainingPlayers = [...league.players];
 
     if (playersToEliminate > 0) {
+      console.log('Creando primera ronda para eliminar jugadores');
       const firstRoundMatches = [];
       const firstRoundPlayers = remainingPlayers.splice(0, playersToEliminate);
 
@@ -285,6 +296,7 @@ export const startTournament = async (req, res) => {
     }
 
     while (remainingPlayers.length > 1) {
+      console.log('Creando rondas subsiguientes');
       const roundMatches = [];
 
       for (let i = 0; i < remainingPlayers.length; i += 2) {
@@ -335,13 +347,14 @@ export const startTournament = async (req, res) => {
     league.markModified('rounds');
     await league.save();
 
+    console.log('Torneo iniciado con éxito');
     return res.json(league);
 
   } catch (error) {
+    console.error('Error al iniciar el torneo:', error);
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 
 //
