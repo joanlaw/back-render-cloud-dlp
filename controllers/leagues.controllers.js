@@ -377,7 +377,9 @@ export const recordScores = async (req, res) => {
     console.log('Request body:', req.body);
     console.log('Request params:', req.params);
 
-    const { leagueId, roundNumber, matchNumber, scores } = req.body;
+    const { roundNumber, matchNumber, scores } = req.body;
+    const { leagueId } = req.params;
+
 
     // Log the variables just before using them
     console.log(`About to find league with ID: ${leagueId}`);
@@ -496,7 +498,7 @@ export const recordMatchResult = async (req, res) => {
 
 
 
-///TERMINA ALGORITMOS
+///TERMINA ALGORITMOS------------------------------------------------------------------------------
 
 export const getMatchByPlayerLeagueAndRound = async (req, res) => {
   try {
