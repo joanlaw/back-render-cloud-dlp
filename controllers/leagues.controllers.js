@@ -257,6 +257,9 @@ export const startTournament = async (req, res) => {
     const rounds = [];
     let remainingPlayers = [...league.players];
 
+    // Correct the totalRounds calculation
+    const totalRounds = Math.log2(requiredPlayers) + (playersToEliminate > 0 ? 1 : 0);
+
     if (playersToEliminate > 0) {
       const firstRoundMatches = [];
       const firstRoundPlayers = remainingPlayers.splice(0, playersToEliminate);
@@ -312,10 +315,8 @@ export const startTournament = async (req, res) => {
       remainingPlayers = remainingPlayers.slice(0, remainingPlayers.length / 2);
     }
 
-    const totalRounds = rounds.length;
-
     league.rounds = rounds;
-    league.totalRounds = totalRounds;
+    league.totalRounds = totalRounds;  // Corrected totalRounds
     league.current_round = 1;
     league.status = 'in_progress';
 
