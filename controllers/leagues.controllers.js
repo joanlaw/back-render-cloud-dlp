@@ -377,8 +377,8 @@ export const recordScores = async (req, res) => {
     console.log('Request body:', req.body);
     console.log('Request params:', req.params);
 
-    const { roundNumber, matchNumber, scores } = req.body;
-    const { leagueId } = req.params;
+    const { matchNumber, scores } = req.body;
+    const { leagueId, roundNumber } = req.params;
 
 
     // Log the variables just before using them
