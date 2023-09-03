@@ -373,8 +373,10 @@ export const recordScores = async (req, res) => {
   try {
     console.log('Starting recordScores function');
     console.log('Request body:', req.body);
+    console.log('Request params:', req.params);
 
-    const { leagueId, roundNumber, matchNumber, scores } = req.body;
+    const { roundNumber, matchNumber, scores } = req.body;
+    const { leagueId } = req.params; // Obteniendo leagueId de req.params
 
     const league = await League.findById(leagueId);
 
