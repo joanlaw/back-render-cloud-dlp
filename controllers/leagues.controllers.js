@@ -372,26 +372,16 @@ export const startNextRound = async (req, res) => {
 export const recordScores = async (req, res) => {
   try {
     console.log('Starting recordScores function');
-    console.log('Request body:', req.body);
-    console.log('Request params:', req.params);
-
-    const { roundNumber, matchNumber, scores } = req.body;
-    const { leagueId } = req.params; // Obteniendo leagueId de req.params
+    const { leagueId, roundNumber, matchNumber, scores } = req.body;
 
     const league = await League.findById(leagueId);
-
     console.log('Found league:', league);
 
     if (!league) {
       return res.status(404).json({ message: 'League not found' });
     }
 
-    if (league.status !== 'in_progress') {
-      return res.status(400).json({ message: 'The league is not in progress' });
-    }
-
-    const round = league.rounds.find(r => r._id === roundNumber);
-
+    const round = league.rounds[roundNumber - 1];
     console.log('Found round:', round);
 
     if (!round) {
@@ -399,7 +389,6 @@ export const recordScores = async (req, res) => {
     }
 
     const match = round.matches.find(m => m.matchNumber === matchNumber);
-
     console.log('Found match:', match);
 
     if (!match) {
@@ -418,9 +407,6 @@ export const recordScores = async (req, res) => {
       match.result = `${match.player1} won by default`;
     } else {
       match.scores = scores;
-
-      console.log('Assigning scores:', scores);
-
       if (scores.player1 > scores.player2) {
         match.winner = match.player1;
         match.result = `${match.player1} won`;
@@ -431,7 +417,6 @@ export const recordScores = async (req, res) => {
         match.winner = null;
         match.result = 'It\'s a tie';
       }
-
       match.status = 'completed';
     }
 
