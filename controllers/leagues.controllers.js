@@ -301,8 +301,10 @@ export const startTournament = async (req, res) => {
 
       for (let i = 0; i < remainingPlayers.length; i += 2) {
         const newChatRoom = await ChatRoom.create({ /* ... */ });
-        const player1 = remainingPlayers[i]._id;
-        const player2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
+        // Asegurándonos de que los jugadores existen antes de acceder a sus propiedades
+    const player1 = remainingPlayers[i] ? remainingPlayers[i]._id : null;
+    const player2 = remainingPlayers[i + 1] ? remainingPlayers[i + 1]._id : null;
+
 
         roundMatches.push({
           matchNumber: matchCounter++,
