@@ -61,3 +61,31 @@ export const deleteTorneo = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// METODO GET BY ID
+export const getTorneoById = async (req, res) => {
+  try {
+    const torneo = await Torneo.findById(req.params.id);
+    if (!torneo) {
+      return res.status(404).json({ message: 'El torneo no existe' });
+    }
+    return res.json(torneo);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// METODO GET BY NOMBRE
+export const getTorneoByNombre = async (req, res) => {
+  try {
+    const nombre = req.params.nombre;
+    const torneo = await Torneo.findOne({ nombre: { $regex: nombre, $options: 'i' } });
+    if (!torneo) {
+      return res.status(404).json({ message: 'El torneo no existe' });
+    }
+    return res.json(torneo);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
