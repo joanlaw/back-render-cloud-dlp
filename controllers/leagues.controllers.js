@@ -438,15 +438,12 @@ export const recordScores = async (req, res) => {
       console.log('--- Scores after update ---');
       console.log(JSON.stringify(match.scores));
 
-      if (scorePlayer1 > scorePlayer2) {
+      if (scorePlayer1 >= scorePlayer2) {
         match.winner = match.player1;
         match.result = `${match.player1} won`;
-      } else if (scorePlayer2 > scorePlayer1) {
+      } else {
         match.winner = match.player2;
         match.result = `${match.player2} won`;
-      } else {
-        match.winner = null;
-        match.result = 'It\'s a tie';
       }
       match.status = 'completed';
     }
