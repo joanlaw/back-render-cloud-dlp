@@ -64,7 +64,7 @@ const torneoSchema = mongoose.Schema({
     required: true,
     trim: true
   },
-  top_4: {
+  top8_4: {
     type: String,
     required: true,
     trim: true
