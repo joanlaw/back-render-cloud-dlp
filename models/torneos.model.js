@@ -9,75 +9,67 @@ const torneoSchema = mongoose.Schema({
   },
   fecha: {
     type: Date,
-    required: true
+    required: false
   },
   organizador: {
     type: String,
-    required: true,
+    required: false,
     trim: true
   },
   informacion_torneo: {
     type: String,
-    required: true
+    required: false
   },
   formato_torneo: {
     type: String,
-    required: true,
+    required: false,
     trim: true
   },
   banner: {
     type: String,
-    required: true
+    required: false
   },
   top1: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   top2: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   top4_1: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   top4_2: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   top8_1: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   top8_2: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   top8_3: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   top8_4: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
   },
   decks: [
     {
       nombre: {
         type: String,
-        required: true
+        required: false
       },
       cantidad: {
         type: Number,
-        required: true
+        required: false
       }
     }
   ]
