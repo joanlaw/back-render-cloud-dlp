@@ -323,28 +323,38 @@ export const startNextRound = async (req, res) => {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
+    console.log('Torneo encontrado:', league);
+
     if (league.status !== 'in_progress') {
       console.log('El torneo no está en progreso.');
       return res.status(400).json({ message: 'El torneo no está en progreso.' });
     }
+
+    console.log('Estado del torneo:', league.status);
 
     if (league.current_round >= league.totalRounds) {
       console.log('El torneo ya ha terminado.');
       return res.status(400).json({ message: 'El torneo ya ha terminado.' });
     }
 
+    console.log('Ronda actual:', league.current_round, 'Rondas totales:', league.totalRounds);
+
     const currentRound = league.rounds[league.current_round - 1];
     const nextRound = league.rounds[league.current_round];
+
+    console.log('Ronda actual y siguiente obtenidas:', currentRound, nextRound);
 
     const BYE = mongoose.Types.ObjectId("000000000000000000000000");  // Fixed ObjectId for "BYE"
 
     // Check if all matches in current round are completed
     for (const match of currentRound.matches) {
       if (match.status !== 'completed') {
-        console.log('Todas las partidas de la ronda actual deben completarse antes de avanzar.');
+        console.log('Partida no completada encontrada:', match);
         return res.status(400).json({ message: 'Todas las partidas de la ronda actual deben completarse antes de avanzar.' });
       }
     }
+
+    console.log('Todas las partidas de la ronda actual están completas.');
 
     // Update winners for the next round
     for (let i = 0; i < nextRound.matches.length; i++) {
@@ -357,6 +367,8 @@ export const startNextRound = async (req, res) => {
       nextRound.matches[i].player1 = player1;
       nextRound.matches[i].player2 = player2;
     }
+
+    console.log('Ganadores actualizados para la próxima ronda');
 
     // Update current round
     league.current_round += 1;
@@ -377,6 +389,7 @@ export const startNextRound = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
