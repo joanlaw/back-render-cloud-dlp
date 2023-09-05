@@ -358,7 +358,15 @@ export const startNextRound = async (req, res) => {
       nextRound.matches[i].player2 = player2;
     }
 
+    // Update current round
     league.current_round += 1;
+
+    // Check if the tournament is now over
+    if (league.current_round > league.totalRounds) {
+      league.status = 'finalized';
+      console.log('El torneo ha finalizado.');
+    }
+
     await league.save();
 
     console.log('Siguiente ronda iniciada');
@@ -369,6 +377,7 @@ export const startNextRound = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
