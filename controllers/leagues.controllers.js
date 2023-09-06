@@ -176,6 +176,11 @@ export const enrollPlayer = async (req, res) => {
       return res.status(404).json({ message: 'Torneo no encontrado' });
     }
 
+    // Verificar si el torneo ya está finalizado
+    if (league.status === 'finalized') {
+      return res.status(400).json({ message: 'El torneo ya ha finalizado' });
+    }
+
     // Buscar al usuario por su discordId
     const player = await User.findOne({ discordId: playerId });
     if (!player) {
@@ -199,6 +204,7 @@ export const enrollPlayer = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 //METODO PARA ACCEDER A LOS MATCHUPS 
 export const getMatchesByLeagueAndRound = async (req, res) => {
