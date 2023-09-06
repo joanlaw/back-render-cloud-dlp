@@ -168,7 +168,7 @@ export const deleteLeague = async (req, res) => {
 // Inscribir un jugador en el torneo
 export const enrollPlayer = async (req, res) => {
   try {
-    const { leagueId } = req.params; 
+    const { leagueId } = req.params;
     const { playerId } = req.body;
 
     const league = await League.findById(leagueId);
@@ -185,13 +185,16 @@ export const enrollPlayer = async (req, res) => {
     // Convertir el discordId en ObjectId
     const playerIdObjectId = mongoose.Types.ObjectId(player._id);
 
-    // Agregar el ID del jugador al campo `players` del torneo
-    if (!league.players.includes(playerIdObjectId)) {
+    // Verificar si el jugador ya está inscrito
+    const isPlayerRegistered = league.players.includes(playerIdObjectId);
+
+    if (!isPlayerRegistered) {
+      // Si el jugador no está inscrito, inscríbelo
       league.players.push(playerIdObjectId);
       await league.save();
     }
 
-    return res.json(league);
+    return res.json({ isPlayerRegistered }); // Devuelve un indicador de inscripción
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
