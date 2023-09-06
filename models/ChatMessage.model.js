@@ -18,7 +18,11 @@ const chatMessageSchema = new mongoose.Schema({
     username: {
       type: String,
       required: true,
-    }
+    },
+    avatar: { // Agrega la propiedad 'avatar' al esquema
+      type: String, // Supongo que la URL del avatar es un String
+      required: true,
+    },
   },
 });
 

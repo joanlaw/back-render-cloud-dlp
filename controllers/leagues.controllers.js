@@ -645,7 +645,7 @@ export const sendMessageToChatRoom = async (req, res) => {
   try {
     console.log("Inicio de sendMessageToChatRoom");  // Añadir log para seguimiento
     const { roomId } = req.params;
-    const { content, username } = req.body;
+    const { content, username, avatar } = req.body; // Agregar 'avatar' a la desestructuración
     const discordId = req.query.discordId;  // Obtener discordId desde query parameters
 
     const message = await ChatMessage.create({
@@ -654,6 +654,7 @@ export const sendMessageToChatRoom = async (req, res) => {
       sender: {
         discordId,
         username,
+        avatar, // Agregar 'avatar' al objeto sender
       }
     });
 
@@ -664,6 +665,7 @@ export const sendMessageToChatRoom = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
