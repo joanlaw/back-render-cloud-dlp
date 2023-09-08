@@ -19,7 +19,7 @@ cardsrouter.post('/cards', fileUpload({
 }), createCardsen)
 cardsrouter.put('/cards/:id', updateCardsen)
 // Ruta para actualizar por nombre
-cardsRouter.put('/cards/:nombre', updateCardsenByNombre);
+cardsrouter.put('/cards/:nombre', updateCardsenByNombre);
 cardsrouter.delete('/cards/:id', deleteCardsen)
 cardsrouter.get('/cards/:id', getCarden)
 
