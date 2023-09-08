@@ -4,7 +4,8 @@ import {
   createCardsen,
   updateCardsen,
   deleteCardsen,
-  getCarden
+  getCarden,
+  updateCardsenByNombre
 } from '../controllers/cardsen.controllers.js'
 
 
@@ -17,6 +18,8 @@ cardsrouter.post('/cards', fileUpload({
   useTempFiles: true, tempFileDir: './uploads'
 }), createCardsen)
 cardsrouter.put('/cards/:id', updateCardsen)
+// Ruta para actualizar por nombre
+cardsRouter.put('/cards/:nombre', updateCardsenByNombre);
 cardsrouter.delete('/cards/:id', deleteCardsen)
 cardsrouter.get('/cards/:id', getCarden)
 

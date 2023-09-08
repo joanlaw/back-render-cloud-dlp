@@ -138,3 +138,20 @@ export const updateCardsen = async (req, res) => {
 
 }
 
+//UPDATE NOMBRE
+export const updateCardsenByNombre = async (req, res) => {
+  try {
+    const { nombre } = req.params;
+    const cardsUpdate = await Card.findOneAndUpdate({ nombre: nombre }, req.body, {
+      new: true
+    });
+    if (!cardsUpdate) {
+      return res.status(404).json({ message: "Card not found" });
+    }
+    return res.json(cardsUpdate);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
