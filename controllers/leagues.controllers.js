@@ -236,6 +236,7 @@ export const getMatchesByLeagueAndRound = async (req, res) => {
 
 
 const nextPowerOf2 = n => Math.pow(2, Math.ceil(Math.log2(n)));
+let globalMatchNumber = 0;  // Declarar la variable globalMatchNumber
 
 export const startTournament = async (req, res) => {
   try {
@@ -281,20 +282,22 @@ export const startTournament = async (req, res) => {
       
       let matches = [];
       for (let i = 0; i < initialPlayers.length; i += 2) {
+        globalMatchNumber++;  // Incrementar la variable globalMatchNumber en cada iteración
+        
         console.log(`Emparejando ${initialPlayers[i]} con ${initialPlayers[i + 1]}`);
         
-        const newChatRoom = await ChatRoom.create({ /* ... */ });  // Añadir lógica de creación de sala de chat aquí
+        const newChatRoom = await ChatRoom.create({ /* ... */ });
         console.log('Nueva sala de chat creada:', newChatRoom._id);
         
         matches.push({
-          matchNumber: i / 2 + 1,
+          matchNumber: globalMatchNumber,  // Usar globalMatchNumber aquí
           player1: initialPlayers[i],
           player2: initialPlayers[i + 1],
-          chatRoom: newChatRoom._id,  // Añadir ID de sala de chat al emparejamiento
+          chatRoom: newChatRoom._id,
           winner: null,
           result: '',
           status: 'pending',
-          scores: { player1: 0, player2: 0 }  // Inicializando scores aquí
+          scores: { player1: 0, player2: 0 }
         });
       }
       
@@ -317,6 +320,7 @@ export const startTournament = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 //
 
