@@ -693,7 +693,9 @@ export const sendAlert = async (req, res) => {
 export const getAlertsForRoom = async (req, res) => {
   const { roomId } = req.params;
 
-  const chatRoom = await ChatRoom.findById(roomId).select('alerts');
+  
+  // Aquí es donde hacemos el cambio
+  const chatRoom = await ChatRoom.findById(roomId).select('alerts alerts._id');
   if (!chatRoom) {
     return res.status(404).json({ message: 'Chat room not found' });
   }
