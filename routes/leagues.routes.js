@@ -19,7 +19,7 @@ import {
   getPlayersAndDecksByLeagueId,
   startTournament, startNextRound, recordMatchResult, getMatchesByLeagueAndRound, createChatRoom, getChatRoomMessages, sendMessageToChatRoom, getMatchByPlayerLeagueAndRound, getCurrentRound, recordScores, removePlayerFromLeague
   ,getMatchesByPlayerAndLeagueId,
-  sendAlert  
+  sendAlert, getAlertsForRoom
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
