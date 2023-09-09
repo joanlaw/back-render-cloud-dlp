@@ -695,7 +695,29 @@ export const getAlertsForRoom = async (req, res) => {
     return res.status(404).json({ message: 'Chat room not found' });
   }
 
-  res.status(200).json(chatRoom.alerts);
+  const unattendedAlerts = chatRoom.alerts.filter(alert => !alert.attended);
+  res.status(200).json(unattendedAlerts);
+};
+
+
+// EN EL CONTROLADOR
+export const markAlertAsAttended = async (req, res) => {
+  const { roomId, alertId } = req.params;
+
+  const chatRoom = await ChatRoom.findById(roomId);
+  if (!chatRoom) {
+    return res.status(404).json({ message: 'Chat room not found' });
+  }
+
+  const alert = chatRoom.alerts.id(alertId);
+  if (!alert) {
+    return res.status(404).json({ message: 'Alert not found' });
+  }
+
+  alert.attended = true;
+  await chatRoom.save();
+
+  res.status(200).json({ message: 'Alert marked as attended' });
 };
 
 

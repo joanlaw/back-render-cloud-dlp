@@ -21,7 +21,12 @@ const chatRoomSchema = new mongoose.Schema({
     },
   }],
   alerts: [{
-    type: String,
+    _id: mongoose.Schema.Types.ObjectId,
+    message: String,
+    attended: {
+      type: Boolean,
+      default: false,
+    },
     timestamp: {
       type: Date,
       default: Date.now,
