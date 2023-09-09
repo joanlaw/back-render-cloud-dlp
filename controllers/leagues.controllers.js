@@ -680,11 +680,14 @@ export const sendAlert = async (req, res) => {
     return res.status(404).json({ message: 'Chat room not found' });
   }
 
-  chatRoom.alerts.push(message);
+  // Insertar un nuevo documento en el array
+  chatRoom.alerts.push({ message: message, attended: false });
+  
   await chatRoom.save();
 
   res.status(200).json({ message: 'Alert sent' });
 };
+
 
 //OBTENER ALERTAS
 export const getAlertsForRoom = async (req, res) => {
