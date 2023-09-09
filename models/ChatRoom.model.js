@@ -20,6 +20,13 @@ const chatRoomSchema = new mongoose.Schema({
       default: Date.now,
     },
   }],
+  alerts: [{
+    type: String,
+    timestamp: {
+      type: Date,
+      default: Date.now,
+    },
+  }],
 });
 
 const ChatRoom = mongoose.model('ChatRoom', chatRoomSchema);

@@ -18,7 +18,8 @@ import {
   getPlayerDeckByDiscordId,
   getPlayersAndDecksByLeagueId,
   startTournament, startNextRound, recordMatchResult, getMatchesByLeagueAndRound, createChatRoom, getChatRoomMessages, sendMessageToChatRoom, getMatchByPlayerLeagueAndRound, getCurrentRound, recordScores, removePlayerFromLeague
-  ,getMatchesByPlayerAndLeagueId  
+  ,getMatchesByPlayerAndLeagueId,
+  sendAlert  
   } from '../controllers/leagues.controllers.js';
 
 const leaguesRouter = Router();
@@ -104,6 +105,10 @@ leaguesRouter.post(
 
   // Ruta para obtener los mensajes de una sala de chat
   leaguesRouter.get('/chat-rooms/:roomId/messages', getChatRoomMessages);
+
+  // RUTA PARA ENVIAR ALERTAS
+leaguesRouter.post('/chat-rooms/:roomId/alert', sendAlert);
+
 
 
 

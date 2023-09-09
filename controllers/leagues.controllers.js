@@ -670,6 +670,20 @@ export const sendMessageToChatRoom = async (req, res) => {
   }
 };
 
+export const sendAlert = async (req, res) => {
+  const { roomId } = req.params;
+  const { message } = req.body;
+
+  const chatRoom = await ChatRoom.findById(roomId);
+  if (!chatRoom) {
+    return res.status(404).json({ message: 'Chat room not found' });
+  }
+
+  chatRoom.alerts.push({ type: message });
+  await chatRoom.save();
+
+  res.status(200).json({ message: 'Alert sent' });
+};
 
 
 
