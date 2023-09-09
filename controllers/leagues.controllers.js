@@ -670,6 +670,7 @@ export const sendMessageToChatRoom = async (req, res) => {
   }
 };
 
+//ENVIAR ALERTAS
 export const sendAlert = async (req, res) => {
   const { roomId } = req.params;
   const { message } = req.body;
@@ -683,6 +684,18 @@ export const sendAlert = async (req, res) => {
   await chatRoom.save();
 
   res.status(200).json({ message: 'Alert sent' });
+};
+
+//OBTENER ALERTAS
+export const getAlertsForRoom = async (req, res) => {
+  const { roomId } = req.params;
+
+  const chatRoom = await ChatRoom.findById(roomId).select('alerts');
+  if (!chatRoom) {
+    return res.status(404).json({ message: 'Chat room not found' });
+  }
+
+  res.status(200).json(chatRoom.alerts);
 };
 
 

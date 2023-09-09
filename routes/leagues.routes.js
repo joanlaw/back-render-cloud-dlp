@@ -109,6 +109,9 @@ leaguesRouter.post(
   // RUTA PARA ENVIAR ALERTAS
 leaguesRouter.post('/chat-rooms/:roomId/alert', sendAlert);
 
+// RUTA PARA OBTENER ALERTAS DE UN CHATROOM
+leaguesRouter.get('/chat-rooms/:roomId/alerts', getAlertsForRoom);
+
 
 
 
