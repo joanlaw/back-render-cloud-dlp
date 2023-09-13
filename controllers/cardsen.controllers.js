@@ -143,38 +143,44 @@ export const updateCardsen = async (req, res) => {
 
 export const calculateCardCost = async (req, res) => {
   try {
-    const cardId = req.params.id;
-    const card = await Card.findById(cardId);
+    const cardIds = req.params.id.split(',');
+    let allCosts = [];
 
-    if (!card) return res.status(404).json({ message: 'Carta no encontrada' });
+    for (const cardId of cardIds) {
+      const card = await Card.findById(cardId);
+      if (!card) continue;  // Skip this card if not found
+      
+      const boxes = await Box.find({
+        $or: [
+          {'cartas_ur._id': cardId},
+          {'cartas_sr._id': cardId},
+          {'cartas_r._id': cardId},
+          {'cartas_n._id': cardId}
+        ]
+      });
+      
+      if (!boxes.length) continue;  // Skip this card if no boxes found
+      
+      const costs = await Promise.all(boxes.map(async box => {
+        const rarity = getCardRarityInBox(cardId, box);
+        const deck = { ur: 0, sr: 0, r: 0, n: 0 };
+        deck[rarity.toLowerCase()] = 1;
+        
+        return {
+          cardId,
+          boxId: box._id,
+          boxName: box.nombre,
+          estimatedCost: monte_carlo_simulation(deck, box.tipo_de_box)
+        };
+      }));
 
-    // Buscar todas las cajas que contienen esta carta
-    const boxes = await Box.find({
-      $or: [
-        {'cartas_ur._id': cardId},
-        {'cartas_sr._id': cardId},
-        {'cartas_r._id': cardId},
-        {'cartas_n._id': cardId}
-      ]
-    });
-    
+      // Find the box with the lowest estimated cost for this card
+      costs.sort((a, b) => a.estimatedCost - b.estimatedCost);
+      allCosts.push(costs[0]);
+    }
 
-    if (!boxes.length) return res.status(404).json({ message: 'Cajas no encontradas' });
+    return res.json(allCosts);
 
-    // Aquí se colocaría el algoritmo de Monte Carlo para calcular el costo para cada caja
-    const costs = await Promise.all(boxes.map(async box => {
-      const rarity = getCardRarityInBox(cardId, box); // Supongamos que esta función devuelve la rareza de la carta en la caja
-      const deck = { ur: 0, sr: 0, r: 0, n: 0 };
-      deck[rarity.toLowerCase()] = 1; // Supongamos que queremos 1 copia de la carta
-      const cost = monte_carlo_simulation(deck, box.tipo_de_box);
-      return {
-        boxId: box._id,
-        boxName: box.nombre,
-        estimatedCost: cost
-      };
-    }));
-
-    return res.json(costs);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
