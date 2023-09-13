@@ -143,7 +143,8 @@ export const updateCardsen = async (req, res) => {
 
 export const calculateCardCost = async (req, res) => {
   try {
-    const cardIds = req.params.id.split(',');
+    // req.params.id ya es un array, gracias al middleware
+    const cardIds = req.params.id;
     let allCosts = [];
 
     for (const cardId of cardIds) {
