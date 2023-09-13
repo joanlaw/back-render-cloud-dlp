@@ -175,17 +175,23 @@ export const calculateCardCost = async (req, res) => {
         };
       }));
 
-      // Find the box with the lowest estimated cost for this card
-      costs.sort((a, b) => a.estimatedCost - b.estimatedCost);
-      allCosts.push(costs[0]);
-    }
+// Find the box with the lowest estimated cost for this card
+costs.sort((a, b) => a.estimatedCost - b.estimatedCost);
+allCosts.push(costs[0]);
+}
 
-    return res.json(allCosts);
+// Calculate the total estimated cost
+const totalEstimatedCost = allCosts.reduce((acc, curr) => acc + curr.estimatedCost, 0);
 
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+// Send the individual and total estimated costs in the response
+return res.json({
+  cards: allCosts,
+  totalEstimatedCost
+});
+
+} catch (error) {
+  return res.status(500).json({ message: error.message });
+}
 
 // Esta función determinaría la rareza de la carta en la caja dada
 function getCardRarityInBox(cardId, box) {
