@@ -1,4 +1,4 @@
-import Card from '../models/card.model.js';
+import Card from '../models/carden.model.js';
 import Box from '../models/box.model.js';
 
 export const calculateCardCost = async (req, res) => {
