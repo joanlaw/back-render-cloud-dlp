@@ -192,7 +192,7 @@ return res.json({
 } catch (error) {
   return res.status(500).json({ message: error.message });
 }
-
+}
 // Esta función determinaría la rareza de la carta en la caja dada
 function getCardRarityInBox(cardId, box) {
   // Implementación aquí (devuelve 'UR', 'SR', 'R', 'N')
