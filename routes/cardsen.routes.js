@@ -4,7 +4,8 @@ import {
   createCardsen,
   updateCardsen,
   deleteCardsen,
-  getCarden
+  getCarden,
+  calculateCardCost 
 } from '../controllers/cardsen.controllers.js'
 
 
@@ -19,6 +20,6 @@ cardsrouter.post('/cards', fileUpload({
 cardsrouter.put('/cards/:id', updateCardsen)
 cardsrouter.delete('/cards/:id', deleteCardsen)
 cardsrouter.get('/cards/:id', getCarden)
-
+cardsrouter.get('/cards/:id/costo', calculateCardCost);
 
 export default cardsrouter
