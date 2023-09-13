@@ -20,7 +20,10 @@ cardsrouter.post('/cards', fileUpload({
 cardsrouter.put('/cards/:id', updateCardsen)
 cardsrouter.delete('/cards/:id', deleteCardsen)
 cardsrouter.get('/cards/:id', getCarden)
-// Permite URLs como /cards/123,456,789/costo
-cardsrouter.get('/cards/:id/costo', calculateCardCost);
+// Este middleware divide los IDs y los pasa a la función calculateCardCost
+cardsrouter.get('/cards/:id/costo', (req, res, next) => {
+  req.params.id = req.params.id.split(',');
+  next();
+}, calculateCardCost);
 
 export default cardsrouter
