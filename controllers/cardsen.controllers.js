@@ -151,12 +151,13 @@ export const calculateCardCost = async (req, res) => {
     // Buscar todas las cajas que contienen esta carta
     const boxes = await Box.find({
       $or: [
-        {'cartas_ur.cardId': cardId},
-        {'cartas_sr.cardId': cardId},
-        {'cartas_r.cardId': cardId},
-        {'cartas_n.cardId': cardId}
+        {'cartas_ur._id': cardId},
+        {'cartas_sr._id': cardId},
+        {'cartas_r._id': cardId},
+        {'cartas_n._id': cardId}
       ]
     });
+    
 
     if (!boxes.length) return res.status(404).json({ message: 'Cajas no encontradas' });
 
