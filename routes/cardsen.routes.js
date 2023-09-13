@@ -20,6 +20,7 @@ cardsrouter.post('/cards', fileUpload({
 cardsrouter.put('/cards/:id', updateCardsen)
 cardsrouter.delete('/cards/:id', deleteCardsen)
 cardsrouter.get('/cards/:id', getCarden)
+// Permite URLs como /cards/123,456,789/costo
 cardsrouter.get('/cards/:id/costo', calculateCardCost);
 
 export default cardsrouter
