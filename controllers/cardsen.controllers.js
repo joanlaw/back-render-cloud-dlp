@@ -206,15 +206,13 @@ export const calculateCardCost = async (req, res) => {
       }
     }
 
-    // Calcular el costo total estimado modificado
-    const modifiedTotalEstimatedCost = Object.values(cardsByBox)
-      .flat()
-      .reduce((acc, curr) => acc + curr.estimatedCost, 0);
+      // Calcular el costo total estimado modificado
+      const modifiedTotalEstimatedCost = allCosts.reduce((acc, curr) => acc + curr.estimatedCost, 0);
 
-    return res.json({
-      cards: allCosts,
-      totalEstimatedCost: modifiedTotalEstimatedCost
-    });
+      return res.json({
+        cards: allCosts,
+        totalEstimatedCost: modifiedTotalEstimatedCost
+      });
 
   } catch (error) {
     return res.status(500).json({ message: error.message });
