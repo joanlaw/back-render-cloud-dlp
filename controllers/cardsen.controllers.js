@@ -162,7 +162,7 @@ export const calculateCardCost = async (req, res) => {
       if (!boxes.length) continue;
 
       const costs = await Promise.all(boxes.map(async box => {
-        const rarity = getCardRarityInBox(cardId, box);
+        const rarity = card.rareza;
         const deck = { ur: 0, sr: 0, r: 0, n: 0 };
         deck[rarity.toLowerCase()] = 1;
 
@@ -170,8 +170,8 @@ export const calculateCardCost = async (req, res) => {
           cardId,
           boxId: box._id,
           boxName: box.nombre,
-          boxType: box.tipo_de_box, // Añadiendo el tipo de caja
-          rarity, // Añadiendo la rareza
+          boxType: box.tipo_de_box,
+          rarity,
           estimatedCost: monte_carlo_simulation(deck, box.tipo_de_box)
         };
       }));
@@ -192,10 +192,10 @@ export const calculateCardCost = async (req, res) => {
     // Ajustar los costos estimados
     for (const boxId in cardsByBox) {
       const cardsInBox = cardsByBox[boxId];
-      const urCards = cardsInBox.filter(card => getCardRarityInBox(card.cardId) === 'UR');
+      const urCards = cardsInBox.filter(card => card.rarity === 'UR');
       if (urCards.length > 0) {
         for (const card of cardsInBox) {
-          const rarity = getCardRarityInBox(card.cardId);
+          const rarity = card.rarity;
           const boxType = card.boxType;
           if (rarity === 'SR') {
             card.estimatedCost = card.estimatedCost / (boxType === 'main box' ? 2 : 4);
@@ -220,6 +220,7 @@ export const calculateCardCost = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 function getCardRarityInBox(cardId, box) {
   if (!box) {
