@@ -222,6 +222,10 @@ export const calculateCardCost = async (req, res) => {
 };
 
 function getCardRarityInBox(cardId, box) {
+  if (!box) {
+    return 'Unknown';
+  }
+
   if (box.cartas_ur && box.cartas_ur.some(card => card._id === cardId)) {
     return 'UR';
   } else if (box.cartas_sr && box.cartas_sr.some(card => card._id === cardId)) {
@@ -234,7 +238,6 @@ function getCardRarityInBox(cardId, box) {
     return 'Unknown';
   }
 }
-
 
 
 // Función de simulación de Monte Carlo adaptada
