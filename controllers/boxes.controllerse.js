@@ -10,9 +10,10 @@ export const getBoxes = async (req, res) => {
   }
 };
 
-// METODO POST
+//METODO POST
 export const createBox = async (req, res) => {
   try {
+    console.log("req.body:", req.body); // Agregado para mostrar req.body
     const {
       nombre,
       tipo_de_box,
@@ -41,6 +42,7 @@ export const createBox = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 // METODO DELETE
 export const deleteBox = async (req, res) => {
