@@ -200,7 +200,7 @@ function getCardRarityInBox(cardId, box) {
 }
 
 // Función de simulación de Monte Carlo adaptada
-export const monte_carlo_simulation = (deck, boxType) => {
+export const monte_carlo_simulation = (targetDeck, boxType) => {
   const trials = 10000;
   let totalCost = 0;
 
@@ -224,7 +224,7 @@ export const monte_carlo_simulation = (deck, boxType) => {
 
   for (let i = 0; i < trials; i++) {
     let cost = 0;
-    let deckCopy = { ...deck };
+    let deckCopy = { ...targetDeck }; // Usamos el "deck objetivo" aquí
 
     let urBox = urCount;
     let srBox = srCount;
