@@ -170,6 +170,8 @@ export const calculateCardCost = async (req, res) => {
           cardId,
           boxId: box._id,
           boxName: box.nombre,
+          boxType: box.tipo_de_box, // Añadiendo el tipo de caja
+          rarity, // Añadiendo la rareza
           estimatedCost: monte_carlo_simulation(deck, box.tipo_de_box)
         };
       }));
@@ -194,7 +196,7 @@ export const calculateCardCost = async (req, res) => {
       if (urCards.length > 0) {
         for (const card of cardsInBox) {
           const rarity = getCardRarityInBox(card.cardId);
-          const boxType = card.boxType;  // Asume que tienes acceso al tipo de caja aquí
+          const boxType = card.boxType;
           if (rarity === 'SR') {
             card.estimatedCost = card.estimatedCost / (boxType === 'main box' ? 2 : 4);
           } else if (rarity === 'R' || rarity === 'N') {
