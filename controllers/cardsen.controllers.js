@@ -219,6 +219,11 @@ export const calculateCardCost = async (req, res) => {
   }
 };
 
+function getCardRarityInBox(cardId, box) {
+  // Implementación aquí (devuelve 'UR', 'SR', 'R', 'N')
+  return 'UR'; // Ejemplo
+}
+
 
 // Función de simulación de Monte Carlo adaptada
 export const monte_carlo_simulation = (targetDeck, boxType) => {
