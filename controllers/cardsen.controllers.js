@@ -243,7 +243,7 @@ function getCardRarityInBox(cardId, box) {
 
 // Función de simulación de Monte Carlo adaptada
 export const monte_carlo_simulation = (targetDeck, boxType) => {
-  const trials = 10000;
+  const trials = 15000;
   let totalCost = 0;
 
   let urCount, srCount, rCount, nCount;
