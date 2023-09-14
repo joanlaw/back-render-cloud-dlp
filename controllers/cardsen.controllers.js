@@ -146,9 +146,6 @@ export const calculateCardCost = async (req, res) => {
     const cardIds = req.params.id;
     let allCosts = [];
 
-    // Crear un objeto para agrupar cartas por caja
-    const boxGroups = {};
-
     for (const cardId of cardIds) {
       const card = await Card.findById(cardId);
       if (!card) continue;
@@ -164,43 +161,64 @@ export const calculateCardCost = async (req, res) => {
 
       if (!boxes.length) continue;
 
-      const box = boxes[0];  // Supongamos que cada carta solo pertenece a una caja
-      const rarity = getCardRarityInBox(cardId, box);
+      const costs = await Promise.all(boxes.map(async box => {
+        const rarity = getCardRarityInBox(cardId, box);
+        const deck = { ur: 0, sr: 0, r: 0, n: 0 };
+        deck[rarity.toLowerCase()] = 1;
 
-      if (!boxGroups[box._id]) {
-        boxGroups[box._id] = { ur: 0, sr: 0, r: 0, n: 0, tipo_de_box: box.tipo_de_box };
+        return {
+          cardId,
+          boxId: box._id,
+          boxName: box.nombre,
+          estimatedCost: monte_carlo_simulation(deck, box.tipo_de_box)
+        };
+      }));
+
+      costs.sort((a, b) => a.estimatedCost - b.estimatedCost);
+      allCosts.push(costs[0]);
+    }
+
+    // Agrupar cartas por caja
+    const cardsByBox = {};
+    for (const cost of allCosts) {
+      if (!cardsByBox[cost.boxId]) {
+        cardsByBox[cost.boxId] = [];
       }
-      boxGroups[box._id][rarity.toLowerCase()] += 1;
+      cardsByBox[cost.boxId].push(cost);
     }
 
-    // Ahora, boxGroups es un objeto donde las claves son boxIds y los valores son "decks objetivo"
-    let totalEstimatedCost = 0;
-
-    for (const [boxId, targetDeck] of Object.entries(boxGroups)) {
-      const boxType = targetDeck.tipo_de_box;
-      const estimatedCost = monte_carlo_simulation(targetDeck, boxType);
-      totalEstimatedCost += estimatedCost;
-
-      allCosts.push({
-        boxId,
-        boxType,
-        estimatedCost
-      });
+    // Ajustar los costos estimados
+    for (const boxId in cardsByBox) {
+      const cardsInBox = cardsByBox[boxId];
+      const urCards = cardsInBox.filter(card => getCardRarityInBox(card.cardId) === 'UR');
+      if (urCards.length > 0) {
+        for (const card of cardsInBox) {
+          const rarity = getCardRarityInBox(card.cardId);
+          const boxType = card.boxType;  // Asume que tienes acceso al tipo de caja aquí
+          if (rarity === 'SR') {
+            card.estimatedCost = card.estimatedCost / (boxType === 'main box' ? 2 : 4);
+          } else if (rarity === 'R' || rarity === 'N') {
+            card.estimatedCost = 0;
+          }
+        }
+      }
     }
+
+    // Calcular el costo total estimado modificado
+    const modifiedTotalEstimatedCost = Object.values(cardsByBox)
+      .flat()
+      .reduce((acc, curr) => acc + curr.estimatedCost, 0);
 
     return res.json({
-      boxes: allCosts,
-      totalEstimatedCost
+      cards: allCosts,
+      totalEstimatedCost: modifiedTotalEstimatedCost
     });
+
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
-// Esta función determinaría la rareza de la carta en la caja dada
-function getCardRarityInBox(cardId, box) {
-  // Implementación aquí (devuelve 'UR', 'SR', 'R', 'N')
-  return 'UR'; // Ejemplo
-}
+
 
 // Función de simulación de Monte Carlo adaptada
 export const monte_carlo_simulation = (targetDeck, boxType) => {
