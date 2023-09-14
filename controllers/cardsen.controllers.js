@@ -222,9 +222,16 @@ export const monte_carlo_simulation = (targetDeck, boxType) => {
     nCount = 341;
   }
 
+  // Modificar el deck objetivo según la lógica que consideres
+  if (targetDeck.ur >= 3) {
+    targetDeck.r = Math.max(0, targetDeck.r - 1); // Reducir la cantidad de R y N
+    targetDeck.n = Math.max(0, targetDeck.n - 1);
+    targetDeck.sr = Math.ceil(targetDeck.sr / 2); // Reducir la cantidad de SR a la mitad
+  }
+
   for (let i = 0; i < trials; i++) {
     let cost = 0;
-    let deckCopy = { ...targetDeck }; // Usamos el "deck objetivo" aquí
+    let deckCopy = { ...targetDeck };
 
     let urBox = urCount;
     let srBox = srCount;
