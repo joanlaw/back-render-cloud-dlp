@@ -236,11 +236,12 @@ export const getMatchesByLeagueAndRound = async (req, res) => {
 
 
 const nextPowerOf2 = n => Math.pow(2, Math.ceil(Math.log2(n)));
-let globalMatchNumber = 0;  // Declarar la variable globalMatchNumber
 
 export const startTournament = async (req, res) => {
   try {
     console.log('Inicio de startTournament');
+    
+    let localMatchNumber = 0;  // Declarar la variable localMatchNumber
     
     const { leagueId } = req.params;
     const league = await League.findById(leagueId);
@@ -282,7 +283,7 @@ export const startTournament = async (req, res) => {
       
       let matches = [];
       for (let i = 0; i < initialPlayers.length; i += 2) {
-        globalMatchNumber++;  // Incrementar la variable globalMatchNumber en cada iteración
+        localMatchNumber++;  // Incrementar la variable localMatchNumber en cada iteración
         
         console.log(`Emparejando ${initialPlayers[i]} con ${initialPlayers[i + 1]}`);
         
@@ -290,7 +291,7 @@ export const startTournament = async (req, res) => {
         console.log('Nueva sala de chat creada:', newChatRoom._id);
         
         matches.push({
-          matchNumber: globalMatchNumber,  // Usar globalMatchNumber aquí
+          matchNumber: localMatchNumber,  // Usar localMatchNumber aquí
           player1: initialPlayers[i],
           player2: initialPlayers[i + 1],
           chatRoom: newChatRoom._id,
