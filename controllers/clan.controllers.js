@@ -4,21 +4,30 @@ import uploadToImgbb from '../utils/imgbb.js';
 
 // Crear un nuevo clan
 export const createClan = async (req, res) => {
+  console.log("Recibida solicitud para crear un clan");  // Log para saber si la función fue llamada
+  console.log("Cuerpo de la solicitud:", req.body);  // Log para inspeccionar el cuerpo de la solicitud
+
   const { name, creatorId } = req.body;
-  // Aquí deberías añadir validaciones adicionales, como comprobar si el usuario ya tiene un clan
+
+  // Validaciones adicionales aquí
 
   const newClan = new Clan({
     name,
     creator: creatorId,
   });
 
+  console.log("Nuevo objeto de clan:", newClan);  // Log para inspeccionar el nuevo objeto de clan
+
   try {
     const savedClan = await newClan.save();
+    console.log("Clan guardado con éxito:", savedClan);  // Log para inspeccionar el clan guardado
     res.status(201).json(savedClan);
   } catch (error) {
+    console.error("Error al guardar el clan:", error.message);  // Log para errores
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Obtener todos los clanes
 export const getClans = async (req, res) => {
