@@ -34,3 +34,6 @@ clansRouter.delete('/clans/:id', deleteClan);
 clansRouter.post('/clans/:id/members', addMemberToClan);
 clansRouter.delete('/clans/:id/members', removeMemberFromClan);
 clansRouter.post('/clans/:clanId/logo', upload.single('logo'), uploadClanLogo);
+
+export default clansRouter;
+
