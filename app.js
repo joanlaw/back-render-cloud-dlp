@@ -105,7 +105,7 @@ app.use(arquetiposRoutes);
 app.use(leaguesRouter);
 app.use(authRoutes); // Esto agregará las rutas de autenticación /
 app.use(duelsRouter);
-app.use('/clans', authenticateJWT, clansRouter);
+app.use(authenticateJWT, clansRouter);
 
 
 app.use((req, res) => {
