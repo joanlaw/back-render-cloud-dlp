@@ -6,6 +6,8 @@ import passport from 'passport';
 import session from 'express-session';
 import { Strategy as DiscordStrategy } from 'passport-discord';
 import dotenv from 'dotenv';
+import { authenticateJWT } from './middlewares/authMiddleware';  // Ajusta la ruta según sea necesario
+
 
 import User from './models/User.js';
 
@@ -103,7 +105,7 @@ app.use(arquetiposRoutes);
 app.use(leaguesRouter);
 app.use(authRoutes); // Esto agregará las rutas de autenticación /
 app.use(duelsRouter);
-app.use(clansRouter);
+app.use('/clans', authenticateJWT, clansRouter);
 
 
 app.use((req, res) => {

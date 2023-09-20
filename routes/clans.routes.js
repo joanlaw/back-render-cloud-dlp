@@ -10,6 +10,7 @@ import {
   } from '../controllers/clan.controllers.js';
 import { Router } from 'express';
 import multer from 'multer';
+//import { authenticateJWT } from '../middlewares/authMiddleware'; // Asegúrate de que la ruta sea la correcta
 
 
 const clansRouter = Router();
