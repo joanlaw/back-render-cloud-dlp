@@ -6,7 +6,7 @@ import passport from 'passport';
 import session from 'express-session';
 import { Strategy as DiscordStrategy } from 'passport-discord';
 import dotenv from 'dotenv';
-import { authenticateJWT } from './middlewares/authMiddleware';  // Ajusta la ruta según sea necesario
+import { authenticateJWT } from './middlewares/authMiddleware.js';
 
 
 import User from './models/User.js';
