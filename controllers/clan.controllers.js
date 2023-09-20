@@ -18,7 +18,12 @@ export const createClan = async (req, res) => {
 
   let logoUrl;
   if (req.file) {
-    logoUrl = await uploadToImgbb(req.file.path);  // Asume que uploadToImgbb devuelve una URL
+    // Validación del tipo de archivo
+    if (req.file.mimetype === 'image/jpeg' || req.file.mimetype === 'image/png') {
+      logoUrl = await uploadToImgbb(req.file.path);  // Asume que uploadToImgbb devuelve una URL
+    } else {
+      return res.status(400).json({ message: 'Formato de imagen no soportado. Solo se aceptan JPEG y PNG.' });
+    }
   }
 
   // Validaciones adicionales aquí
@@ -40,6 +45,7 @@ export const createClan = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 // Obtener todos los clanes
