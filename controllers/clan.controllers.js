@@ -16,10 +16,16 @@ export const createClan = async (req, res) => {
     return res.status(400).json({ message: "Usuario no encontrado" });
   }
 
+  let logoUrl;
+  if (req.file) {
+    logoUrl = await uploadToImgbb(req.file.path);  // Asume que uploadToImgbb devuelve una URL
+  }
+
   // Validaciones adicionales aquí
   const newClan = new Clan({
     name,
-    creator  // Cambiado a "creator" para coincidir con el cuerpo de la solicitud
+    creator: user._id,  // Asegurarse de que sea el _id
+    logoUrl: logoUrl ? logoUrl.url : null  // Aquí se asigna la URL de la imagen
   });
 
   console.log("Nuevo objeto de clan:", newClan);  // Log para inspeccionar el nuevo objeto de clan

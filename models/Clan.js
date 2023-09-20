@@ -4,9 +4,13 @@ const clanSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    unique: true,
   },
   logoUrl: {
     type: String,
+  },
+  logo: {
+    url: String
   },
   creator: {
     type: mongoose.Schema.Types.ObjectId,

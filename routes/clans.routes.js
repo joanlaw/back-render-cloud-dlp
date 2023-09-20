@@ -28,6 +28,8 @@ const upload = multer({ storage: storage });
 
 // Definir rutas aquí
 clansRouter.post('/clans', createClan);
+clansRouter.post('/clans', upload.single('logo'), createClan);  // Aquí añadimos el middleware de Multer
+// ... (resto de las rutas)
 clansRouter.get('/clans', getClans);
 clansRouter.get('/clans/:id', getClanById);
 clansRouter.put('/clans/:id', updateClan);
