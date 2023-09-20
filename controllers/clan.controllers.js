@@ -7,13 +7,13 @@ export const createClan = async (req, res) => {
   console.log("Recibida solicitud para crear un clan");  // Log para saber si la función fue llamada
   console.log("Cuerpo de la solicitud:", req.body);  // Log para inspeccionar el cuerpo de la solicitud
 
-  const { name, creatorId } = req.body;
+  const { name, creator } = req.body;  // Aquí cambié "creatorId" a "creator" para coincidir con el cuerpo de la solicitud
 
   // Validaciones adicionales aquí
 
   const newClan = new Clan({
     name,
-    creator: creatorId,
+    creator  // Cambiado a "creator" para coincidir con el cuerpo de la solicitud
   });
 
   console.log("Nuevo objeto de clan:", newClan);  // Log para inspeccionar el nuevo objeto de clan
