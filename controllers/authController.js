@@ -75,7 +75,8 @@ export const getUserInfo = (req, res) => {
   if (req.isAuthenticated()) {
     res.json({
       authenticated: true,
-      discordId: req.user.discordId,  // Añadir esto
+      discordId: req.user.discordId,
+      userId: req.user._id,  // Añadir el _id del usuario
       image: req.user.avatar,
       username: req.user.username,
       puntos: req.user.puntos,
@@ -86,6 +87,7 @@ export const getUserInfo = (req, res) => {
     });
   }
 };
+
 
 //info de usuarios sin autenticar
 export const getUserBasicInfo = (req, res) => {

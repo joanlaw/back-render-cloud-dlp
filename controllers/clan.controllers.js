@@ -2,6 +2,7 @@ import Clan from '../models/Clan.js';
 import User from '../models/User.js';
 import uploadToImgbb from '../utils/imgbb.js';
 
+
 // Crear un nuevo clan
 export const createClan = async (req, res) => {
   console.log("Recibida solicitud para crear un clan");  // Log para saber si la función fue llamada
@@ -9,14 +10,20 @@ export const createClan = async (req, res) => {
 
   const { name, creator } = req.body;  // Aquí cambié "creatorId" a "creator" para coincidir con el cuerpo de la solicitud
 
-  // Validaciones adicionales aquí
+  // Verifica que el _id exista en la base de datos de usuarios
+  const user = await User.findById(creator);
+  if (!user) {
+    return res.status(400).json({ message: "Usuario no encontrado" });
+  }
 
+  // Validaciones adicionales aquí
   const newClan = new Clan({
     name,
     creator  // Cambiado a "creator" para coincidir con el cuerpo de la solicitud
   });
 
   console.log("Nuevo objeto de clan:", newClan);  // Log para inspeccionar el nuevo objeto de clan
+  console.log("Objeto newClan antes de guardar:", newClan); // Nuevo log para depuración
 
   try {
     const savedClan = await newClan.save();
