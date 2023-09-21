@@ -113,36 +113,32 @@ export const deleteClan = async (req, res) => {
 
 // Añadir un miembro al clan
 export const addMemberToClan = async (req, res) => {
-  const { memberId } = req.body; // Obtiene el memberId del cuerpo de la petición
+  const { memberIds } = req.body; // Obtiene los memberIds del cuerpo de la petición
   const { id: clanId } = req.params; // Obtiene el clanId de los parámetros de la ruta
   
-  // Verifica si el clanId y memberId están presentes
-  if (!clanId || !memberId) {
-    return res.status(400).json({ message: 'clanId y memberId son requeridos' });
+  if (!clanId || !memberIds || !Array.isArray(memberIds) || memberIds.length === 0) {
+    return res.status(400).json({ message: 'clanId y memberIds son requeridos' });
   }
 
   try {
-    // Intenta actualizar el clan añadiendo el nuevo miembro
     const updatedClan = await Clan.findByIdAndUpdate(
       clanId,
-      { $addToSet: { members: memberId } }, // Usa $addToSet para añadir un único miembro
+      { $addToSet: { members: { $each: memberIds } } }, // Añade múltiples memberIds únicos
       { new: true }
     );
-
-    // Si el clan no se encuentra, devuelve un error 404
+    
     if (!updatedClan) {
       return res.status(404).json({ message: 'Clan no encontrado' });
     }
 
-    // Si todo está bien, devuelve el clan actualizado
     return res.json(updatedClan);
 
   } catch (error) {
-    // Si ocurre un error en el proceso, lo captura y devuelve un error 500
-    console.error('Error adding member to clan:', error);
+    console.error('Error adding members to clan:', error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 // Eliminar un miembro del clan
