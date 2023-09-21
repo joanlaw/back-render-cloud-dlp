@@ -133,29 +133,17 @@ export const removeMemberFromClan = async (req, res) => {
   }
 };
 
-// Subir el logotipo del clan
-export const uploadClanLogo = async (req, res) => {
-    try {
-      if (!req.files || !req.files.logo) {
-        return res.status(400).json({ error: 'No se enviaron archivos' });
-      }
-  
-      const { clanId } = req.params;
-      const clan = await Clan.findById(clanId);
-  
-      if (!clan) {
-        return res.status(404).json({ error: 'Clan no encontrado' });
-      }
-  
-      const uploaded = await uploadToImgbb(req.files.logo[0].path);
-  
-      clan.logoUrl = uploaded.url;
-      await clan.save();
-  
-      res.status(200).json({ message: 'Logotipo del clan actualizado con éxito', clan });
-  
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Hubo un error al subir el logotipo del clan.' });
+// Obtener miembros de un clan por su ID de clan
+export const getMembersByClanId = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const clan = await Clan.findById(id).populate('members'); // Populate para traer detalles de los miembros
+    if (!clan) {
+      return res.status(404).json({ message: 'Clan no encontrado' });
     }
-  };
+    res.json(clan.members);  // Solo devolvemos la lista de miembros
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

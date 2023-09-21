@@ -6,7 +6,7 @@ import {
     deleteClan,
     addMemberToClan,
     removeMemberFromClan,
-    //uploadClanLogo
+    getMembersByClanId
   } from '../controllers/clan.controllers.js';
 import { Router } from 'express';
 import multer from 'multer';
@@ -30,13 +30,12 @@ const upload = multer({ storage: storage });
 //clansRouter.post('/clans', createClan);
 clansRouter.post('/clans', upload.single('logo'), createClan);  // Aquí añadimos el middleware de Multer
 // ... (resto de las rutas)
+clansRouter.get('/clans/:id/members', getMembersByClanId);
 clansRouter.get('/clans', getClans);
 clansRouter.get('/clans/:id', getClanById);
 clansRouter.put('/clans/:id', updateClan);
 clansRouter.delete('/clans/:id', deleteClan);
 clansRouter.post('/clans/:id/members', addMemberToClan);
 clansRouter.delete('/clans/:id/members', removeMemberFromClan);
-//clansRouter.post('/clans/:clanId/logo', upload.single('logo'), uploadClanLogo);
-
 export default clansRouter;
 
