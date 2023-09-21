@@ -51,12 +51,17 @@ export const createClan = async (req, res) => {
 // Obtener todos los clanes
 export const getClans = async (req, res) => {
   try {
-    const clans = await Clan.find();
+    let query = {};
+    if (req.query.creator) {
+      query.creator = req.query.creator;
+    }
+    const clans = await Clan.find(query);
     res.json(clans);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Obtener un clan por su ID
 export const getClanById = async (req, res) => {
