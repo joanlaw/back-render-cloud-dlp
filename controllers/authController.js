@@ -42,25 +42,28 @@ export const logout = (req, res) => {
 
 
 export const callback = (req, res) => {
-    if (req.isAuthenticated()) {
-        const token = jwt.sign({ discordId: req.user.discordId }, process.env.JWT_SECRET, {
-            expiresIn: '15d',
-        });
+  if (req.isAuthenticated()) {
+      const token = jwt.sign({ discordId: req.user.discordId }, process.env.JWT_SECRET, {
+          expiresIn: '30d',
+      });
 
-        // Guarda el token en el localStorage del cliente y cierra la ventana emergente
-const script = `
-    window.opener.postMessage({ type: 'AUTH_SUCCESS', token: "${token}" }, "*");
-    window.close();
-`;
+      // Guarda el token en el localStorage del cliente y cierra la ventana emergente
+      // Además, refresca la pestaña del navegador que abrió la ventana emergente
+      const script = `
+          window.opener.postMessage({ type: 'AUTH_SUCCESS', token: "${token}" }, "*");
+          window.opener.location.reload();
+          window.close();
+      `;
 
-res.send(`<script>${script}</script>`);
-    } else {
-        res.json({
-            success: false,
-            message: 'Autenticación fallida',
-        });
-    }
+      res.send(`<script>${script}</script>`);
+  } else {
+      res.json({
+          success: false,
+          message: 'Autenticación fallida',
+      });
+  }
 };
+
 
 
 

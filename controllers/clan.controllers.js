@@ -20,7 +20,7 @@ export const createClan = async (req, res) => {
   if (req.file) {
     // Validación del tipo de archivo
     if (req.file.mimetype === 'image/jpeg' || req.file.mimetype === 'image/png') {
-      logoUrl = await uploadToImgbb(req.file.path);  // Asume que uploadToImgbb devuelve una URL
+      logoUrl = await uploadToImgbb(req.file.path);  // uploadToImgbb devuelve una URL
     } else {
       return res.status(400).json({ message: 'Formato de imagen no soportado. Solo se aceptan JPEG y PNG.' });
     }
