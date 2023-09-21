@@ -143,18 +143,31 @@ export const addMemberToClan = async (req, res) => {
 
 // Eliminar un miembro del clan
 export const removeMemberFromClan = async (req, res) => {
-  const { clanId, memberId } = req.body;
+  const { id: clanId } = req.params; // Obtener clanId de los parámetros de la ruta
+  const { memberId } = req.body; // Obtener memberId del cuerpo de la solicitud
+  
+  if(!clanId || !memberId) {
+    return res.status(400).json({ message: 'clanId y memberId son requeridos' });
+  }
+
   try {
     const updatedClan = await Clan.findByIdAndUpdate(
       clanId,
       { $pull: { members: memberId } },
       { new: true }
     );
+    
+    if(!updatedClan) {
+      return res.status(404).json({ message: 'Clan no encontrado' });
+    }
+    
     res.json(updatedClan);
   } catch (error) {
+    console.error('Error removing member from clan:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Obtener miembros de un clan por su ID de clan
 export const getMembersByClanId = async (req, res) => {
