@@ -46,10 +46,8 @@ const cardSchema = mongoose.Schema({
     trim: true
   },
   image: {
-    pubic_id: String,
-    secure_url: {
-      type: String
-    }
+    public_id: String,
+    secure_url: String
   },
   atk: {
     type: Number,

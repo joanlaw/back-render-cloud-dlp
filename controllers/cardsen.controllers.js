@@ -35,8 +35,6 @@ export const createCardsen = async (req, res) => {
   try {
     const { nombre, name_english, tipo_de_carta, atributo, tipo, tipo_magica_trampa, nivel_rango_link, escala, rareza, limitacion, atk, def, materiales, descripcion, descripcion_es, efecto_pendulo, adicional } = req.body;
 
-    const secure_url = `https://res.cloudinary.com/dqofcbeaq/image/upload/v1688597356/dlprocards/${encodeURIComponent(nombre)}.jpg`;
-
     const card = new Card({
       nombre,
       name_english,
@@ -54,18 +52,25 @@ export const createCardsen = async (req, res) => {
       descripcion,
       descripcion_es,
       efecto_pendulo,
-      adicional,
-      image: {
-        secure_url
-      }
+      adicional
     });
+
+    if (req.files?.image) {
+      const result = await uploadImage(req.files.image.tempFilePath);
+      card.image = {
+        public_id: result.public_id,
+        secure_url: result.secure_url
+      };
+      await fs.unlink(req.files.image.tempFilePath);
+    }
 
     await card.save();
     res.json(card);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
-}
+};
+
 
 //METODO DELETE
 export const deleteCardsen = async (req, res) => {
