@@ -127,22 +127,21 @@ export const deleteCardsen = async (req, res) => {
 
 //METODO UPDATE
 export const updateCardsen = async (req, res) => {
-
   try {
-
     const { id } = req.params;
-    const cardsUpdate = await
-      Card.findByIdAndUpdate(id, req.body, {
-        new: true
-      })
-
-    return res.json(cardsUpdate)
-
+    
+    console.log('ID:', id); // Imprime el ID que se está pasando.
+    console.log('Request Body:', req.body); // Imprime el cuerpo de la solicitud.
+    
+    const cardsUpdate = await Card.findByIdAndUpdate(id, req.body, { new: true });
+    return res.json(cardsUpdate);
+    
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    console.error('Error:', error); // Imprime detalles del error.
+    return res.status(500).json({ message: error.message });
   }
+};
 
-}
 
 //CALCULADORA DE PRECIOS
 
