@@ -194,21 +194,22 @@ export const calculateCardCost = async (req, res) => {
     }
 
     // Ajustar los costos estimados
-    for (const boxId in cardsByBox) {
-      const cardsInBox = cardsByBox[boxId];
-      const urCards = cardsInBox.filter(card => card.rarity === 'UR');
-      if (urCards.length > 0) {
-        for (const card of cardsInBox) {
-          const rarity = card.rarity;
-          const boxType = card.boxType;
-          if (rarity === 'SR') {
-            card.estimatedCost = card.estimatedCost / (boxType === 'main box' ? 2 : 4);
-          } else if (rarity === 'R' || rarity === 'N') {
-            card.estimatedCost = 0;
-          }
-        }
+for (const boxId in cardsByBox) {
+  const cardsInBox = cardsByBox[boxId];
+  const urCards = cardsInBox.filter(card => card.rarity === 'UR');
+  
+  if (urCards.length > 1) { // si hay más de una UR
+    for (const card of cardsInBox) {
+      const rarity = card.rarity;
+      if (rarity === 'R' || rarity === 'N') {
+        card.estimatedCost = 0; // setea el costo de R y N a 0
+      } else if (rarity === 'SR') {
+        card.estimatedCost /= 2; // puedes ajustar el costo de SR si lo consideras necesario
       }
     }
+  }
+}
+
 
       // Calcular el costo total estimado modificado
       const modifiedTotalEstimatedCost = allCosts.reduce((acc, curr) => acc + curr.estimatedCost, 0);
