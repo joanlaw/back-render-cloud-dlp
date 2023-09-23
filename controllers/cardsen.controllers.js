@@ -30,6 +30,37 @@ export const getCardsen = async (req, res) => {
   }
 };
 
+//GET FILTRANDO RAREZA
+export const getFilteredCards = async (req, res) => {
+  try {
+    const { page = 1, size = 50, search = '' } = req.query;
+
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(size, 10)
+    };
+
+    // Filtro modificado para incluir solo cartas con valor en el campo 'rareza'
+    const query = {
+      $and: [
+        {
+          $or: [
+            { nombre: { $regex: search, $options: 'i' } },
+            { name_english: { $regex: search, $options: 'i' } }
+          ]
+        },
+        { rareza: { $exists: true, $ne: null, $ne: '' } }
+      ]
+    };
+
+    const cards = await Card.paginate(query, options);
+    res.send(cards);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
 //METODO POST
 export const createCardsen = async (req, res) => {
   try {
@@ -194,23 +225,21 @@ export const calculateCardCost = async (req, res) => {
     }
 
     // Ajustar los costos estimados
-// Ajustar los costos estimados
-for (const boxId in cardsByBox) {
-  const cardsInBox = cardsByBox[boxId];
-  const urCards = cardsInBox.filter(card => card.rarity === 'UR');
-  
-  if (urCards.length > 1) { // si hay más de una UR en la misma caja
-    for (const card of cardsInBox) {
-      const rarity = card.rarity;
-      if (rarity === 'R' || rarity === 'N') {
-        card.estimatedCost = 0; // setea el costo de R y N a 0
+    for (const boxId in cardsByBox) {
+      const cardsInBox = cardsByBox[boxId];
+      const urCards = cardsInBox.filter(card => card.rarity === 'UR');
+      if (urCards.length > 0) {
+        for (const card of cardsInBox) {
+          const rarity = card.rarity;
+          const boxType = card.boxType;
+          if (rarity === 'SR') {
+            card.estimatedCost = card.estimatedCost / (boxType === 'main box' ? 2 : 4);
+          } else if (rarity === 'R' || rarity === 'N') {
+            card.estimatedCost = 0;
+          }
+        }
       }
-      
     }
-  }
-}
-
-
 
       // Calcular el costo total estimado modificado
       const modifiedTotalEstimatedCost = allCosts.reduce((acc, curr) => acc + curr.estimatedCost, 0);

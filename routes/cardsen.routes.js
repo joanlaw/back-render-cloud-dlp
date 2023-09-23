@@ -5,7 +5,8 @@ import {
   updateCardsen,
   deleteCardsen,
   getCarden,
-  calculateCardCost 
+  calculateCardCost,
+  getFilteredCards
 } from '../controllers/cardsen.controllers.js'
 
 
@@ -14,6 +15,7 @@ const cardsrouter = Router()
 import fileUpload from 'express-fileupload'
 
 cardsrouter.get('/cards', getCardsen)
+cardsrouter.get('/filteredCards', getFilteredCards);
 cardsrouter.post('/cards', fileUpload({
   useTempFiles: true, tempFileDir: './uploads'
 }), createCardsen)
