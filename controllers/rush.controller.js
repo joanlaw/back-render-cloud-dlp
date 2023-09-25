@@ -50,4 +50,48 @@ export const getRushById = async (req, res) => {
   }
 };
 
-// Puedes añadir métodos para actualizar, borrar, etc.
+export const getRushByParams = async (req, res) => {
+  try {
+    const { id, konami_id, name_en, name_es, name_pt } = req.params;
+    
+    if (!id && !konami_id && !name_en && !name_es && !name_pt)
+      return res.status(400).send('At least one parameter is required');
+      
+    const query = {};
+    if (id) query._id = id;
+    if (konami_id) query.konami_id = konami_id;
+    if (name_en) query['name.en'] = name_en;
+    if (name_es) query['name.es'] = name_es;
+    if (name_pt) query['name.pt'] = name_pt;
+
+    const rush = await Rush.findOne(query);
+    if (!rush) return res.status(404).send('Rush not found');
+    res.status(200).send(rush);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+
+export const updateRush = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rush = await Rush.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    if (!rush) return res.status(404).send('Rush not found');
+    res.status(200).send(rush);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+};
+
+export const deleteRush = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rush = await Rush.findByIdAndDelete(id);
+    if (!rush) return res.status(404).send('Rush not found');
+    res.status(200).send({ message: 'Rush deleted successfully' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
