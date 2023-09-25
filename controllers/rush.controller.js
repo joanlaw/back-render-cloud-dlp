@@ -40,42 +40,6 @@ export const getRushes = async (req, res) => {
   }
 };
 
-
-
-
-export const getRushById = async (req, res) => {
-  try {
-    const rush = await Rush.findById(req.params.id);
-    if (!rush) return res.status(404).send('Rush not found');
-    res.status(200).send(rush);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
-
-
-export const updateRush = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const rush = await Rush.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-    if (!rush) return res.status(404).send('Rush not found');
-    res.status(200).send(rush);
-  } catch (err) {
-    res.status(400).send(err);
-  }
-};
-
-export const deleteRush = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const rush = await Rush.findByIdAndDelete(id);
-    if (!rush) return res.status(404).send('Rush not found');
-    res.status(200).send({ message: 'Rush deleted successfully' });
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
-
 // Método GET para obtener un "rush" específico
 export const getRushByValue = async (req, res) => {
   try {
@@ -104,3 +68,38 @@ export const getRushByValue = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+/*export const getRushById = async (req, res) => {
+  try {
+    const rush = await Rush.findById(req.params.id);
+    if (!rush) return res.status(404).send('Rush not found');
+    res.status(200).send(rush);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}; */
+
+
+export const updateRush = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rush = await Rush.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    if (!rush) return res.status(404).send('Rush not found');
+    res.status(200).send(rush);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+};
+
+export const deleteRush = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rush = await Rush.findByIdAndDelete(id);
+    if (!rush) return res.status(404).send('Rush not found');
+    res.status(200).send({ message: 'Rush deleted successfully' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
