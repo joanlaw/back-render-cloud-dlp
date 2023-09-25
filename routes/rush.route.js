@@ -12,7 +12,7 @@ import {
 const router = Router();
 
 router.get('/rushes', getRushes);
-router.get('/rushes/:id?/:konami_id?/:name_en?/:name_es?/:name_pt?', getRushByParams);
+router.get('/rushes', getRushByParams);
 router.post('/rushes', createRush);
 /*router.post('/rushes', fileUpload({
   useTempFiles: true, tempFileDir: './uploads'

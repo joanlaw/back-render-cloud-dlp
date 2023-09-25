@@ -52,10 +52,10 @@ export const getRushById = async (req, res) => {
 
 export const getRushByParams = async (req, res) => {
   try {
-    const { id, konami_id, name_en, name_es, name_pt } = req.params;
+    const { id, konami_id, name_en, name_es, name_pt } = req.query;
     
     if (!id && !konami_id && !name_en && !name_es && !name_pt)
-      return res.status(400).send('At least one parameter is required');
+      return res.status(400).send('At least one query parameter is required');
       
     const query = {};
     if (id) query._id = id;
