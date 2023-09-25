@@ -4,7 +4,8 @@ import {
   createRush,
   updateRush,
   deleteRush,
-  getRushById,
+  //getRushById,
+  getRushByValue
   //getRushByParams
 } from '../controllers/rush.controller.js';
 //import fileUpload from 'express-fileupload';
@@ -19,6 +20,7 @@ router.post('/rushes', createRush);
 }), createRush); */
 router.put('/rushes/:id', updateRush);
 router.delete('/rushes/:id', deleteRush);
-router.get('/rushes/:id', getRushById);
+//router.get('/rushes/:id', getRushById);
+router.get('/rushes/:value', getRushByValue);
 
 export default router;

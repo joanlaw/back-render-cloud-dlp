@@ -56,28 +56,6 @@ export const getRushById = async (req, res) => {
   }
 };
 
-/*export const getRushByParams = async (req, res) => {
-  try {
-    const { id, konami_id, name_en, name_es, name_pt } = req.query;
-    
-    if (!id && !konami_id && !name_en && !name_es && !name_pt)
-      return res.status(400).send('At least one query parameter is required');
-      
-    const query = {};
-    if (id) query._id = id;
-    if (konami_id) query.konami_id = konami_id;
-    if (name_en) query['name.en'] = name_en;
-    if (name_es) query['name.es'] = name_es;
-    if (name_pt) query['name.pt'] = name_pt;
-
-    const rush = await Rush.findOne(query);
-    if (!rush) return res.status(404).send('Rush not found');
-    res.status(200).send(rush);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
-*/
 
 export const updateRush = async (req, res) => {
   try {
@@ -101,3 +79,33 @@ export const deleteRush = async (req, res) => {
   }
 };
 
+export const getRushByValue = async (req, res) => {
+  try {
+    const { value } = req.params;
+    
+    // Comenzamos construyendo una consulta con una condición OR para cada campo por el que deseamos buscar
+    const query = {
+      $or: [
+        { 'name.en': { $regex: new RegExp(value, 'i') } },
+        { 'name.es': { $regex: new RegExp(value, 'i') } },
+        { 'name.pt': { $regex: new RegExp(value, 'i') } },
+      ]
+    };
+    
+    // Intentamos convertir el valor a un número para buscar por konami_id
+    const konamiIdNumber = parseInt(value, 10);
+    if (!isNaN(konamiIdNumber)) query.$or.push({ konami_id: konamiIdNumber });
+    
+    // También añadimos el valor como un ObjectID para buscar por _id
+    if (mongoose.Types.ObjectId.isValid(value)) query.$or.push({ _id: value });
+    
+    // Ejecutamos la consulta y enviamos la respuesta
+    const rush = await Rush.findOne(query);
+    if (!rush) return res.status(404).send('Rush not found');
+    res.status(200).send(rush);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+};
