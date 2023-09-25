@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const RushSchema = new mongoose.Schema({
   konami_id: Number,
@@ -38,5 +39,7 @@ const RushSchema = new mongoose.Schema({
     secure_url: String
   }
 }, { timestamps: true, collection: 'rushes' });
+
+RushSchema.plugin(mongoosePaginate);
 
 export default mongoose.model('Rush', RushSchema);
