@@ -11,38 +11,35 @@ export const createRush = async (req, res) => {
   }
 };
 
+// Método GET para obtener múltiples "rushes"
 export const getRushes = async (req, res) => {
   try {
-    const { page = 1, size = 50, search = '', konami_id = '', id, name_en, name_es, name_pt } = req.query;
-    
+    const { page = 1, size = 50, search = '' } = req.query;
+
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(size, 10)
     };
 
     const searchRegex = new RegExp(search, 'i');
-    const konamiIdNumber = parseInt(konami_id, 10);
 
     const query = {
       $or: [
         { 'name.en': { $regex: searchRegex } },
         { 'name.es': { $regex: searchRegex } },
         { 'name.pt': { $regex: searchRegex } },
-        { konami_id: konamiIdNumber ? konamiIdNumber : { $exists: true } }
+        { konami_id: isNaN(parseInt(search, 10)) ? { $exists: true } : parseInt(search, 10) }
       ]
     };
-    
-    if (id) query._id = id;
-    if (name_en) query['name.en'] = name_en;
-    if (name_es) query['name.es'] = name_es;
-    if (name_pt) query['name.pt'] = name_pt;
 
     const rushes = await Rush.paginate(query, options);
     res.status(200).send(rushes);
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
@@ -79,33 +76,31 @@ export const deleteRush = async (req, res) => {
   }
 };
 
+// Método GET para obtener un "rush" específico
 export const getRushByValue = async (req, res) => {
   try {
     const { value } = req.params;
+    let rush;
     
-    // Comenzamos construyendo una consulta con una condición OR para cada campo por el que deseamos buscar
-    const query = {
-      $or: [
-        { 'name.en': { $regex: new RegExp(value, 'i') } },
-        { 'name.es': { $regex: new RegExp(value, 'i') } },
-        { 'name.pt': { $regex: new RegExp(value, 'i') } },
-      ]
-    };
-    
-    // Intentamos convertir el valor a un número para buscar por konami_id
-    const konamiIdNumber = parseInt(value, 10);
-    if (!isNaN(konamiIdNumber)) query.$or.push({ konami_id: konamiIdNumber });
-    
-    // También añadimos el valor como un ObjectID para buscar por _id
-    if (mongoose.Types.ObjectId.isValid(value)) query.$or.push({ _id: value });
-    
-    // Ejecutamos la consulta y enviamos la respuesta
-    const rush = await Rush.findOne(query);
-    if (!rush) return res.status(404).send('Rush not found');
-    res.status(200).send(rush);
+    if (mongoose.Types.ObjectId.isValid(value)) {
+      rush = await Rush.findById(value);
+    } else {
+      const searchRegex = new RegExp(value, 'i');
+      const query = {
+        $or: [
+          { 'name.en': { $regex: searchRegex } },
+          { 'name.es': { $regex: searchRegex } },
+          { 'name.pt': { $regex: searchRegex } },
+          { konami_id: isNaN(parseInt(value, 10)) ? { $exists: false } : parseInt(value, 10) }
+        ]
+      };
+      rush = await Rush.findOne(query);
+    }
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
+    if (!rush) return res.status(404).json({ message: 'Rush not found' });
+    return res.status(200).json(rush);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 };

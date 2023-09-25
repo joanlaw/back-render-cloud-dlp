@@ -21,6 +21,6 @@ router.post('/rushes', createRush);
 router.put('/rushes/:id', updateRush);
 router.delete('/rushes/:id', deleteRush);
 //router.get('/rushes/:id', getRushById);
-router.get('/rushes/:value', getRushByValue);
+router.get('/rushes/:id', getRushByValue);
 
 export default router;
