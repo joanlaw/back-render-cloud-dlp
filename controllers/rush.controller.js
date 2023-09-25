@@ -1,4 +1,4 @@
-import Rush from '../models/rush.model';
+import Rush from '../models/rush.model.js';
 
 export const createRush = async (req, res) => {
   try {

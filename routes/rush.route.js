@@ -5,7 +5,7 @@ import {
   //updateRush,
   //deleteRush,
   getRushById
-} from '../controllers/rush.controller';
+} from '../controllers/rush.controller.js';
 //import fileUpload from 'express-fileupload';
 
 const router = Router();
