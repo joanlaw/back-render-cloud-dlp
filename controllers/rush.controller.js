@@ -13,32 +13,34 @@ export const createRush = async (req, res) => {
 
 export const getRushes = async (req, res) => {
   try {
-    const { page = 1, size = 50, search = '' } = req.query;
+    const { page = 1, size = 50, search = '', konami_id = '', id, name_en, name_es, name_pt } = req.query;
     
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(size, 10)
     };
+
+    const searchRegex = new RegExp(search, 'i');
+    const konamiIdNumber = parseInt(konami_id, 10);
+
+    const query = {
+      $or: [
+        { 'name.en': { $regex: searchRegex } },
+        { 'name.es': { $regex: searchRegex } },
+        { 'name.pt': { $regex: searchRegex } },
+        { konami_id: konamiIdNumber ? konamiIdNumber : { $exists: true } }
+      ]
+    };
     
-    let query = {};
-    
-    if (search) {
-      const searchRegex = new RegExp(search, 'i');
-      query = {
-        $or: [
-          { 'name.en': { $regex: searchRegex } },
-          { 'name.es': { $regex: searchRegex } },
-          { 'name.pt': { $regex: searchRegex } },
-          { konami_id: isNaN(Number(search)) ? undefined : Number(search) }
-        ].filter(Boolean)
-      };
-    }
-    
+    if (id) query._id = id;
+    if (name_en) query['name.en'] = name_en;
+    if (name_es) query['name.es'] = name_es;
+    if (name_pt) query['name.pt'] = name_pt;
+
     const rushes = await Rush.paginate(query, options);
     res.status(200).send(rushes);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send(err);
   }
 };
 
