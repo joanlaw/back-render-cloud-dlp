@@ -25,6 +25,7 @@ import leaguesRouter from './routes/leagues.routes.js';
 import authRoutes from './routes/authRoutes.js';
 import duelsRouter from './routes/duels.routes.js';
 import clansRouter from './routes/clans.routes.js';  // Importa el nuevo router de clanes
+import rushRouter from './routes/rush.route.js';
 
 
 import { discordLogin } from './controllers/authController.js';  // Importa la función discordLogin
@@ -105,6 +106,7 @@ app.use(arquetiposRoutes);
 app.use(leaguesRouter);
 app.use(authRoutes); // Esto agregará las rutas de autenticación /
 app.use(duelsRouter);
+app.use(rushRouter);
 app.use(authenticateJWT, clansRouter);
 
 
