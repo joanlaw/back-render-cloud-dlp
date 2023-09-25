@@ -13,8 +13,8 @@ export const createRush = async (req, res) => {
 
 export const getRushes = async (req, res) => {
   try {
-    const { page = 1, size = 50, search = '', konami_id = '' } = req.query;
-
+    const { page = 1, size = 50, search = '', konami_id = '', id, name_en, name_es, name_pt } = req.query;
+    
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(size, 10)
@@ -31,6 +31,11 @@ export const getRushes = async (req, res) => {
         { konami_id: konamiIdNumber ? konamiIdNumber : { $exists: true } }
       ]
     };
+    
+    if (id) query._id = id;
+    if (name_en) query['name.en'] = name_en;
+    if (name_es) query['name.es'] = name_es;
+    if (name_pt) query['name.pt'] = name_pt;
 
     const rushes = await Rush.paginate(query, options);
     res.status(200).send(rushes);
@@ -38,6 +43,7 @@ export const getRushes = async (req, res) => {
     res.status(500).send(err);
   }
 };
+
 
 
 export const getRushById = async (req, res) => {
@@ -50,7 +56,7 @@ export const getRushById = async (req, res) => {
   }
 };
 
-export const getRushByParams = async (req, res) => {
+/*export const getRushByParams = async (req, res) => {
   try {
     const { id, konami_id, name_en, name_es, name_pt } = req.query;
     
@@ -71,7 +77,7 @@ export const getRushByParams = async (req, res) => {
     res.status(500).send(err);
   }
 };
-
+*/
 
 export const updateRush = async (req, res) => {
   try {
