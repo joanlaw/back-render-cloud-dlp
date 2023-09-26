@@ -1,5 +1,6 @@
 import Rush from '../models/rush.model.js';
 import mongoose from 'mongoose';
+import fs from 'fs-extra'
 
 export const createRush = async (req, res) => {
   try {
@@ -62,9 +63,15 @@ export const updateRush = async (req, res) => {
     const { id } = req.params;
     let updatedFields = { ...req.body };
 
+    console.log('Files:', req.files); // Imprime los archivos que se reciben
+    console.log('Body:', req.body); // Imprime el cuerpo de la solicitud
+
     // Verifica si hay una imagen para cargar y procesar
     if (req.files?.image) {
+      console.log('Uploading image...'); // Imprime un mensaje antes de cargar la imagen
       const result = await uploadImage(req.files.image.tempFilePath);
+      console.log('Image uploaded:', result); // Imprime los detalles de la imagen cargada
+      
       updatedFields.image = {
         public_id: result.public_id,
         secure_url: result.secure_url
@@ -76,9 +83,11 @@ export const updateRush = async (req, res) => {
     if (!rush) return res.status(404).send('Rush not found');
     res.status(200).send(rush);
   } catch (err) {
+    console.error('Error:', err); // Imprime detalles de cualquier error que ocurra
     res.status(400).send(err);
   }
 };
+
 
 
 export const deleteRush = async (req, res) => {
