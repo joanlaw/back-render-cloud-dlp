@@ -1,5 +1,6 @@
 import Rush from '../models/rush.model.js';
 import mongoose from 'mongoose';
+import { uploadImage, deleteImage } from '../utils/cloudinary.js'
 import fs from 'fs-extra'
 
 export const createRush = async (req, res) => {
