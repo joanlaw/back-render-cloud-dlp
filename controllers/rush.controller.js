@@ -60,13 +60,26 @@ export const getRushById = async (req, res) => {
 export const updateRush = async (req, res) => {
   try {
     const { id } = req.params;
-    const rush = await Rush.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    let updatedFields = { ...req.body };
+
+    // Verifica si hay una imagen para cargar y procesar
+    if (req.files?.image) {
+      const result = await uploadImage(req.files.image.tempFilePath);
+      updatedFields.image = {
+        public_id: result.public_id,
+        secure_url: result.secure_url
+      };
+      await fs.unlink(req.files.image.tempFilePath);
+    }
+
+    const rush = await Rush.findByIdAndUpdate(id, updatedFields, { new: true, runValidators: true });
     if (!rush) return res.status(404).send('Rush not found');
     res.status(200).send(rush);
   } catch (err) {
     res.status(400).send(err);
   }
 };
+
 
 export const deleteRush = async (req, res) => {
   try {
