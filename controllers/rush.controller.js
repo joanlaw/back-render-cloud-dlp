@@ -40,11 +40,22 @@ export const getRushes = async (req, res) => {
     if (name_pt) query['name.pt'] = name_pt;
 
     const rushes = await Rush.paginate(query, options);
-    res.status(200).send(rushes);
+    
+    // Modificar la respuesta para excluir el campo public_id de la imagen
+    const modifiedRushes = rushes.docs.map(rush => {
+      const modifiedRush = rush.toObject(); // Convertir el documento de Mongoose a un objeto plano
+      if(modifiedRush.image) {
+        delete modifiedRush.image.public_id; // Eliminar el campo public_id del objeto de imagen
+      }
+      return modifiedRush;
+    });
+    
+    res.status(200).send({...rushes, docs: modifiedRushes});
   } catch (err) {
     res.status(500).send(err);
   }
 };
+
 
 
 
@@ -52,11 +63,18 @@ export const getRushById = async (req, res) => {
   try {
     const rush = await Rush.findById(req.params.id);
     if (!rush) return res.status(404).send('Rush not found');
-    res.status(200).send(rush);
+    
+    const modifiedRush = rush.toObject();
+    if(modifiedRush.image) {
+      delete modifiedRush.image.public_id;
+    }
+    
+    res.status(200).send(modifiedRush);
   } catch (err) {
     res.status(500).send(err);
   }
 };
+
 
 
 export const updateRush = async (req, res) => {
