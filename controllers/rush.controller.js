@@ -82,6 +82,10 @@ export const updateRush = async (req, res) => {
     const { id } = req.params;
     let updatedFields = { ...req.body };
 
+    // Verifica si el Rush con el ID especificado existe
+    const existingRush = await Rush.findById(id);
+    if (!existingRush) return res.status(404).send('Rush not found');
+
     console.log('Files:', req.files); // Imprime los archivos que se reciben
     console.log('Body:', req.body); // Imprime el cuerpo de la solicitud
 
@@ -90,7 +94,7 @@ export const updateRush = async (req, res) => {
       console.log('Uploading image...'); // Imprime un mensaje antes de cargar la imagen
       const result = await uploadImage(req.files.image.tempFilePath);
       console.log('Image uploaded:', result); // Imprime los detalles de la imagen cargada
-      
+
       updatedFields.image = {
         public_id: result.public_id,
         secure_url: result.secure_url
@@ -98,14 +102,16 @@ export const updateRush = async (req, res) => {
       await fs.unlink(req.files.image.tempFilePath);
     }
 
+    // Procede con la actualización si el Rush existe
     const rush = await Rush.findByIdAndUpdate(id, updatedFields, { new: true, runValidators: true });
-    if (!rush) return res.status(404).send('Rush not found');
     res.status(200).send(rush);
+
   } catch (err) {
     console.error('Error:', err); // Imprime detalles de cualquier error que ocurra
     res.status(400).send(err);
   }
 };
+
 
 
 
