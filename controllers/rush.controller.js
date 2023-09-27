@@ -136,8 +136,10 @@ export const deleteRush = async (req, res) => {
 
 export const getRushByValue = async (req, res) => {
   try {
+    console.log('getRushByValue called'); // Log when method is called
     const { value } = req.params;
-
+    console.log('Value:', value); // Log the value parameter
+    
     // Build a query with an OR condition for each field we want to search by
     const query = {
       $or: [
@@ -146,23 +148,28 @@ export const getRushByValue = async (req, res) => {
         { 'name.pt': { $regex: new RegExp(value, 'i') } },
       ]
     };
-
+    
     // Try to convert the value to a number to search by konami_id
     const konamiIdNumber = parseInt(value, 10);
     if (!isNaN(konamiIdNumber)) query.$or.push({ konami_id: konamiIdNumber });
 
     // Also add the value as an ObjectID to search by _id
     if (mongoose.Types.ObjectId.isValid(value)) query.$or.push({ _id: value });
-
+    
+    console.log('Query:', query); // Log the constructed query
+    
     // Execute the query and send the response
     // Exclude the public_id from the response
     const rush = await Rush.findOne(query).select('-image.public_id');
+    console.log('Found Rush:', rush); // Log the found rush
+    
     if (!rush) return res.status(404).send('Rush not found');
     res.status(200).send(rush);
 
   } catch (err) {
-    console.error(err);
+    console.error('Error in getRushByValue:', err); // Log any error that occurs
     res.status(500).send('Internal Server Error');
   }
 };
+
 
