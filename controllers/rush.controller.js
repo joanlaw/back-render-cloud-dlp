@@ -81,20 +81,19 @@ export const updateRush = async (req, res) => {
   try {
     const { id } = req.params;
     let updatedFields = { ...req.body };
-
+    
     // Verifica si el Rush con el ID especificado existe
     const existingRush = await Rush.findById(id);
     if (!existingRush) return res.status(404).send('Rush not found');
-
-    console.log('Files:', req.files); // Imprime los archivos que se reciben
-    console.log('Body:', req.body); // Imprime el cuerpo de la solicitud
-
-    // Verifica si hay una imagen para cargar y procesar
+    
+    // Si hay una imagen para cargar y procesar
     if (req.files?.image) {
-      console.log('Uploading image...'); // Imprime un mensaje antes de cargar la imagen
+      // Si ya existe una imagen, elimínala
+      if (existingRush.image?.public_id) {
+        await deleteImage(existingRush.image.public_id);
+      }
+      
       const result = await uploadImage(req.files.image.tempFilePath);
-      console.log('Image uploaded:', result); // Imprime los detalles de la imagen cargada
-
       updatedFields.image = {
         public_id: result.public_id,
         secure_url: result.secure_url
@@ -102,16 +101,18 @@ export const updateRush = async (req, res) => {
       await fs.unlink(req.files.image.tempFilePath);
     }
 
-    // Procede con la actualización si el Rush existe
     const rush = await Rush.findByIdAndUpdate(id, updatedFields, { new: true, runValidators: true });
-    res.status(200).send(rush);
-
+    const modifiedRush = rush.toObject();
+    if(modifiedRush.image) {
+      delete modifiedRush.image.public_id;
+    }
+    res.status(200).send(modifiedRush);
+    
   } catch (err) {
-    console.error('Error:', err); // Imprime detalles de cualquier error que ocurra
+    console.error('Error:', err);
     res.status(400).send(err);
   }
 };
-
 
 
 
@@ -120,17 +121,24 @@ export const deleteRush = async (req, res) => {
     const { id } = req.params;
     const rush = await Rush.findByIdAndDelete(id);
     if (!rush) return res.status(404).send('Rush not found');
+    
+    // If there is an associated image, delete it
+    if(rush.image?.public_id) {
+      await deleteImage(rush.image.public_id);
+    }
+    
     res.status(200).send({ message: 'Rush deleted successfully' });
   } catch (err) {
     res.status(500).send(err);
   }
 };
 
+
 export const getRushByValue = async (req, res) => {
   try {
     const { value } = req.params;
-    
-    // Comenzamos construyendo una consulta con una condición OR para cada campo por el que deseamos buscar
+
+    // Build a query with an OR condition for each field we want to search by
     const query = {
       $or: [
         { 'name.en': { $regex: new RegExp(value, 'i') } },
@@ -138,16 +146,17 @@ export const getRushByValue = async (req, res) => {
         { 'name.pt': { $regex: new RegExp(value, 'i') } },
       ]
     };
-    
-    // Intentamos convertir el valor a un número para buscar por konami_id
+
+    // Try to convert the value to a number to search by konami_id
     const konamiIdNumber = parseInt(value, 10);
     if (!isNaN(konamiIdNumber)) query.$or.push({ konami_id: konamiIdNumber });
-    
-    // También añadimos el valor como un ObjectID para buscar por _id
+
+    // Also add the value as an ObjectID to search by _id
     if (mongoose.Types.ObjectId.isValid(value)) query.$or.push({ _id: value });
-    
-    // Ejecutamos la consulta y enviamos la respuesta
-    const rush = await Rush.findOne(query);
+
+    // Execute the query and send the response
+    // Exclude the public_id from the response
+    const rush = await Rush.findOne(query).select('-image.public_id');
     if (!rush) return res.status(404).send('Rush not found');
     res.status(200).send(rush);
 
@@ -156,3 +165,4 @@ export const getRushByValue = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
