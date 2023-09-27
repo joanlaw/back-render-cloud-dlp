@@ -86,6 +86,17 @@ export const updateRush = async (req, res) => {
     const existingRush = await Rush.findById(id);
     if (!existingRush) return res.status(404).send('Rush not found');
     
+    // Parsea los campos que son objetos
+    ['name', 'requirement', 'effect', 'summoning_condition'].forEach(field => {
+      if (updatedFields[field] && typeof updatedFields[field] === 'string') {
+        try {
+          updatedFields[field] = JSON.parse(updatedFields[field]);
+        } catch (err) {
+          console.error(`Error parsing field ${field}:`, err);
+        }
+      }
+    });
+
     // Si hay una imagen para cargar y procesar
     if (req.files?.image) {
       // Si ya existe una imagen, elimínala
