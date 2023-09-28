@@ -208,6 +208,9 @@ export const calculateCardCost = async (req, res) => {
           estimatedCost /= 2;
         }
 
+        // Redondear el costo estimado al múltiplo de 50 más cercano.
+        estimatedCost = Math.round(estimatedCost / 50) * 50;
+
         return {
           cardId,
           boxId: box._id,
