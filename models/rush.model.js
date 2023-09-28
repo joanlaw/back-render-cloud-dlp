@@ -28,6 +28,10 @@ const RushSchema = new mongoose.Schema({
   series: [String],
   legend: Boolean,
   rarity: String,
+  limited: {
+    type: Number,
+    default: 0, // Establece el valor predeterminado en 0
+  },
   summoning_condition: {
     en: String,
     es: String,

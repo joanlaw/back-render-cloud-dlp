@@ -104,6 +104,11 @@ export const updateRush = async (req, res) => {
       updatedFields.rarity = req.body.rarity;
     }
 
+    // Actualiza el campo limited si se proporciona en el cuerpo de la solicitud
+    if (req.body.limited !== undefined) {
+      updatedFields.limited = req.body.limited;
+    }
+
     // Si hay una imagen para cargar y procesar
     if (req.files?.image) {
       // Si ya existe una imagen, elimínala
@@ -134,6 +139,7 @@ export const updateRush = async (req, res) => {
     res.status(400).send(err);
   }
 };
+
 
 
 
