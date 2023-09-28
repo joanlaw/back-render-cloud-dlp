@@ -201,13 +201,20 @@ export const calculateCardCost = async (req, res) => {
         const deck = { ur: 0, sr: 0, r: 0, n: 0 };
         deck[rarity.toLowerCase()] = 1;
 
+        let estimatedCost = monte_carlo_simulation(deck, box.tipo_de_box);
+
+        // Si la caja es de tipo "mini box", reducimos el costo estimado a la mitad.
+        if (box.tipo_de_box === "mini box") {
+          estimatedCost /= 2;
+        }
+
         return {
           cardId,
           boxId: box._id,
           boxName: box.nombre,
           boxType: box.tipo_de_box,
           rarity,
-          estimatedCost: monte_carlo_simulation(deck, box.tipo_de_box)
+          estimatedCost
         };
       }));
 
@@ -241,37 +248,19 @@ export const calculateCardCost = async (req, res) => {
       }
     }
 
-      // Calcular el costo total estimado modificado
-      const modifiedTotalEstimatedCost = allCosts.reduce((acc, curr) => acc + curr.estimatedCost, 0);
+    // Calcular el costo total estimado modificado
+    const modifiedTotalEstimatedCost = allCosts.reduce((acc, curr) => acc + curr.estimatedCost, 0);
 
-      return res.json({
-        cards: allCosts,
-        totalEstimatedCost: modifiedTotalEstimatedCost
-      });
+    return res.json({
+      cards: allCosts,
+      totalEstimatedCost: modifiedTotalEstimatedCost
+    });
 
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-
-function getCardRarityInBox(cardId, box) {
-  if (!box) {
-    return 'Unknown';
-  }
-
-  if (box.cartas_ur && box.cartas_ur.some(card => card._id === cardId)) {
-    return 'UR';
-  } else if (box.cartas_sr && box.cartas_sr.some(card => card._id === cardId)) {
-    return 'SR';
-  } else if (box.cartas_r && box.cartas_r.some(card => card._id === cardId)) {
-    return 'R';
-  } else if (box.cartas_n && box.cartas_n.some(card => card._id === cardId)) {
-    return 'N';
-  } else {
-    return 'Unknown';
-  }
-}
 
 
 // Función de simulación de Monte Carlo adaptada
