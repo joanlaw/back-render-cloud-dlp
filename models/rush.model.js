@@ -27,6 +27,7 @@ const RushSchema = new mongoose.Schema({
   property: String,
   series: [String],
   legend: Boolean,
+  rareza: String,
   summoning_condition: {
     en: String,
     es: String,
