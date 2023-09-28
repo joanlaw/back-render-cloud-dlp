@@ -80,14 +80,14 @@ export const getRushById = async (req, res) => {
 export const updateRush = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Verifica si el Rush con el ID especificado existe
     const existingRush = await Rush.findById(id);
     if (!existingRush) return res.status(404).send('Rush not found');
-    
+
     // Combinar los campos actualizados con los campos existentes del Rush
     let updatedFields = { ...existingRush.toObject(), ...req.body };
-    
+
     // Parsea los campos que son objetos
     ['name', 'requirement', 'effect', 'summoning_condition'].forEach(field => {
       if (updatedFields[field] && typeof updatedFields[field] === 'string') {
@@ -99,13 +99,18 @@ export const updateRush = async (req, res) => {
       }
     });
 
+    // Actualiza la rareza si se proporciona en el cuerpo de la solicitud
+    if (req.body.rarity) {
+      updatedFields.rarity = req.body.rarity;
+    }
+
     // Si hay una imagen para cargar y procesar
     if (req.files?.image) {
       // Si ya existe una imagen, elimínala
       if (existingRush.image?.public_id) {
         await deleteImage(existingRush.image.public_id);
       }
-      
+
       const result = await uploadImage(req.files.image.tempFilePath);
       updatedFields.image = {
         public_id: result.public_id,
@@ -115,20 +120,21 @@ export const updateRush = async (req, res) => {
     }
 
     const rush = await Rush.findByIdAndUpdate(id, updatedFields, { new: true, runValidators: true });
-    
+
     // Elimina el campo public_id de la imagen antes de enviar la respuesta
     const modifiedRush = rush.toObject();
     if (modifiedRush.image) {
       delete modifiedRush.image.public_id;
     }
-    
+
     res.status(200).send(modifiedRush);
-    
+
   } catch (err) {
     console.error('Error:', err);
     res.status(400).send(err);
   }
 };
+
 
 
 
