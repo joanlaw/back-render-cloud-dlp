@@ -5,8 +5,9 @@ import {
   updateRush,
   deleteRush,
   //getRushById,
-  getRushByValue
+  getRushByValue,
   //getRushByParams
+  getFilteredRushesByRarity
 } from '../controllers/rush.controller.js';
 //import fileUpload from 'express-fileupload';
 
@@ -15,6 +16,7 @@ const router = Router();
 import fileUpload from 'express-fileupload'
 
 router.get('/rushes', getRushes);
+router.get('/filteredRush', getFilteredRushesByRarity);
 //router.get('/rushes', getRushByParams);
 router.post('/rushes', createRush);
 /*router.post('/rushes', fileUpload({

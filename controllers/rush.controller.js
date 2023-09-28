@@ -56,6 +56,34 @@ export const getRushes = async (req, res) => {
   }
 };
 
+export const getFilteredRushesByRarity = async (req, res) => {
+  try {
+    const { page = 1, size = 50, search = '' } = req.query;
+
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(size, 10)
+    };
+
+    // Filtro para incluir solo "rushes" con valor en el campo 'rarity'
+    const query = {
+      $and: [
+        {
+          $or: [
+            { 'name.en': { $regex: search, $options: 'i' } },
+            { 'name.es': { $regex: search, $options: 'i' } }
+          ]
+        },
+        { rarity: { $exists: true, $ne: null, $ne: '' } }
+      ]
+    };
+
+    const rushes = await Rush.paginate(query, options);
+    res.send(rushes);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 
 
