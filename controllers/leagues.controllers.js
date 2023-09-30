@@ -6,6 +6,7 @@ import ChatRoom from '../models/ChatRoom.model.js';
 import ChatMessage from '../models/ChatMessage.model.js';
 import uploadToImgbb from '../utils/imgbb.js';
 import PlayerDeck from '../models/playerDeck.model.js';
+import moment from 'moment-timezone'; // Importa moment-timezone
 
 
 // METODO GET/
@@ -87,10 +88,14 @@ export const createLeague = async (req, res) => {
       image = await uploadToImgbb(req.file.path);
     }
 
+    // Convertir y formatear la fecha a la zona horaria de Ciudad de México
+    const mexicoCityTimezone = 'America/Mexico_City';
+    start_date = moment(start_date).tz(mexicoCityTimezone).format();
+
     const league = new League({
       league_name,
       league_format,
-      start_date: new Date(start_date),
+      start_date, // Almacenamos la fecha ya convertida y formateada
       image: {
         url: image.url // Utiliza solo la URL de la imagen
       },

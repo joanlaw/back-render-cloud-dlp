@@ -23,6 +23,7 @@
     "form-data": "^4.0.0",
     "fs-extra": "^10.1.0",
     "jsonwebtoken": "^9.0.1",
+    "moment-timezone": "^0.5.43",
     "mongoose": "^6.5.1",
     "mongoose-paginate-v2": "^1.7.1",
     "morgan": "^1.10.0",
