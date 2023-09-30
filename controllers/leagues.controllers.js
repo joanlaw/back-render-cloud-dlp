@@ -9,7 +9,7 @@ import PlayerDeck from '../models/playerDeck.model.js';
 import moment from 'moment-timezone'; // Importa moment-timezone
 
 
-// METODO GET/
+// METODO GET
 export const getLeagues = async (req, res) => {
   try {
     const { page = 1, size = 50, search = '' } = req.query;
@@ -26,8 +26,11 @@ export const getLeagues = async (req, res) => {
 
     const leagues = await League.paginate(query, options);
 
+    // Convertir la fecha de inicio a la zona horaria de Ciudad de México
+    const mexicoCityTimezone = 'America/Mexico_City';
+
     // Obtener los usernames de los jugadores y reemplazar los IDs
-    const leaguesWithUsernames = await Promise.all(
+    const leaguesWithUsernamesAndConvertedDates = await Promise.all(
       leagues.docs.map(async league => {
         const playersWithUsernames = await Promise.all(
           league.players.map(async playerId => {
@@ -36,19 +39,23 @@ export const getLeagues = async (req, res) => {
           })
         );
 
+        // Convertir la fecha de inicio de cada liga
+        const convertedStartDate = moment(league.start_date).tz(mexicoCityTimezone).format();
+
         return {
           ...league.toObject(),
+          start_date: convertedStartDate, // Reemplaza la fecha de inicio original con la convertida
           players: playersWithUsernames
         };
       })
     );
 
-    res.send({ ...leagues, docs: leaguesWithUsernames });
+    res.send({ ...leagues, docs: leaguesWithUsernamesAndConvertedDates });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 // METODO GET por ID
 export const getLeagueById = async (req, res) => {
@@ -65,7 +72,6 @@ export const getLeagueById = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 
 // METODO POST
 // METODO POST
@@ -88,14 +94,10 @@ export const createLeague = async (req, res) => {
       image = await uploadToImgbb(req.file.path);
     }
 
-    // Convertir y formatear la fecha a la zona horaria de Ciudad de México
-    const mexicoCityTimezone = 'America/Mexico_City';
-    start_date = moment(start_date).tz(mexicoCityTimezone).format();
-
     const league = new League({
       league_name,
       league_format,
-      start_date, // Almacenamos la fecha ya convertida y formateada
+      start_date: new Date(start_date),
       image: {
         url: image.url // Utiliza solo la URL de la imagen
       },
