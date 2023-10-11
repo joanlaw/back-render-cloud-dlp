@@ -5,47 +5,46 @@ import uploadToImgbb from '../utils/imgbb.js';
 
 // Crear un nuevo clan
 export const createClan = async (req, res) => {
-  console.log("Recibida solicitud para crear un clan");  // Log para saber si la función fue llamada
-  console.log("Cuerpo de la solicitud:", req.body);  // Log para inspeccionar el cuerpo de la solicitud
+  console.log("Recibida solicitud para crear un clan");
+  console.log("Cuerpo de la solicitud:", req.body);
 
-  const { name, creator } = req.body;  // Aquí cambié "creatorId" a "creator" para coincidir con el cuerpo de la solicitud
+  const { name, creator } = req.body;
 
   // Verifica que el _id exista en la base de datos de usuarios
   const user = await User.findById(creator);
   if (!user) {
     return res.status(400).json({ message: "Usuario no encontrado" });
   }
+  if (user.hasCreatedClan) {
+    return res.status(400).json({ message: "Este usuario ya ha creado un clan" });
+  }
 
   let logoUrl;
   if (req.file) {
     // Validación del tipo de archivo
     if (req.file.mimetype === 'image/jpeg' || req.file.mimetype === 'image/png') {
-      logoUrl = await uploadToImgbb(req.file.path);  // uploadToImgbb devuelve una URL
+      logoUrl = await uploadToImgbb(req.file.path);
     } else {
       return res.status(400).json({ message: 'Formato de imagen no soportado. Solo se aceptan JPEG y PNG.' });
     }
   }
 
-  // Validaciones adicionales aquí
   const newClan = new Clan({
     name,
-    creator: user._id,  // Asegurarse de que sea el _id
-    logoUrl: logoUrl ? logoUrl.url : null  // Aquí se asigna la URL de la imagen
+    creator: user._id,
+    logoUrl: logoUrl ? logoUrl.url : null
   });
-
-  console.log("Nuevo objeto de clan:", newClan);  // Log para inspeccionar el nuevo objeto de clan
-  console.log("Objeto newClan antes de guardar:", newClan); // Nuevo log para depuración
 
   try {
     const savedClan = await newClan.save();
-    console.log("Clan guardado con éxito:", savedClan);  // Log para inspeccionar el clan guardado
+    user.hasCreatedClan = true;
+    await user.save();
     res.status(201).json(savedClan);
   } catch (error) {
-    console.error("Error al guardar el clan:", error.message);  // Log para errores
+    console.error("Error al guardar el clan:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
-
 
 
 // Obtener todos los clanes
@@ -103,27 +102,53 @@ export const updateClan = async (req, res) => {
 // Eliminar un clan
 export const deleteClan = async (req, res) => {
   const { id } = req.params;
+
   try {
+    const clanToDelete = await Clan.findById(id);
+    if (!clanToDelete) {
+      return res.status(404).json({ message: 'Clan no encontrado' });
+    }
+
+    // Limpiamos la referencia de clanId para cada miembro del clan
+    await User.updateMany({ _id: { $in: clanToDelete.members } }, { $set: { clanId: null } });
+
+    // Revertir el flag hasCreatedClan del creador a false
+    const creator = await User.findById(clanToDelete.creator);
+    if (creator) {
+      creator.hasCreatedClan = false;
+      await creator.save();
+    }
+
+    // Finalmente, eliminamos el clan
     await Clan.findByIdAndDelete(id);
+
     res.json({ message: 'Clan eliminado' });
   } catch (error) {
+    console.error('Error al eliminar el clan:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
+
 // Añadir un miembro al clan
 export const addMemberToClan = async (req, res) => {
-  const { memberIds } = req.body; // Obtiene los memberIds del cuerpo de la petición
-  const { id: clanId } = req.params; // Obtiene el clanId de los parámetros de la ruta
-  
+  const { memberIds } = req.body;
+  const { id: clanId } = req.params;
+
   if (!clanId || !memberIds || !Array.isArray(memberIds) || memberIds.length === 0) {
     return res.status(400).json({ message: 'clanId y memberIds son requeridos' });
+  }
+
+  // Check if members already belong to a clan
+  const membersToAdd = await User.find({ _id: { $in: memberIds }, clanId: null });
+  if (membersToAdd.length !== memberIds.length) {
+    return res.status(400).json({ message: "Algunos miembros ya pertenecen a un clan" });
   }
 
   try {
     const updatedClan = await Clan.findByIdAndUpdate(
       clanId,
-      { $addToSet: { members: { $each: memberIds } } }, // Añade múltiples memberIds únicos
+      { $addToSet: { members: { $each: memberIds } } },
       { new: true }
     );
     
@@ -131,8 +156,12 @@ export const addMemberToClan = async (req, res) => {
       return res.status(404).json({ message: 'Clan no encontrado' });
     }
 
-    return res.json(updatedClan);
+    for (let user of membersToAdd) {
+      user.clanId = clanId;
+      await user.save();
+    }
 
+    return res.json(updatedClan);
   } catch (error) {
     console.error('Error adding members to clan:', error);
     return res.status(500).json({ message: error.message });
@@ -141,32 +170,41 @@ export const addMemberToClan = async (req, res) => {
 
 
 
+
 // Eliminar un miembro del clan
 export const removeMemberFromClan = async (req, res) => {
-  const { id: clanId } = req.params; // Obtener clanId de los parámetros de la ruta
-  const { memberId } = req.body; // Obtener memberId del cuerpo de la solicitud
-  
-  if(!clanId || !memberId) {
+  const { id: clanId } = req.params;
+  const { memberId } = req.body;
+
+  if (!clanId || !memberId) {
     return res.status(400).json({ message: 'clanId y memberId son requeridos' });
   }
 
   try {
+    const memberToRemove = await User.findById(memberId);
+    if (!memberToRemove) {
+      return res.status(404).json({ message: "Miembro no encontrado" });
+    }
+    memberToRemove.clanId = null;
+    await memberToRemove.save();
+
     const updatedClan = await Clan.findByIdAndUpdate(
       clanId,
       { $pull: { members: memberId } },
       { new: true }
     );
-    
-    if(!updatedClan) {
+
+    if (!updatedClan) {
       return res.status(404).json({ message: 'Clan no encontrado' });
     }
-    
+
     res.json(updatedClan);
   } catch (error) {
     console.error('Error removing member from clan:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 // Obtener miembros de un clan por su ID de clan
