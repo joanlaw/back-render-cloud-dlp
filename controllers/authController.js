@@ -134,3 +134,26 @@ export const updateUserPoints = (req, res) => {
     });
 };
 
+
+export const updateUserIdDL = (req, res) => {
+  const { discordId, ID_DL } = req.body;
+
+  // Puedes añadir una validación para asegurarte de que el ID_DL tenga el formato correcto
+
+  User.findOneAndUpdate({ discordId: discordId }, { ID_DL: ID_DL }, { new: true })
+    .then(updatedUser => {
+      res.json({
+        success: true,
+        message: 'ID_DL actualizado exitosamente',
+        updatedUser,
+      });
+    })
+    .catch(err => {
+      console.error('Error actualizando el ID_DL del usuario', err);
+      res.status(500).json({
+        success: false,
+        message: 'Error actualizando el ID_DL del usuario',
+      });
+    });
+};
+
