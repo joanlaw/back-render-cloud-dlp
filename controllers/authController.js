@@ -136,11 +136,11 @@ export const updateUserPoints = (req, res) => {
 
 
 export const updateUserIdDL = (req, res) => {
-  const { discordId, ID_DL } = req.body;
+  const { _id, ID_DL } = req.body; // Aquí cambiamos discordId por _id
 
   // Puedes añadir una validación para asegurarte de que el ID_DL tenga el formato correcto
 
-  User.findOneAndUpdate({ discordId: discordId }, { ID_DL: ID_DL }, { new: true })
+  User.findOneAndUpdate({ _id: _id }, { ID_DL: ID_DL }, { new: true })
     .then(updatedUser => {
       res.json({
         success: true,
@@ -156,4 +156,5 @@ export const updateUserIdDL = (req, res) => {
       });
     });
 };
+
 
