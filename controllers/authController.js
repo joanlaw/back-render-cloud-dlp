@@ -80,6 +80,8 @@ export const getUserInfo = (req, res) => {
       image: req.user.avatar,
       username: req.user.username,
       puntos: req.user.puntos,
+      ID_DL: req.user.ID_DL,  // Añadir ID_DL del usuario
+      clanId: req.user.clanId  // Añadir el clanId del usuario
     });
   } else {
     res.json({
