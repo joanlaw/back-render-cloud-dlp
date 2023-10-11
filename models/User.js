@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
       },
       message: props => `${props.value} no es un ID_DL válido!`
     },
-    required: [true, 'El ID_DL es requerido']
+    required: [false, 'El ID_DL es requerido']
   }  
 }, { timestamps: true, collection: 'users' }); // Aquí especificas el nombre de la colección
 
