@@ -34,25 +34,27 @@ dotenv.config();
 
 const app = express();
 
+// Lista de origenes permitidos
 const allowedOrigins = [
   'https://duellinks.pro',
   'https://panel.duellinks.pro',
   'http://localhost:3000',
   'https://backend-dlp-neuronube.koyeb.app'
-  // Agrega aquí más dominios permitidos
 ];
 
-// Agrega el middleware de CORS
+// Middlewares
+app.use(morgan('dev'));
 app.use(cors({
   origin: allowedOrigins,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 }));
-
-
-app.use(morgan('dev'));
-
-app.use(express.json({ limit: '3mb' })); // Establece el límite a 3MB
+app.use(express.json({ limit: '3mb' }));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+}));
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -111,21 +113,17 @@ app.use(rushRouter);
 app.use(authenticateJWT, clansRouter);
 
 
-app.use((req, res) => {
-  res.status(404).send("Not Found");
-});
-
-//Midleware 404 
+// Manejadores de errores
 app.use((req, res, next) => {
   const error = new Error("Not Found");
   error.status = 404;
   next(error);
 });
 
-//Midleware 500
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ error: 'Internal Server Error' });
+  const status = err.status || 500;
+  res.status(status).json({ error: err.message || 'Internal Server Error' });
 });
 
 export default app;
