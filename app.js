@@ -38,7 +38,7 @@ const allowedOrigins = [
   'https://duellinks.pro',
   'https://panel.duellinks.pro',
   'http://localhost:3000',
-  'http://localhost:3001'
+  'https://backend-dlp-neuronube.koyeb.app'
   // Agrega aquí más dominios permitidos
 ];
 
