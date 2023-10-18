@@ -35,26 +35,12 @@ dotenv.config();
 const app = express();
 
 // Lista de origenes permitidos
-const allowedOrigins = [
-  'https://duellinks.pro',
-  'https://panel.duellinks.pro',
-  'http://localhost:3000',
-  'https://backend-dlp-neuronube.koyeb.app'
-];
-
-// Middlewares
-app.use(morgan('dev'));
 app.use(cors({
-  origin: allowedOrigins,
+  origin: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   credentials: true,
 }));
-app.use(express.json({ limit: '3mb' }));
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-}));
+
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
