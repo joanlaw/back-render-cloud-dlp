@@ -38,6 +38,7 @@ const allowedOrigins = [
   'https://duellinks.pro',
   'https://panel.duellinks.pro',
   'http://localhost:3000',
+  'http://localhost:3001'
   // Agrega aquí más dominios permitidos
 ];
 
