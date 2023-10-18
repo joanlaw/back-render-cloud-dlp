@@ -46,7 +46,7 @@ const allowedOrigins = [
 app.use(morgan('dev'));
 app.use(cors({
   origin: allowedOrigins,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTIONS',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   credentials: true,
 }));
 app.use(express.json({ limit: '3mb' }));
